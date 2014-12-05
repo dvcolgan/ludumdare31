@@ -25,7 +25,7 @@ PlayState = (function(_super) {
 
   PlayState.prototype.create = function() {
     window.controller = this;
-    this.game.stage.backgroundColor = '#ffffff';
+    this.game.stage.backgroundColor = '#c0ffee';
     return this.game.time.advancedTiming = G.DEBUG;
   };
 

@@ -24,7 +24,7 @@ class PlayState extends Phaser.State
         #@game.camera.x -= Math.floor(@game.stage.width/2)
         #@game.camera.y -= Math.floor(@game.stage.height/2)
 
-        @game.stage.backgroundColor = '#ffffff'
+        @game.stage.backgroundColor = '#c0ffee'
         @game.time.advancedTiming = G.DEBUG
 
         #@group1 = @game.add.group()
