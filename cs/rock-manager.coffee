@@ -44,11 +44,8 @@ module.exports = class RockManager
         tweenY.onComplete.add(damageEnemies)
         tweenY.onComplete.add =>
             @game.add.tween(rock).to({alpha: 0}, 1000, Phaser.Easing.Linear.In).start()
-            
-        tweenY.start()
 
-        rock.update = ->
-            console.log(rock.x, rock.y)
+        tweenY.start()
 
         @availableRocks--
 
