@@ -38,6 +38,7 @@ class PlayState extends Phaser.State
             secret: @game.physics.p2.createCollisionGroup()
             tower: @game.physics.p2.createCollisionGroup()
             enemy: @game.physics.p2.createCollisionGroup()
+        @game.physics.p2.updateBoundsCollisionGroup()
 
         window.controller = @
 
@@ -53,12 +54,6 @@ class PlayState extends Phaser.State
         @secret = new Secret(@game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT/2)
 
         @loseOverlay = new LoseOverlay(@game)
-
-        #@group1 = @game.add.group()
-        #@group2 = @game.add.group()
-
-        #@group1.add(sprite)
-        #@group2.add(sprite)
 
         # TODO: Dynamically pass in framerate (should this stay hardcoded to 60?)
         # TODO: Dynamically pass in difficulty.

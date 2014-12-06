@@ -11,8 +11,7 @@ class Enemy extends Phaser.Sprite
         @body.addCircle(@width/2)
         @body.setCollisionGroup(game.collisionGroups.enemy)
         @body.collides([
-            game.collisionGroups.enemy, game.collisionGroups.tower, game.collisionGroups.secret,
-            game.physics.p2.boundsCollisionGroup
+            game.collisionGroups.enemy, game.collisionGroups.tower, game.collisionGroups.secret
         ])
 
         game.add.existing(@)

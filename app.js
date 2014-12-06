@@ -59,7 +59,7 @@ Enemy = (function(_super) {
     this.body.clearShapes();
     this.body.addCircle(this.width / 2);
     this.body.setCollisionGroup(game.collisionGroups.enemy);
-    this.body.collides([game.collisionGroups.enemy, game.collisionGroups.tower, game.collisionGroups.secret, game.physics.p2.boundsCollisionGroup]);
+    this.body.collides([game.collisionGroups.enemy, game.collisionGroups.tower, game.collisionGroups.secret]);
     game.add.existing(this);
   }
 
@@ -169,6 +169,7 @@ PlayState = (function(_super) {
       tower: this.game.physics.p2.createCollisionGroup(),
       enemy: this.game.physics.p2.createCollisionGroup()
     };
+    this.game.physics.p2.updateBoundsCollisionGroup();
     window.controller = this;
     this.background = this.game.add.image(0, 0, 'background');
     this.background.inputEnabled = true;
