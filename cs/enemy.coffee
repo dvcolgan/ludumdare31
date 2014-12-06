@@ -2,25 +2,25 @@ G = require('./constants')
 
 
 class Enemy extends Phaser.Sprite
-    constructor: (game, x, y, key) ->
+    constructor: (game, x, y, key) =>
         super(game, x, y, key)
 
-    update: ->
+    update: =>
         console.log(x, y)
 
 
 module.exports = class EnemyFactory
-    constructor: (@game) ->
+    constructor: (@game) =>
 
-    preload: ->
+    preload: =>
         @game.load.image('enemy-small', 'assets/enemy-small.png')
         @game.load.image('enemy-medium', 'assets/enemy-medium.png')
         @game.load.image('enemy-large', 'assets/enemy-large.png')
 
-    getY: ->
+    getY: =>
         return @game.rnd.integerInRange(0, G.SCREEN_HEIGHT)
 
-    createSmall: ->
+    createSmall: =>
         enemy = @game.add.sprite(0, @getY(), 'enemy-small')
         enemy.anchor.setTo(0.5, 0.5)
         @game.physics.p2.enable(enemy, G.DEBUG)
@@ -29,7 +29,7 @@ module.exports = class EnemyFactory
         enemy.body.addCircle(enemy.width/2)
         return enemy
 
-    createMedium: ->
+    createMedium: =>
         enemy = @game.add.sprite(100, @getY(), 'enemy-medium')
         enemy.anchor.setTo(0.5, 0.5)
         @game.physics.p2.enable(enemy, G.DEBUG)
@@ -39,7 +39,7 @@ module.exports = class EnemyFactory
         enemy.body.moveRight(300)
         return enemy
 
-    createLarge: ->
+    createLarge: =>
         enemy = new Enemy(@game, 0, @getY(), 'enemy-large')
         enemy.anchor.setTo(0.5, 0.5)
         @game.physics.p2.enable(enemy, G.DEBUG)
