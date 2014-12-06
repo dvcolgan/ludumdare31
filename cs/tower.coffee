@@ -4,6 +4,7 @@ G = require('./constants')
 class Tower extends Phaser.Sprite
     constructor: (game, x, y, key, @cooldown, @range, @damage) ->
         super(game, x, y, key)
+        game.add.existing(@)
 
         @inputEnabled = true
         @events.onInputDown.add(@handleClick, @)
@@ -14,9 +15,9 @@ class Tower extends Phaser.Sprite
         @body.kinematic = yes
         @body.setCollisionGroup(@game.collisionGroups.tower)
         @body.collides([@game.collisionGroups.enemy])
+        game.groups.tower.add(@)
         #@body.createGroupCallback(@game.collisionGroups.enemy, @onEnemyTouch)
 
-        game.add.existing(@)
 
         # Number of frames before
         @cooldownRemaining = 0

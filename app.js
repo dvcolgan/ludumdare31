@@ -2,6 +2,11 @@
 module.exports = {
   SCREEN_WIDTH: 960,
   SCREEN_HEIGHT: 540,
+  events: {
+    onGameOver: new Phaser.Signal(),
+    onEnemyKilled: new Phaser.Signal(),
+    onStoreItemPurchased: new Phaser.Signal()
+  },
   DEBUG: false
 };
 
@@ -199,46 +204,54 @@ PlayState = (function(_super) {
   };
 
   PlayState.prototype.create = function() {
+    this.game.time.advancedTiming = G.DEBUG;
     this.game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT);
     this.game.camera.x = 0;
     this.boughtItem = null;
-    G.events = {
-      onGameOver: new Phaser.Signal(),
-      onEnemyKilled: new Phaser.Signal()
-    };
-    this.game.physics.startSystem(Phaser.Physics.P2JS);
-    this.game.physics.p2.setImpactEvents(true);
     this.game.groups = {};
     this.game.groups.background = this.game.add.group();
     this.game.groups.tower = this.game.add.group();
     this.game.groups.enemy = this.game.add.group();
     this.game.groups.overlay = this.game.add.group();
-    this.store = new Store(this.game, this.towerFactory);
+    this.game.physics.startSystem(Phaser.Physics.P2JS);
+    this.game.physics.p2.setImpactEvents(true);
+    this.game.physics.p2.setBounds(-200, 64, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT - 64);
     this.game.collisionGroups = {
       secret: this.game.physics.p2.createCollisionGroup(),
       tower: this.game.physics.p2.createCollisionGroup(),
       enemy: this.game.physics.p2.createCollisionGroup()
     };
     this.game.physics.p2.updateBoundsCollisionGroup();
+    this.stats = new Stats(this.game);
+    this.store = new Store(this.game, this.towerFactory, this.stats);
     window.controller = this;
     this.background = this.game.add.image(0, 0, 'background');
     this.background.inputEnabled = true;
     this.game.groups.background.add(this.background);
-    this.stats = new Stats(this.game);
-    this.game.time.advancedTiming = G.DEBUG;
     this.secret = new Secret(this.game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT / 2);
     this.loseOverlay = new LoseOverlay(this.game);
     this.gameDifficulty = 3;
     this.enemySpawner = new EnemySpawner(this.enemyFactory, 60, this.gameDifficulty);
     this.background.events.onInputDown.add(this.handlePointerDown);
-    return G.events.onGameOver.add(this.handleGameOver);
+    G.events.onGameOver.add(this.handleGameOver);
+    return G.events.onStoreItemPurchased.add(this.handleStoreItemPurchased);
+  };
+
+  PlayState.prototype.handleStoreItemPurchased = function(itemData) {
+    return this.boughtItem = itemData;
   };
 
   PlayState.prototype.handlePointerDown = function(image, pointer) {
     if (this.loseOverlay.isVisible()) {
       return;
     }
-    return this.towerFactory.createAoe(pointer.x, pointer.y);
+    if (this.store.state === 'down') {
+      return;
+    }
+    if (this.boughtItem) {
+      this.towerFactory[this.boughtItem.data.createFn](400, 400);
+      return this.boughtItem = null;
+    }
   };
 
   PlayState.prototype.handleGameOver = function() {
@@ -313,6 +326,7 @@ module.exports = Secret = (function(_super) {
     this.onEnemyTouch = __bind(this.onEnemyTouch, this);
     Secret.__super__.constructor.call(this, game, x, y, 'secret');
     game.add.existing(this);
+    game.groups.tower.add(this);
     this.anchor.setTo(0.5, 0.5);
     game.physics.p2.enable(this, G.DEBUG);
     this.body.kinematic = true;
@@ -355,6 +369,16 @@ module.exports = Stats = (function() {
     G.events.onEnemyKilled.add(this.handleEnemyKilled);
   }
 
+  Stats.prototype.addGold = function(amount) {
+    this.gold += amount;
+    return this.updateText();
+  };
+
+  Stats.prototype.subtractGold = function(amount) {
+    this.gold -= amount;
+    return this.updateText();
+  };
+
   Stats.prototype.handleEnemyKilled = function(enemy) {
     switch (enemy.key) {
       case 'enemy-small':
@@ -383,8 +407,10 @@ module.exports = Stats = (function() {
 
 
 },{"./constants":1}],8:[function(require,module,exports){
-var Store, TowerFactory, forSaleItems,
+var G, Store, TowerFactory, forSaleItems,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+G = require('./constants');
 
 TowerFactory = require('./tower');
 
@@ -397,10 +423,12 @@ forSaleItems = {
 };
 
 module.exports = Store = (function() {
-  function Store(game, towerFactory) {
+  function Store(game, towerFactory, stats) {
     this.game = game;
     this.towerFactory = towerFactory;
+    this.stats = stats;
     this.toggleStore = __bind(this.toggleStore, this);
+    this.handleClickOnForSaleItem = __bind(this.handleClickOnForSaleItem, this);
     this.overlay = this.game.add.sprite(0, -474, 'store-overlay');
     this.overlay.inputEnabled = true;
     this.game.groups.overlay.add(this.overlay);
@@ -416,16 +444,23 @@ module.exports = Store = (function() {
   }
 
   Store.prototype.addForSaleItem = function(itemData) {
-    var item;
+    var item, slot;
+    slot = this.game.add.sprite(200, 100, 'store-slot');
+    slot.anchor.setTo(0.5, 0.5);
     item = this.game.add.sprite(200, 100, itemData.imageKey);
+    item.anchor.setTo(0.5, 0.5);
+    this.overlay.addChild(slot);
     this.overlay.addChild(item);
     item.inputEnabled = true;
+    item.input.priorityID = 1;
     item.events.onInputDown.add(this.handleClickOnForSaleItem);
     return item.data = itemData;
   };
 
   Store.prototype.handleClickOnForSaleItem = function(item) {
-    return this.towerFactory[item.data.createFn]();
+    this.stats.subtractGold(item.data.cost);
+    G.events.onStoreItemPurchased.dispatch(item.data);
+    return this.toggleStore();
   };
 
   Store.prototype.toggleStore = function() {
@@ -444,7 +479,7 @@ module.exports = Store = (function() {
 
 
 
-},{"./tower":9}],9:[function(require,module,exports){
+},{"./constants":1,"./tower":9}],9:[function(require,module,exports){
 var G, Tower, TowerFactory,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -464,6 +499,7 @@ Tower = (function(_super) {
     this.decreaseCooldownRemaining = __bind(this.decreaseCooldownRemaining, this);
     this.update = __bind(this.update, this);
     Tower.__super__.constructor.call(this, game, x, y, key);
+    game.add.existing(this);
     this.inputEnabled = true;
     this.events.onInputDown.add(this.handleClick, this);
     this.anchor.setTo(0.5, 0.5);
@@ -473,7 +509,7 @@ Tower = (function(_super) {
     this.body.kinematic = true;
     this.body.setCollisionGroup(this.game.collisionGroups.tower);
     this.body.collides([this.game.collisionGroups.enemy]);
-    game.add.existing(this);
+    game.groups.tower.add(this);
     this.cooldownRemaining = 0;
   }
 
