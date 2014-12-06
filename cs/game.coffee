@@ -29,6 +29,8 @@ class PlayState extends Phaser.State
         @game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT)
         @game.camera.x = 0
 
+        @boughtItem = null
+
         @game.events =
             onGameOver: new Phaser.Signal()
             onEnemyKilled: new Phaser.Signal()
@@ -41,7 +43,7 @@ class PlayState extends Phaser.State
         @game.groups.tower = @game.add.group()
         @game.groups.enemy = @game.add.group()
         @game.groups.overlay = @game.add.group()
-        @store = new Store(@game)
+        @store = new Store(@game, @towerFactory)
 
         @game.collisionGroups =
             secret: @game.physics.p2.createCollisionGroup()

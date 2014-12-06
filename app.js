@@ -162,6 +162,7 @@ PlayState = (function(_super) {
   PlayState.prototype.create = function() {
     this.game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT);
     this.game.camera.x = 0;
+    this.boughtItem = null;
     this.game.events = {
       onGameOver: new Phaser.Signal(),
       onEnemyKilled: new Phaser.Signal()
@@ -173,7 +174,7 @@ PlayState = (function(_super) {
     this.game.groups.tower = this.game.add.group();
     this.game.groups.enemy = this.game.add.group();
     this.game.groups.overlay = this.game.add.group();
-    this.store = new Store(this.game);
+    this.store = new Store(this.game, this.towerFactory);
     this.game.collisionGroups = {
       secret: this.game.physics.p2.createCollisionGroup(),
       tower: this.game.physics.p2.createCollisionGroup(),
@@ -347,12 +348,23 @@ module.exports = Stats = (function() {
 
 
 },{"./constants":1}],8:[function(require,module,exports){
-var Store,
+var Store, TowerFactory, forSaleItems,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
+TowerFactory = require('./tower');
+
+forSaleItems = {
+  towerAoe: {
+    createFn: 'createAoe',
+    imageKey: 'tower-aoe',
+    cost: 10
+  }
+};
+
 module.exports = Store = (function() {
-  function Store(game) {
+  function Store(game, towerFactory) {
     this.game = game;
+    this.towerFactory = towerFactory;
     this.toggleStore = __bind(this.toggleStore, this);
     this.overlay = this.game.add.sprite(0, -474, 'store-overlay');
     this.overlay.inputEnabled = true;
@@ -365,7 +377,21 @@ module.exports = Store = (function() {
     }, 700, Phaser.Easing.Bounce.Out);
     this.overlay.events.onInputDown.add(this.toggleStore);
     this.state = 'up';
+    this.addForSaleItem(forSaleItems.towerAoe);
   }
+
+  Store.prototype.addForSaleItem = function(itemData) {
+    var item;
+    item = this.game.add.sprite(200, 100, itemData.imageKey);
+    this.overlay.addChild(item);
+    item.inputEnabled = true;
+    item.events.onInputDown.add(this.handleClickOnForSaleItem);
+    return item.data = itemData;
+  };
+
+  Store.prototype.handleClickOnForSaleItem = function(item) {
+    return this.towerFactory[item.data.createFn]();
+  };
 
   Store.prototype.toggleStore = function() {
     if (this.state === 'up') {
@@ -383,7 +409,7 @@ module.exports = Store = (function() {
 
 
 
-},{}],9:[function(require,module,exports){
+},{"./tower":9}],9:[function(require,module,exports){
 var G, Tower, TowerFactory,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
