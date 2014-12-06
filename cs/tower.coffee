@@ -39,7 +39,6 @@ class Tower extends Phaser.Sprite
             ctx.beginPath()
             remaining = @cooldown - @cooldownRemaining / @cooldown
             ctx.arc(width/2, height/2, @width/2 + 4, remaining * Math.PI * 2 - Math.PI/2, -Math.PI/2)
-            console.log(remaining * Math.PI * 2)
             ctx.stroke()
             ctx.closePath()
         @cooldownMeterData.render()

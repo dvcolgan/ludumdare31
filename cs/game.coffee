@@ -15,9 +15,7 @@ class PlayState extends Phaser.State
         @game.load.image('secret', 'assets/secret.png')
         @game.load.image('tower', 'assets/tower.png')
 
-        @game.load.image('enemy-small', 'assets/enemy-small.png')
         @game.load.image('enemy-medium', 'assets/enemy-medium.png')
-        @game.load.image('enemy-large', 'assets/enemy-large.png')
 
         @game.load.image('tower-aoe', 'assets/tower.png')
 

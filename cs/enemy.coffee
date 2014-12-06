@@ -26,6 +26,10 @@ class Enemy extends Phaser.Sprite
         @addChild @healthText
 
     update: () =>
+        if Math.random() < 1 / 60
+            @health++
+            @healthText.text = @health
+
         @pointAtSecret(@secret)
 
     pointAtSecret: (secret) =>
@@ -70,20 +74,7 @@ module.exports = class EnemyFactory
     getY: =>
         return @game.rnd.integerInRange(0, G.SCREEN_HEIGHT)
 
-    createSmall: =>
-        enemy = new Enemy(
-            @game
-            @towerGroup
-            @secret
-            0
-            @getY()
-            'enemy-small'
-            10
-        )
-        @game.groups.enemy.add(enemy)
-        return enemy
-
-    createMedium: =>
+    createEnemy: =>
         enemy = new Enemy(
             @game
             @towerGroup
@@ -91,20 +82,7 @@ module.exports = class EnemyFactory
             0
             @getY()
             'enemy-medium'
-            20
-        )
-        @game.groups.enemy.add(enemy)
-        return enemy
-
-    createLarge: =>
-        enemy = new Enemy(
-            @game
-            @towerGroup
-            @secret
-            0
-            @getY()
-            'enemy-large'
-            30
+            10
         )
         @game.groups.enemy.add(enemy)
         return enemy
