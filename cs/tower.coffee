@@ -18,6 +18,8 @@ class Tower extends Phaser.Sprite
 
         game.add.existing(@)
 
+        game.groups.tower.add(@)
+
         # Number of frames before
         @cooldownRemaining = 0
 

@@ -3,6 +3,7 @@ EnemySpawner = require('./enemy-spawner')
 EnemyFactory = require('./enemy')
 TowerFactory = require('./tower')
 LoseOverlay = require('./lose-overlay')
+Store = require('./store')
 Secret = require('./secret')
 Stats = require('./stats')
 
@@ -20,6 +21,9 @@ class PlayState extends Phaser.State
         @towerFactory.preload()
 
         @game.load.image('lose-overlay', 'assets/lose-overlay.png')
+        @game.load.image('store-overlay', 'assets/store-overlay.png')
+        @game.load.image('store-slot', 'assets/store-slot.png')
+
 
 
     create: ->
@@ -33,6 +37,12 @@ class PlayState extends Phaser.State
         @game.physics.startSystem(Phaser.Physics.P2JS)
         @game.physics.p2.setImpactEvents(true)
 
+        @game.groups = {}
+        @game.groups.background = @game.add.group()
+        @game.groups.tower = @game.add.group()
+        @game.groups.enemy = @game.add.group()
+        @game.groups.overlay = @game.add.group()
+        @store = new Store(@game)
 
         @game.collisionGroups =
             secret: @game.physics.p2.createCollisionGroup()
@@ -45,16 +55,15 @@ class PlayState extends Phaser.State
         @background = @game.add.image(0, 0, 'background')
         @background.inputEnabled = true
 
+        @game.groups.background.add(@background)
         @stats = new Stats(@game)
-
-        @game.groups =
-            enemy: @game.add.group()
 
         @game.time.advancedTiming = G.DEBUG
 
         @secret = new Secret(@game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT/2)
 
         @loseOverlay = new LoseOverlay(@game)
+
 
         # TODO: Dynamically pass in framerate (should this stay hardcoded to 60?)
         @gameDifficulty = 3
