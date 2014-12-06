@@ -151,6 +151,8 @@ PlayState = (function(_super) {
   PlayState.prototype.create = function() {
     this.game.physics.startSystem(Phaser.Physics.P2JS);
     this.game.physics.p2.setImpactEvents(true);
+    this.game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT);
+    this.game.camera.x = 0;
     this.groups = {
       enemy: this.game.physics.p2.createCollisionGroup()
     };

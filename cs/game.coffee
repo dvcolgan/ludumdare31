@@ -16,6 +16,10 @@ class PlayState extends Phaser.State
     create: ->
         @game.physics.startSystem(Phaser.Physics.P2JS)
         @game.physics.p2.setImpactEvents(true)
+        
+        @game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT)
+        @game.camera.x = 0
+
         @groups =
             #player: @game.physics.p2.createCollisionGroup()
             #bullet: @game.physics.p2.createCollisionGroup()
@@ -61,11 +65,6 @@ class PlayState extends Phaser.State
         #pointerIsDown = @game.input.mousePointer?.isDown or @game.input.pointer1?.isDown
         #pointerX = @game.input.x
         #pointerY = @game.input.y
-
-        #if @cursors.up.isDown then @game.camera.y += 5
-        #if @cursors.down.isDown then @game.camera.y -= 5
-        #if @cursors.left.isDown then @game.camera.x += 5
-        #if @cursors.right.isDown then @game.camera.x -= 5
 
         @enemySpawner.update()
 
