@@ -16,6 +16,14 @@ module.exports = class Stats
 
         G.events.onEnemyKilled.add(@handleEnemyKilled)
 
+    addGold: (amount) ->
+        @gold += amount
+        @updateText()
+
+    subtractGold: (amount) ->
+        @gold -= amount
+        @updateText()
+
     handleEnemyKilled: (enemy) =>
 
         switch enemy.key

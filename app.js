@@ -2,6 +2,11 @@
 module.exports = {
   SCREEN_WIDTH: 960,
   SCREEN_HEIGHT: 540,
+  events: {
+    onGameOver: new Phaser.Signal(),
+    onEnemyKilled: new Phaser.Signal(),
+    onStoreItemPurchased: new Phaser.Signal()
+  },
   DEBUG: false
 };
 
@@ -27,7 +32,7 @@ module.exports = EnemySpawner = (function() {
   }
 
   EnemySpawner.prototype.calculateProbability = function() {
-    return this.frameProbability = 0.2 / this.framerate * this.difficulty;
+    return this.frameProbability = 0.1 / this.framerate * this.difficulty;
   };
 
   EnemySpawner.prototype.update = function() {
@@ -192,11 +197,11 @@ PlayState = (function(_super) {
   function PlayState() {
     this.render = __bind(this.render, this);
     this.update = __bind(this.update, this);
+    this.handleStoreItemPurchased = __bind(this.handleStoreItemPurchased, this);
     this.handleGameOver = __bind(this.handleGameOver, this);
     this.handlePointerDownOnBackground = __bind(this.handlePointerDownOnBackground, this);
     this.initializeEnemySpawner = __bind(this.initializeEnemySpawner, this);
     this.initializeBackground = __bind(this.initializeBackground, this);
-    this.initializeEvents = __bind(this.initializeEvents, this);
     this.initializeGroups = __bind(this.initializeGroups, this);
     this.initializePhysicsEngine = __bind(this.initializePhysicsEngine, this);
     this.initializeGame = __bind(this.initializeGame, this);
@@ -223,15 +228,15 @@ PlayState = (function(_super) {
     this.initializeGame();
     this.initializePhysicsEngine();
     this.initializeGroups();
-    this.initializeEvents();
     this.game.physics.p2.updateBoundsCollisionGroup();
-    this.store = new Store(this.game);
-    this.initializeBackground();
     this.stats = new Stats(this.game);
+    this.store = new Store(this.game, this.towerFactory, this.stats);
+    this.initializeBackground();
     this.secret = new Secret(this.game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT / 2);
     this.loseOverlay = new LoseOverlay(this.game);
     this.initializeEnemySpawner();
-    return G.events.onGameOver.add(this.handleGameOver);
+    G.events.onGameOver.add(this.handleGameOver);
+    return G.events.onStoreItemPurchased.add(this.handleStoreItemPurchased);
   };
 
   PlayState.prototype.initializeGame = function() {
@@ -244,7 +249,8 @@ PlayState = (function(_super) {
 
   PlayState.prototype.initializePhysicsEngine = function() {
     this.game.physics.startSystem(Phaser.Physics.P2JS);
-    return this.game.physics.p2.setImpactEvents(true);
+    this.game.physics.p2.setImpactEvents(true);
+    return this.game.physics.p2.setBounds(-200, 64, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT - 64);
   };
 
   PlayState.prototype.initializeGroups = function() {
@@ -258,13 +264,6 @@ PlayState = (function(_super) {
       secret: this.game.physics.p2.createCollisionGroup(),
       tower: this.game.physics.p2.createCollisionGroup(),
       enemy: this.game.physics.p2.createCollisionGroup()
-    };
-  };
-
-  PlayState.prototype.initializeEvents = function() {
-    return G.events = {
-      onGameOver: new Phaser.Signal(),
-      onEnemyKilled: new Phaser.Signal()
     };
   };
 
@@ -282,14 +281,18 @@ PlayState = (function(_super) {
   };
 
   PlayState.prototype.handlePointerDownOnBackground = function(image, pointer) {
-    if (this.loseOverlay.isVisible()) {
-      return;
+    if (this.boughtItem) {
+      this.towerFactory[this.boughtItem.createFn](pointer.x, pointer.y);
+      return this.boughtItem = null;
     }
-    return this.towerFactory.createAoe(pointer.x, pointer.y);
   };
 
   PlayState.prototype.handleGameOver = function() {
     return this.loseOverlay.show(this.stats.score);
+  };
+
+  PlayState.prototype.handleStoreItemPurchased = function(itemData) {
+    return this.boughtItem = itemData;
   };
 
   PlayState.prototype.update = function() {
@@ -360,6 +363,7 @@ module.exports = Secret = (function(_super) {
     this.onEnemyTouch = __bind(this.onEnemyTouch, this);
     Secret.__super__.constructor.call(this, game, x, y, 'secret');
     game.add.existing(this);
+    game.groups.tower.add(this);
     this.anchor.setTo(0.5, 0.5);
     game.physics.p2.enable(this, G.DEBUG);
     this.body.kinematic = true;
@@ -402,6 +406,16 @@ module.exports = Stats = (function() {
     G.events.onEnemyKilled.add(this.handleEnemyKilled);
   }
 
+  Stats.prototype.addGold = function(amount) {
+    this.gold += amount;
+    return this.updateText();
+  };
+
+  Stats.prototype.subtractGold = function(amount) {
+    this.gold -= amount;
+    return this.updateText();
+  };
+
   Stats.prototype.handleEnemyKilled = function(enemy) {
     switch (enemy.key) {
       case 'enemy-small':
@@ -430,13 +444,28 @@ module.exports = Stats = (function() {
 
 
 },{"./constants":1}],8:[function(require,module,exports){
-var Store,
+var G, Store, TowerFactory, forSaleItems,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
+G = require('./constants');
+
+TowerFactory = require('./tower');
+
+forSaleItems = {
+  towerAoe: {
+    createFn: 'createAoe',
+    imageKey: 'tower-aoe',
+    cost: 10
+  }
+};
+
 module.exports = Store = (function() {
-  function Store(game) {
+  function Store(game, towerFactory, stats) {
     this.game = game;
+    this.towerFactory = towerFactory;
+    this.stats = stats;
     this.toggleStore = __bind(this.toggleStore, this);
+    this.handleClickOnForSaleItem = __bind(this.handleClickOnForSaleItem, this);
     this.overlay = this.game.add.sprite(0, -474, 'store-overlay');
     this.overlay.inputEnabled = true;
     this.game.groups.overlay.add(this.overlay);
@@ -448,7 +477,28 @@ module.exports = Store = (function() {
     }, 700, Phaser.Easing.Bounce.Out);
     this.overlay.events.onInputDown.add(this.toggleStore);
     this.state = 'up';
+    this.addForSaleItem(forSaleItems.towerAoe);
   }
+
+  Store.prototype.addForSaleItem = function(itemData) {
+    var item, slot;
+    slot = this.game.add.sprite(200, 100, 'store-slot');
+    slot.anchor.setTo(0.5, 0.5);
+    item = this.game.add.sprite(200, 100, itemData.imageKey);
+    item.anchor.setTo(0.5, 0.5);
+    this.overlay.addChild(slot);
+    this.overlay.addChild(item);
+    item.inputEnabled = true;
+    item.input.priorityID = 1;
+    item.events.onInputDown.add(this.handleClickOnForSaleItem);
+    return item.data = itemData;
+  };
+
+  Store.prototype.handleClickOnForSaleItem = function(item) {
+    this.stats.subtractGold(item.data.cost);
+    G.events.onStoreItemPurchased.dispatch(item.data);
+    return this.toggleStore();
+  };
 
   Store.prototype.toggleStore = function() {
     if (this.state === 'up') {
@@ -466,7 +516,7 @@ module.exports = Store = (function() {
 
 
 
-},{}],9:[function(require,module,exports){
+},{"./constants":1,"./tower":9}],9:[function(require,module,exports){
 var G, Tower, TowerFactory,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -486,6 +536,7 @@ Tower = (function(_super) {
     this.decreaseCooldownRemaining = __bind(this.decreaseCooldownRemaining, this);
     this.update = __bind(this.update, this);
     Tower.__super__.constructor.call(this, game, x, y, key);
+    game.add.existing(this);
     this.inputEnabled = true;
     this.events.onInputDown.add(this.handleClick, this);
     this.anchor.setTo(0.5, 0.5);
@@ -495,7 +546,7 @@ Tower = (function(_super) {
     this.body.kinematic = true;
     this.body.setCollisionGroup(this.game.collisionGroups.tower);
     this.body.collides([this.game.collisionGroups.enemy]);
-    game.add.existing(this);
+    game.groups.tower.add(this);
     this.cooldownRemaining = 0;
   }
 

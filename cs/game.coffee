@@ -33,18 +33,18 @@ class PlayState extends Phaser.State
         @initializeGame()
         @initializePhysicsEngine()
         @initializeGroups()
-        @initializeEvents()
 
         @game.physics.p2.updateBoundsCollisionGroup()
 
-        @store = new Store(@game)
-        @initializeBackground()
         @stats = new Stats(@game)
+        @store = new Store(@game, @towerFactory, @stats)
+        @initializeBackground()
         @secret = new Secret(@game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT/2)
         @loseOverlay = new LoseOverlay(@game)
         @initializeEnemySpawner()
 
         G.events.onGameOver.add(@handleGameOver)
+        G.events.onStoreItemPurchased.add(@handleStoreItemPurchased)
 
     initializeGame: () =>
         @game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT)
@@ -56,6 +56,7 @@ class PlayState extends Phaser.State
     initializePhysicsEngine: () =>
         @game.physics.startSystem(Phaser.Physics.P2JS)
         @game.physics.p2.setImpactEvents(true)
+        @game.physics.p2.setBounds(-200, 64, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT - 64)
 
     initializeGroups: () =>
         @game.groups =
@@ -64,15 +65,11 @@ class PlayState extends Phaser.State
             enemy: @game.add.group()
             overlay: @game.add.group()
 
+        # Initialize physics collision groups
         @game.collisionGroups =
             secret: @game.physics.p2.createCollisionGroup()
             tower: @game.physics.p2.createCollisionGroup()
             enemy: @game.physics.p2.createCollisionGroup()
-
-    initializeEvents: () =>
-        G.events =
-            onGameOver: new Phaser.Signal()
-            onEnemyKilled: new Phaser.Signal()
 
     initializeBackground: () =>
         @background = @game.add.image(0, 0, 'background')
@@ -86,11 +83,15 @@ class PlayState extends Phaser.State
 
 
     handlePointerDownOnBackground: (image, pointer) =>
-        if @loseOverlay.isVisible() then return
-        @towerFactory.createAoe(pointer.x, pointer.y)
+        if @boughtItem
+            @towerFactory[@boughtItem.createFn](pointer.x, pointer.y)
+            @boughtItem = null
 
     handleGameOver: =>
         @loseOverlay.show(@stats.score)
+
+    handleStoreItemPurchased: (itemData) =>
+        @boughtItem = itemData
 
     update: =>
         #pointerIsDown = @game.input.mousePointer?.isDown or @game.input.pointer1?.isDown
