@@ -1,5 +1,5 @@
 module.exports =
-    SCREEN_WIDTH: window.innerWidth
-    SCREEN_HEIGHT: window.innerHeight
+    SCREEN_WIDTH: 960
+    SCREEN_HEIGHT: 540
 
     DEBUG: false
