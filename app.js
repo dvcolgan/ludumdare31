@@ -561,10 +561,34 @@ Tower = (function(_super) {
     this.body.collides([this.game.collisionGroups.enemy]);
     game.groups.tower.add(this);
     this.cooldownRemaining = 0;
+    this.cooldownMeterData = game.add.bitmapData(this.width + 16, this.height + 16);
+    this.cooldownMeter = game.add.sprite(0, 0, this.cooldownMeterData);
+    this.cooldownMeter.anchor.setTo(0.5, 0.5);
+    this.addChild(this.cooldownMeter);
   }
 
+  Tower.prototype.makeCooldownMeter = function() {
+    var ctx, height, remaining, width;
+    this.cooldownMeterData.cls();
+    if (this.cooldownRemaining > 0) {
+      ctx = this.cooldownMeterData.context;
+      width = this.cooldownMeterData.width;
+      height = this.cooldownMeterData.height;
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      remaining = this.cooldown - this.cooldownRemaining / this.cooldown;
+      ctx.arc(width / 2, height / 2, this.width / 2 + 4, remaining * Math.PI * 2 - Math.PI / 2, -Math.PI / 2);
+      console.log(remaining * Math.PI * 2);
+      ctx.stroke();
+      ctx.closePath();
+    }
+    return this.cooldownMeterData.render();
+  };
+
   Tower.prototype.update = function() {
-    return this.decreaseCooldownRemaining();
+    this.decreaseCooldownRemaining();
+    return this.makeCooldownMeter();
   };
 
   Tower.prototype.decreaseCooldownRemaining = function() {

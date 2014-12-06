@@ -22,8 +22,31 @@ class Tower extends Phaser.Sprite
         # Number of frames before
         @cooldownRemaining = 0
 
+        @cooldownMeterData = game.add.bitmapData(@width + 16, @height + 16)
+        @cooldownMeter = game.add.sprite(0, 0, @cooldownMeterData)
+        @cooldownMeter.anchor.setTo(0.5, 0.5)
+        @addChild(@cooldownMeter)
+
+    makeCooldownMeter: ->
+        @cooldownMeterData.cls()
+        if @cooldownRemaining > 0
+            ctx = @cooldownMeterData.context
+            width = @cooldownMeterData.width
+            height = @cooldownMeterData.height
+
+            ctx.strokeStyle = 'black'
+            ctx.lineWidth = 8
+            ctx.beginPath()
+            remaining = @cooldown - @cooldownRemaining / @cooldown
+            ctx.arc(width/2, height/2, @width/2 + 4, remaining * Math.PI * 2 - Math.PI/2, -Math.PI/2)
+            console.log(remaining * Math.PI * 2)
+            ctx.stroke()
+            ctx.closePath()
+        @cooldownMeterData.render()
+
     update: () =>
         @decreaseCooldownRemaining()
+        @makeCooldownMeter()
 
     decreaseCooldownRemaining: () =>
 
