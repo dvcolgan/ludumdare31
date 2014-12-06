@@ -5,6 +5,18 @@ class Tower extends Phaser.Sprite
     constructor: (game, x, y, key) ->
         super(game, x, y, key)
 
+        # Number of frames before
+        @cooldown = 0
+
+    update: () =>
+        @decreaseCooldown()
+
+    decreaseCooldown: () =>
+        @cooldown -= 1
+
+    fire: () =>
+        return if cooldown > 0
+
 
 module.exports = class TowerFactory
     constructor: (@game) ->
