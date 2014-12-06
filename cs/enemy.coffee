@@ -4,9 +4,18 @@ G = require('./constants')
 class Enemy extends Phaser.Sprite
     constructor: (game, x, y, key) ->
         super(game, x, y, key)
-        game.add.existing(@)
 
-    update: =>
+        @anchor.setTo(0.5, 0.5)
+        game.physics.p2.enable(@, G.DEBUG)
+        @body.clearShapes()
+        @body.addCircle(@width/2)
+        @body.setCollisionGroup(game.groups.enemy)
+        @body.collides([
+            game.groups.enemy, game.groups.tower, game.groups.secret,
+            game.physics.p2.boundsCollisionGroup
+        ])
+
+        game.add.existing(@)
 
 
 module.exports = class EnemyFactory
@@ -22,24 +31,13 @@ module.exports = class EnemyFactory
 
     createSmall: =>
         enemy = new Enemy(@game, 0, @getY(), 'enemy-small')
-        enemy.anchor.setTo(0.5, 0.5)
-        @game.physics.p2.enable(enemy, G.DEBUG)
-        enemy.body.clearShapes()
-        enemy.body.addCircle(enemy.width/2)
         return enemy
 
     createMedium: =>
         enemy = new Enemy(@game, 0, @getY(), 'enemy-medium')
-        enemy.anchor.setTo(0.5, 0.5)
-        @game.physics.p2.enable(enemy, G.DEBUG)
-        enemy.body.clearShapes()
-        enemy.body.addCircle(enemy.width/2)
+        enemy.body.moveRight(300)
         return enemy
 
     createLarge: =>
         enemy = new Enemy(@game, 0, @getY(), 'enemy-large')
-        enemy.anchor.setTo(0.5, 0.5)
-        @game.physics.p2.enable(enemy, G.DEBUG)
-        enemy.body.clearShapes()
-        enemy.body.addCircle(enemy.width/2)
         return enemy

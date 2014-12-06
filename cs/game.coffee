@@ -1,7 +1,9 @@
 G = require('./constants')
 EnemySpawner = require('./enemy-spawner')
 EnemyFactory = require('./enemy')
+TowerFactory = require('./tower')
 Secret = require('./secret')
+
 
 
 class PlayState extends Phaser.State
@@ -12,17 +14,23 @@ class PlayState extends Phaser.State
 
         @enemyFactory = new EnemyFactory(@game)
         @enemyFactory.preload()
+        @towerFactory = new TowerFactory(@game)
+        @towerFactory.preload()
 
     create: ->
-        @game.physics.startSystem(Phaser.Physics.P2JS)
-        @game.physics.p2.setImpactEvents(true)
-        
         @game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT)
         @game.camera.x = 0
 
-        @groups =
-            #player: @game.physics.p2.createCollisionGroup()
-            #bullet: @game.physics.p2.createCollisionGroup()
+        @game.events =
+            onGameOver: new Phaser.Signal()
+
+        @game.physics.startSystem(Phaser.Physics.P2JS)
+        @game.physics.p2.setImpactEvents(true)
+        
+
+        @game.groups =
+            secret: @game.physics.p2.createCollisionGroup()
+            tower: @game.physics.p2.createCollisionGroup()
             enemy: @game.physics.p2.createCollisionGroup()
 
         window.controller = @
@@ -48,24 +56,21 @@ class PlayState extends Phaser.State
         @gameDifficulty = 1
         @enemySpawner = new EnemySpawner(@enemyFactory, 60, @gameDifficulty)
 
+        @game.input.onDown.add(@handlePointerDown)
+        @game.events.onGameOver.add(@handleGameOver)
 
-    #screenWrap: (sprite) =>
+    handlePointerDown: (coords) =>
+        @towerFactory.createAoe(coords.x, coords.y)
 
-    #    if sprite.body.x < -sprite.width/2
-    #        sprite.body.x = @game.width + sprite.width/2
-    #    else if sprite.body.x > @game.width + sprite.width/2
-    #        sprite.body.x = -sprite.width/2
+    handleGameOver: =>
+        alert("YOU LOSE")
 
-    #    if sprite.body.y < -sprite.height/2
-    #        sprite.body.y = @game.height + sprite.height/2
-    #    else if sprite.body.y > @game.height + sprite.height/2
-    #        sprite.body.y = -sprite.height/2
 
     update: ->
         #pointerIsDown = @game.input.mousePointer?.isDown or @game.input.pointer1?.isDown
         #pointerX = @game.input.x
         #pointerY = @game.input.y
-
+        
         @enemySpawner.update()
 
     render: ->
