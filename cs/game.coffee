@@ -12,6 +12,9 @@ class PlayState extends Phaser.State
         @game.load.image('secret', 'assets/secret.png')
         @game.load.image('tower', 'assets/tower.png')
 
+        @game.groups =
+            enemy: @game.add.group()
+
         @enemyFactory = new EnemyFactory(@game)
         @enemyFactory.preload()
         @towerFactory = new TowerFactory(@game)
@@ -26,9 +29,9 @@ class PlayState extends Phaser.State
 
         @game.physics.startSystem(Phaser.Physics.P2JS)
         @game.physics.p2.setImpactEvents(true)
-        
 
-        @game.groups =
+
+        @game.collisionGroups =
             secret: @game.physics.p2.createCollisionGroup()
             tower: @game.physics.p2.createCollisionGroup()
             enemy: @game.physics.p2.createCollisionGroup()
@@ -36,6 +39,7 @@ class PlayState extends Phaser.State
         window.controller = @
 
         @background = @game.add.image(0, 0, 'background')
+        @background.inputEnabled = true
 
         @game.time.advancedTiming = G.DEBUG
 
@@ -56,11 +60,11 @@ class PlayState extends Phaser.State
         @gameDifficulty = 1
         @enemySpawner = new EnemySpawner(@enemyFactory, 60, @gameDifficulty)
 
-        @game.input.onDown.add(@handlePointerDown)
+        @background.events.onInputDown.add(@handlePointerDown)
         @game.events.onGameOver.add(@handleGameOver)
 
-    handlePointerDown: (coords) =>
-        @towerFactory.createAoe(coords.x, coords.y)
+    handlePointerDown: (sprite, pointer) =>
+        @towerFactory.createAoe(pointer.x, pointer.y)
 
     handleGameOver: =>
         alert("YOU LOSE")

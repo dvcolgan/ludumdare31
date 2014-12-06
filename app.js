@@ -58,8 +58,8 @@ Enemy = (function(_super) {
     game.physics.p2.enable(this, G.DEBUG);
     this.body.clearShapes();
     this.body.addCircle(this.width / 2);
-    this.body.setCollisionGroup(game.groups.enemy);
-    this.body.collides([game.groups.enemy, game.groups.tower, game.groups.secret, game.physics.p2.boundsCollisionGroup]);
+    this.body.setCollisionGroup(game.collisionGroups.enemy);
+    this.body.collides([game.collisionGroups.enemy, game.collisionGroups.tower, game.collisionGroups.secret, game.physics.p2.boundsCollisionGroup]);
     game.add.existing(this);
   }
 
@@ -90,6 +90,7 @@ module.exports = EnemyFactory = (function() {
   EnemyFactory.prototype.createSmall = function() {
     var enemy;
     enemy = new Enemy(this.game, 0, this.getY(), 'enemy-small');
+    this.game.groups.enemy.add(enemy);
     return enemy;
   };
 
@@ -97,12 +98,14 @@ module.exports = EnemyFactory = (function() {
     var enemy;
     enemy = new Enemy(this.game, 0, this.getY(), 'enemy-medium');
     enemy.body.moveRight(300);
+    this.game.groups.enemy.add(enemy);
     return enemy;
   };
 
   EnemyFactory.prototype.createLarge = function() {
     var enemy;
     enemy = new Enemy(this.game, 0, this.getY(), 'enemy-large');
+    this.game.groups.enemy.add(enemy);
     return enemy;
   };
 
@@ -141,6 +144,9 @@ PlayState = (function(_super) {
     this.game.load.image('background', 'assets/background.png');
     this.game.load.image('secret', 'assets/secret.png');
     this.game.load.image('tower', 'assets/tower.png');
+    this.game.groups = {
+      enemy: this.game.add.group()
+    };
     this.enemyFactory = new EnemyFactory(this.game);
     this.enemyFactory.preload();
     this.towerFactory = new TowerFactory(this.game);
@@ -155,13 +161,14 @@ PlayState = (function(_super) {
     };
     this.game.physics.startSystem(Phaser.Physics.P2JS);
     this.game.physics.p2.setImpactEvents(true);
-    this.game.groups = {
+    this.game.collisionGroups = {
       secret: this.game.physics.p2.createCollisionGroup(),
       tower: this.game.physics.p2.createCollisionGroup(),
       enemy: this.game.physics.p2.createCollisionGroup()
     };
     window.controller = this;
     this.background = this.game.add.image(0, 0, 'background');
+    this.background.inputEnabled = true;
     this.game.time.advancedTiming = G.DEBUG;
     this.small = this.enemyFactory.createSmall();
     this.medium = this.enemyFactory.createMedium();
@@ -169,12 +176,12 @@ PlayState = (function(_super) {
     this.secret = new Secret(this.game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT / 2);
     this.gameDifficulty = 1;
     this.enemySpawner = new EnemySpawner(this.enemyFactory, 60, this.gameDifficulty);
-    this.game.input.onDown.add(this.handlePointerDown);
+    this.background.events.onInputDown.add(this.handlePointerDown);
     return this.game.events.onGameOver.add(this.handleGameOver);
   };
 
-  PlayState.prototype.handlePointerDown = function(coords) {
-    return this.towerFactory.createAoe(coords.x, coords.y);
+  PlayState.prototype.handlePointerDown = function(sprite, pointer) {
+    return this.towerFactory.createAoe(pointer.x, pointer.y);
   };
 
   PlayState.prototype.handleGameOver = function() {
@@ -217,9 +224,9 @@ module.exports = Secret = (function(_super) {
     this.body.kinematic = true;
     this.body.clearShapes();
     this.body.addCircle(this.width / 2);
-    this.body.setCollisionGroup(this.game.groups.secret);
-    this.body.collides([this.game.groups.enemy]);
-    this.body.createGroupCallback(this.game.groups.enemy, this.onEnemyTouch);
+    this.body.setCollisionGroup(this.game.collisionGroups.secret);
+    this.body.collides([this.game.collisionGroups.enemy]);
+    this.body.createGroupCallback(this.game.collisionGroups.enemy, this.onEnemyTouch);
   }
 
   Secret.prototype.onEnemyTouch = function() {
@@ -247,16 +254,19 @@ Tower = (function(_super) {
     this.cooldown = cooldown;
     this.range = range;
     this.fire = __bind(this.fire, this);
+    this.handleClick = __bind(this.handleClick, this);
     this.decreaseCooldownRemaining = __bind(this.decreaseCooldownRemaining, this);
     this.update = __bind(this.update, this);
     Tower.__super__.constructor.call(this, game, x, y, key);
+    this.inputEnabled = true;
+    this.events.onInputDown.add(this.handleClick, this);
     this.anchor.setTo(0.5, 0.5);
     game.physics.p2.enable(this, G.DEBUG);
     this.body.clearShapes();
     this.body.addCircle(this.width / 2);
     this.body.kinematic = true;
-    this.body.setCollisionGroup(this.game.groups.tower);
-    this.body.collides([this.game.groups.enemy]);
+    this.body.setCollisionGroup(this.game.collisionGroups.tower);
+    this.body.collides([this.game.collisionGroups.enemy]);
     game.add.existing(this);
     this.cooldownRemaining = 0;
   }
@@ -269,11 +279,18 @@ Tower = (function(_super) {
     return this.cooldownRemaining -= 1;
   };
 
+  Tower.prototype.handleClick = function() {
+    return this.fire();
+  };
+
   Tower.prototype.fire = function() {
     if (this.cooldownRemaining > 0) {
       return;
     }
-    return this.cooldown = this.cooldownRemaining;
+    this.game.groups.enemy.forEachAlive(function(enemy) {
+      return console.log(enemy);
+    });
+    return this.cooldownRemaining = this.cooldown;
   };
 
   return Tower;
