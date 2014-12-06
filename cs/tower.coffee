@@ -4,6 +4,7 @@ G = require('./constants')
 class Tower extends Phaser.Sprite
     constructor: (game, x, y, key, @cooldown, @range) ->
         super(game, x, y, key)
+        game.groups.tower.add(@)
 
         @inputEnabled = true
         @events.onInputDown.add(@handleClick, @)

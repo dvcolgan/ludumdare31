@@ -116,7 +116,7 @@ module.exports = EnemyFactory = (function() {
 
 
 },{"./constants":1}],4:[function(require,module,exports){
-var EnemyFactory, EnemySpawner, G, LoseOverlay, PlayState, Secret, TowerFactory,
+var EnemyFactory, EnemySpawner, G, LoseOverlay, PlayState, Secret, Store, TowerFactory,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -130,6 +130,8 @@ EnemyFactory = require('./enemy');
 TowerFactory = require('./tower');
 
 LoseOverlay = require('./lose-overlay');
+
+Store = require('./store');
 
 Secret = require('./secret');
 
@@ -150,7 +152,9 @@ PlayState = (function(_super) {
     this.enemyFactory.preload();
     this.towerFactory = new TowerFactory(this.game);
     this.towerFactory.preload();
-    return this.game.load.image('lose-overlay', 'assets/lose-overlay.png');
+    this.game.load.image('lose-overlay', 'assets/lose-overlay.png');
+    this.game.load.image('store-overlay', 'assets/store-overlay.png');
+    return this.game.load.image('store-slot', 'assets/store-slot.png');
   };
 
   PlayState.prototype.create = function() {
@@ -161,6 +165,11 @@ PlayState = (function(_super) {
     };
     this.game.physics.startSystem(Phaser.Physics.P2JS);
     this.game.physics.p2.setImpactEvents(true);
+    this.game.groups = {};
+    this.game.groups.background = this.game.add.group();
+    this.game.groups.tower = this.game.add.group();
+    this.game.groups.enemy = this.game.add.group();
+    this.game.groups.overlay = this.game.add.group();
     this.game.collisionGroups = {
       secret: this.game.physics.p2.createCollisionGroup(),
       tower: this.game.physics.p2.createCollisionGroup(),
@@ -170,15 +179,14 @@ PlayState = (function(_super) {
     window.controller = this;
     this.background = this.game.add.image(0, 0, 'background');
     this.background.inputEnabled = true;
-    this.game.groups = {
-      enemy: this.game.add.group()
-    };
+    this.game.groups.background.add(this.background);
     this.game.time.advancedTiming = G.DEBUG;
     this.small = this.enemyFactory.createSmall();
     this.medium = this.enemyFactory.createMedium();
     this.large = this.enemyFactory.createLarge();
     this.secret = new Secret(this.game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT / 2);
     this.loseOverlay = new LoseOverlay(this.game);
+    this.store = new Store(this.game);
     this.gameDifficulty = 1;
     this.enemySpawner = new EnemySpawner(this.enemyFactory, 60, this.gameDifficulty);
     this.background.events.onInputDown.add(this.handlePointerDown);
@@ -212,13 +220,14 @@ window.state = new Phaser.Game(G.SCREEN_WIDTH, G.SCREEN_HEIGHT, Phaser.AUTO, 'ga
 
 
 
-},{"./constants":1,"./enemy":3,"./enemy-spawner":2,"./lose-overlay":5,"./secret":6,"./tower":7}],5:[function(require,module,exports){
+},{"./constants":1,"./enemy":3,"./enemy-spawner":2,"./lose-overlay":5,"./secret":6,"./store":7,"./tower":8}],5:[function(require,module,exports){
 var LoseOverlay;
 
 module.exports = LoseOverlay = (function() {
   function LoseOverlay(game) {
     this.game = game;
     this.sprite = this.game.add.sprite(0, 0, 'lose-overlay');
+    this.game.groups.overlay.add(this.sprite);
     this.text = this.game.add.text(200, 200, 'You are the loseriest of losers.', {
       font: 'bold 20px Arial',
       fill: 'black',
@@ -264,6 +273,7 @@ module.exports = Secret = (function(_super) {
     this.onEnemyTouch = __bind(this.onEnemyTouch, this);
     Secret.__super__.constructor.call(this, game, x, y, 'secret');
     game.add.existing(this);
+    game.groups.tower.add(this);
     this.anchor.setTo(0.5, 0.5);
     game.physics.p2.enable(this, G.DEBUG);
     this.body.kinematic = true;
@@ -285,6 +295,43 @@ module.exports = Secret = (function(_super) {
 
 
 },{"./constants":1}],7:[function(require,module,exports){
+var Store,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+module.exports = Store = (function() {
+  function Store(game) {
+    this.game = game;
+    this.toggleStore = __bind(this.toggleStore, this);
+    this.overlay = this.game.add.sprite(0, -474, 'store-overlay');
+    this.overlay.inputEnabled = true;
+    this.game.groups.overlay.add(this.overlay);
+    this.slideDownTween = this.game.add.tween(this.overlay).to({
+      y: 0
+    }, 1000, Phaser.Easing.Bounce.Out);
+    this.slideUpTween = this.game.add.tween(this.overlay).to({
+      y: -474
+    }, 1000, Phaser.Easing.Bounce.Out);
+    this.overlay.events.onInputDown.add(this.toggleStore);
+    this.state = 'up';
+  }
+
+  Store.prototype.toggleStore = function() {
+    if (this.state === 'up') {
+      this.slideDownTween.start();
+      return this.state = 'down';
+    } else if (this.state === 'down') {
+      this.slideUpTween.start();
+      return this.state = 'up';
+    }
+  };
+
+  return Store;
+
+})();
+
+
+
+},{}],8:[function(require,module,exports){
 var G, Tower, TowerFactory,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -303,6 +350,7 @@ Tower = (function(_super) {
     this.decreaseCooldownRemaining = __bind(this.decreaseCooldownRemaining, this);
     this.update = __bind(this.update, this);
     Tower.__super__.constructor.call(this, game, x, y, key);
+    game.groups.tower.add(this);
     this.inputEnabled = true;
     this.events.onInputDown.add(this.handleClick, this);
     this.anchor.setTo(0.5, 0.5);
