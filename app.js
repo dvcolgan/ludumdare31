@@ -2,7 +2,7 @@
 module.exports = {
   SCREEN_WIDTH: 960,
   SCREEN_HEIGHT: 540,
-  DEBUG: false
+  DEBUG: true
 };
 
 
@@ -43,9 +43,9 @@ module.exports = EnemySpawner = (function() {
 
 },{}],3:[function(require,module,exports){
 var Enemy, EnemyFactory, G,
-  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 G = require('./constants');
 
@@ -53,12 +53,15 @@ Enemy = (function(_super) {
   __extends(Enemy, _super);
 
   function Enemy(game, x, y, key) {
-    this.update = __bind(this.update, this);
     Enemy.__super__.constructor.call(this, game, x, y, key);
+    this.anchor.setTo(0.5, 0.5);
+    game.physics.p2.enable(this, G.DEBUG);
+    this.body.clearShapes();
+    this.body.addCircle(this.width / 2);
+    this.body.setCollisionGroup(game.groups.enemy);
+    this.body.collides([game.groups.enemy, game.groups.tower, game.groups.secret, game.physics.p2.boundsCollisionGroup]);
     game.add.existing(this);
   }
-
-  Enemy.prototype.update = function() {};
 
   return Enemy;
 
@@ -87,30 +90,19 @@ module.exports = EnemyFactory = (function() {
   EnemyFactory.prototype.createSmall = function() {
     var enemy;
     enemy = new Enemy(this.game, 0, this.getY(), 'enemy-small');
-    enemy.anchor.setTo(0.5, 0.5);
-    this.game.physics.p2.enable(enemy, G.DEBUG);
-    enemy.body.clearShapes();
-    enemy.body.addCircle(enemy.width / 2);
     return enemy;
   };
 
   EnemyFactory.prototype.createMedium = function() {
     var enemy;
     enemy = new Enemy(this.game, 0, this.getY(), 'enemy-medium');
-    enemy.anchor.setTo(0.5, 0.5);
-    this.game.physics.p2.enable(enemy, G.DEBUG);
-    enemy.body.clearShapes();
-    enemy.body.addCircle(enemy.width / 2);
+    enemy.body.moveRight(300);
     return enemy;
   };
 
   EnemyFactory.prototype.createLarge = function() {
     var enemy;
     enemy = new Enemy(this.game, 0, this.getY(), 'enemy-large');
-    enemy.anchor.setTo(0.5, 0.5);
-    this.game.physics.p2.enable(enemy, G.DEBUG);
-    enemy.body.clearShapes();
-    enemy.body.addCircle(enemy.width / 2);
     return enemy;
   };
 
@@ -121,7 +113,8 @@ module.exports = EnemyFactory = (function() {
 
 
 },{"./constants":1}],4:[function(require,module,exports){
-var EnemyFactory, EnemySpawner, G, PlayState, Secret,
+var EnemyFactory, EnemySpawner, G, PlayState, Secret, TowerFactory,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -131,12 +124,16 @@ EnemySpawner = require('./enemy-spawner');
 
 EnemyFactory = require('./enemy');
 
+TowerFactory = require('./tower');
+
 Secret = require('./secret');
 
 PlayState = (function(_super) {
   __extends(PlayState, _super);
 
   function PlayState() {
+    this.handleGameOver = __bind(this.handleGameOver, this);
+    this.handlePointerDown = __bind(this.handlePointerDown, this);
     return PlayState.__super__.constructor.apply(this, arguments);
   }
 
@@ -145,15 +142,22 @@ PlayState = (function(_super) {
     this.game.load.image('secret', 'assets/secret.png');
     this.game.load.image('tower', 'assets/tower.png');
     this.enemyFactory = new EnemyFactory(this.game);
-    return this.enemyFactory.preload();
+    this.enemyFactory.preload();
+    this.towerFactory = new TowerFactory(this.game);
+    return this.towerFactory.preload();
   };
 
   PlayState.prototype.create = function() {
-    this.game.physics.startSystem(Phaser.Physics.P2JS);
-    this.game.physics.p2.setImpactEvents(true);
     this.game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT);
     this.game.camera.x = 0;
-    this.groups = {
+    this.game.events = {
+      onGameOver: new Phaser.Signal()
+    };
+    this.game.physics.startSystem(Phaser.Physics.P2JS);
+    this.game.physics.p2.setImpactEvents(true);
+    this.game.groups = {
+      secret: this.game.physics.p2.createCollisionGroup(),
+      tower: this.game.physics.p2.createCollisionGroup(),
       enemy: this.game.physics.p2.createCollisionGroup()
     };
     window.controller = this;
@@ -164,7 +168,17 @@ PlayState = (function(_super) {
     this.large = this.enemyFactory.createLarge();
     this.secret = new Secret(this.game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT / 2);
     this.gameDifficulty = 1;
-    return this.enemySpawner = new EnemySpawner(this.enemyFactory, 60, this.gameDifficulty);
+    this.enemySpawner = new EnemySpawner(this.enemyFactory, 60, this.gameDifficulty);
+    this.game.input.onDown.add(this.handlePointerDown);
+    return this.game.events.onGameOver.add(this.handleGameOver);
+  };
+
+  PlayState.prototype.handlePointerDown = function(coords) {
+    return this.towerFactory.createAoe(coords.x, coords.y);
+  };
+
+  PlayState.prototype.handleGameOver = function() {
+    return alert("YOU LOSE");
   };
 
   PlayState.prototype.update = function() {
@@ -183,8 +197,9 @@ window.state = new Phaser.Game(G.SCREEN_WIDTH, G.SCREEN_HEIGHT, Phaser.AUTO, 'ga
 
 
 
-},{"./constants":1,"./enemy":3,"./enemy-spawner":2,"./secret":5}],5:[function(require,module,exports){
+},{"./constants":1,"./enemy":3,"./enemy-spawner":2,"./secret":5,"./tower":6}],5:[function(require,module,exports){
 var G, Secret,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -194,6 +209,7 @@ module.exports = Secret = (function(_super) {
   __extends(Secret, _super);
 
   function Secret(game, x, y) {
+    this.onEnemyTouch = __bind(this.onEnemyTouch, this);
     Secret.__super__.constructor.call(this, game, x, y, 'secret');
     game.add.existing(this);
     this.anchor.setTo(0.5, 0.5);
@@ -201,11 +217,89 @@ module.exports = Secret = (function(_super) {
     this.body.kinematic = true;
     this.body.clearShapes();
     this.body.addCircle(this.width / 2);
+    this.body.setCollisionGroup(this.game.groups.secret);
+    this.body.collides([this.game.groups.enemy]);
+    this.body.createGroupCallback(this.game.groups.enemy, this.onEnemyTouch);
   }
+
+  Secret.prototype.onEnemyTouch = function() {
+    return this.game.events.onGameOver.dispatch();
+  };
 
   return Secret;
 
 })(Phaser.Sprite);
+
+
+
+},{"./constants":1}],6:[function(require,module,exports){
+var G, Tower, TowerFactory,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+G = require('./constants');
+
+Tower = (function(_super) {
+  __extends(Tower, _super);
+
+  function Tower(game, x, y, key, cooldown, range) {
+    this.cooldown = cooldown;
+    this.range = range;
+    this.fire = __bind(this.fire, this);
+    this.decreaseCooldownRemaining = __bind(this.decreaseCooldownRemaining, this);
+    this.update = __bind(this.update, this);
+    Tower.__super__.constructor.call(this, game, x, y, key);
+    this.anchor.setTo(0.5, 0.5);
+    game.physics.p2.enable(this, G.DEBUG);
+    this.body.clearShapes();
+    this.body.addCircle(this.width / 2);
+    this.body.kinematic = true;
+    this.body.setCollisionGroup(this.game.groups.tower);
+    this.body.collides([this.game.groups.enemy]);
+    game.add.existing(this);
+    this.cooldownRemaining = 0;
+  }
+
+  Tower.prototype.update = function() {
+    return this.decreaseCooldownRemaining();
+  };
+
+  Tower.prototype.decreaseCooldownRemaining = function() {
+    return this.cooldownRemaining -= 1;
+  };
+
+  Tower.prototype.fire = function() {
+    if (this.cooldownRemaining > 0) {
+      return;
+    }
+    return this.cooldown = this.cooldownRemaining;
+  };
+
+  return Tower;
+
+})(Phaser.Sprite);
+
+module.exports = TowerFactory = (function() {
+  function TowerFactory(game) {
+    this.game = game;
+    this.createAoe = __bind(this.createAoe, this);
+    this.preload = __bind(this.preload, this);
+  }
+
+  TowerFactory.prototype.preload = function() {
+    return this.game.load.image('tower-aoe', 'assets/tower.png');
+  };
+
+  TowerFactory.prototype.createAoe = function(x, y) {
+    var tower;
+    tower = new Tower(this.game, x, y, 'tower-aoe', 60, 100);
+    return tower;
+  };
+
+  return TowerFactory;
+
+})();
 
 
 

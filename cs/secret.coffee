@@ -10,3 +10,9 @@ module.exports = class Secret extends Phaser.Sprite
         @body.kinematic = yes
         @body.clearShapes()
         @body.addCircle(@width/2)
+        @body.setCollisionGroup(@game.groups.secret)
+        @body.collides([@game.groups.enemy])
+        @body.createGroupCallback(@game.groups.enemy, @onEnemyTouch)
+
+    onEnemyTouch: =>
+        @game.events.onGameOver.dispatch()
