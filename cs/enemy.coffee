@@ -9,15 +9,15 @@ class Enemy extends Phaser.Sprite
 module.exports = class EnemyFactory
     constructor: (@game) ->
 
-    preload: ->
+    preload: =>
         @game.load.image('enemy-small', 'assets/enemy-small.png')
         @game.load.image('enemy-medium', 'assets/enemy-medium.png')
         @game.load.image('enemy-large', 'assets/enemy-large.png')
 
-    getY: ->
+    getY: =>
         return @game.rnd.getRandomInteger(0, G.SCREEN_HEIGHT)
 
-    createSmall: ->
+    createSmall: =>
         small = @game.add.sprite(0, @getY(), 'enemy-small')
         small.anchor.setTo(0.5, 0.5)
         small.body.damping = 100
@@ -25,7 +25,7 @@ module.exports = class EnemyFactory
         small.body.addCircle(small.width/2)
         return small
 
-    createMedium: ->
+    createMedium: =>
         medium = @game.add.sprite(0, y, 'enemy-medium')
         medium.anchor.setTo(0.5, 0.5)
         medium.body.damping = 100
@@ -33,7 +33,7 @@ module.exports = class EnemyFactory
         medium.body.addCircle(small.width/2)
         return medium
 
-    createLarge: ->
+    createLarge: =>
         large = new Enemy(@game, 0, y, 'enemy-large')
         large.anchor.setTo(0.5, 0.5)
         large.body.damping = 100
