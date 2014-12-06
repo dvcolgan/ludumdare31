@@ -1,4 +1,4 @@
-module.exports = class DifficultyManager
+module.exports = class EnemySpawner
     constructor: (@enemyFactory, @framerate, difficulty) ->
         @changeDifficulty(difficulty)
 
