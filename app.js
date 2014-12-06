@@ -8,7 +8,7 @@ module.exports = {
 
 
 },{}],2:[function(require,module,exports){
-var Enemy, EnemyFactory, EnemyLarge, EnemyMedium, EnemySmall, G,
+var Enemy, EnemyFactory, G,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -46,45 +46,39 @@ module.exports = EnemyFactory = (function() {
     return this.game.load.image('enemy-large', 'assets/enemy-large.png');
   };
 
+  EnemyFactory.prototype.createSmall = function(x, y) {
+    var small;
+    small = new Enemy(this.game, x, y, 'enemy-small');
+    small.anchor.setTo(0.5, 0.5);
+    small.body.damping = 100;
+    small.body.clearShapes();
+    small.body.addCircle(small.width / 2);
+    return small;
+  };
+
+  EnemyFactory.prototype.createMedium = function(x, y) {
+    var medium;
+    medium = new Enemy(this.game, x, y, 'enemy-medium');
+    medium.anchor.setTo(0.5, 0.5);
+    medium.body.damping = 100;
+    medium.body.clearShapes();
+    medium.body.addCircle(small.width / 2);
+    return medium;
+  };
+
+  EnemyFactory.prototype.createLarge = function(x, y) {
+    var large;
+    large = new Enemy(this.game, x, y, 'enemy-large');
+    large.anchor.setTo(0.5, 0.5);
+    large.body.damping = 100;
+    large.body.clearShapes();
+    large.body.addCircle(small.width / 2);
+    return large;
+  };
+
   return EnemyFactory;
 
 })();
-
-EnemySmall = (function(_super) {
-  __extends(EnemySmall, _super);
-
-  function EnemySmall(game, x, y) {
-    this.speed = 10;
-    EnemySmall.__super__.constructor.call(this, game, x, y, 'enemy-small');
-  }
-
-  return EnemySmall;
-
-})(Enemy);
-
-EnemyMedium = (function(_super) {
-  __extends(EnemyMedium, _super);
-
-  function EnemyMedium(game, x, y) {
-    this.speed = 20;
-    EnemyMedium.__super__.constructor.call(this, game, x, y, 'enemy-medium');
-  }
-
-  return EnemyMedium;
-
-})(Enemy);
-
-EnemyLarge = (function(_super) {
-  __extends(EnemyLarge, _super);
-
-  function EnemyLarge(game, x, y) {
-    this.speed = 30;
-    EnemyLarge.__super__.constructor.call(this, game, x, y, 'enemy-large');
-  }
-
-  return EnemyLarge;
-
-})(Enemy);
 
 
 
