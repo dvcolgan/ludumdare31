@@ -12,9 +12,6 @@ class PlayState extends Phaser.State
         @game.load.image('secret', 'assets/secret.png')
         @game.load.image('tower', 'assets/tower.png')
 
-        @game.groups =
-            enemy: @game.add.group()
-
         @enemyFactory = new EnemyFactory(@game)
         @enemyFactory.preload()
         @towerFactory = new TowerFactory(@game)
@@ -44,6 +41,9 @@ class PlayState extends Phaser.State
 
         @background = @game.add.image(0, 0, 'background')
         @background.inputEnabled = true
+
+        @game.groups =
+            enemy: @game.add.group()
 
         @game.time.advancedTiming = G.DEBUG
 

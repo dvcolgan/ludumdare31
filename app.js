@@ -2,7 +2,7 @@
 module.exports = {
   SCREEN_WIDTH: 960,
   SCREEN_HEIGHT: 540,
-  DEBUG: true
+  DEBUG: false
 };
 
 
@@ -146,9 +146,6 @@ PlayState = (function(_super) {
     this.game.load.image('background', 'assets/background.png');
     this.game.load.image('secret', 'assets/secret.png');
     this.game.load.image('tower', 'assets/tower.png');
-    this.game.groups = {
-      enemy: this.game.add.group()
-    };
     this.enemyFactory = new EnemyFactory(this.game);
     this.enemyFactory.preload();
     this.towerFactory = new TowerFactory(this.game);
@@ -173,6 +170,9 @@ PlayState = (function(_super) {
     window.controller = this;
     this.background = this.game.add.image(0, 0, 'background');
     this.background.inputEnabled = true;
+    this.game.groups = {
+      enemy: this.game.add.group()
+    };
     this.game.time.advancedTiming = G.DEBUG;
     this.small = this.enemyFactory.createSmall();
     this.medium = this.enemyFactory.createMedium();
