@@ -1,5 +1,5 @@
 module.exports = class DifficultyManager
-    constructor: (@game, @framerate, difficulty) ->
+    constructor: (@enemyFactory, @framerate, difficulty) ->
         @changeDifficulty(@difficulty)
 
     changeDifficulty: (difficulty) =>
@@ -14,4 +14,4 @@ module.exports = class DifficultyManager
         if Math.random() < @frameProbability
 
             # Create a new enemy
-            EnemyFactory.create(@game)
+            @enemyFactory.createMedium()

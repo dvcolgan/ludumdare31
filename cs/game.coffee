@@ -35,7 +35,7 @@ class PlayState extends Phaser.State
 
         # TODO: Dynamically pass in framerate (should this stay hardcoded to 60?)
         # TODO: Dynamically pass in difficulty.
-        @difficultyManager = new DifficultyManager(@, 60, 1)
+        @difficultyManager = new DifficultyManager(@enemyFactory, 60, 1)
 
 
     #screenWrap: (sprite) =>
