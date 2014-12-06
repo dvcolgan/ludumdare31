@@ -4,7 +4,6 @@ G = require('./constants')
 class Tower extends Phaser.Sprite
     constructor: (game, x, y, key, @cooldown, @range) ->
         super(game, x, y, key)
-        game.groups.tower.add(@)
 
         @inputEnabled = true
         @events.onInputDown.add(@handleClick, @)
@@ -18,6 +17,8 @@ class Tower extends Phaser.Sprite
         #@body.createGroupCallback(@game.collisionGroups.enemy, @onEnemyTouch)
 
         game.add.existing(@)
+
+        game.groups.tower.add(@)
 
         # Number of frames before
         @cooldownRemaining = 0
@@ -40,7 +41,9 @@ class Tower extends Phaser.Sprite
         # Kill/delete all enemies found within range
         @game.groups.enemy.forEachAlive (enemy) =>
             dist = Math.sqrt((enemy.x - @x)**2 + (enemy.y - @y)**2)
-            enemy.kill() if dist < @range
+            if dist < @range
+                enemy.kill()
+                @game.events.onEnemyKilled.dispatch(enemy)
 
         # Reset cooldown
         @cooldownRemaining = @cooldown

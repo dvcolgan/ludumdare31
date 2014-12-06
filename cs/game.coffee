@@ -5,6 +5,7 @@ TowerFactory = require('./tower')
 LoseOverlay = require('./lose-overlay')
 Store = require('./store')
 Secret = require('./secret')
+Stats = require('./stats')
 
 
 class PlayState extends Phaser.State
@@ -30,6 +31,7 @@ class PlayState extends Phaser.State
 
         @game.events =
             onGameOver: new Phaser.Signal()
+            onEnemyKilled: new Phaser.Signal()
 
         @game.physics.startSystem(Phaser.Physics.P2JS)
         @game.physics.p2.setImpactEvents(true)
@@ -39,6 +41,7 @@ class PlayState extends Phaser.State
         @game.groups.tower = @game.add.group()
         @game.groups.enemy = @game.add.group()
         @game.groups.overlay = @game.add.group()
+        @store = new Store(@game)
 
         @game.collisionGroups =
             secret: @game.physics.p2.createCollisionGroup()
@@ -52,6 +55,7 @@ class PlayState extends Phaser.State
         @background.inputEnabled = true
 
         @game.groups.background.add(@background)
+        @stats = new Stats(@game)
 
         @game.time.advancedTiming = G.DEBUG
 
@@ -63,7 +67,6 @@ class PlayState extends Phaser.State
 
         @loseOverlay = new LoseOverlay(@game)
 
-        @store = new Store(@game)
 
         # TODO: Dynamically pass in framerate (should this stay hardcoded to 60?)
         # TODO: Dynamically pass in difficulty.
@@ -78,13 +81,13 @@ class PlayState extends Phaser.State
         @towerFactory.createAoe(pointer.x, pointer.y)
 
     handleGameOver: =>
-        @loseOverlay.show()
+        @loseOverlay.show(@stats.score)
 
     update: ->
         #pointerIsDown = @game.input.mousePointer?.isDown or @game.input.pointer1?.isDown
         #pointerX = @game.input.x
         #pointerY = @game.input.y
-        
+
         @enemySpawner.update()
 
     render: ->

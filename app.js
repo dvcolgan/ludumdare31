@@ -116,7 +116,7 @@ module.exports = EnemyFactory = (function() {
 
 
 },{"./constants":1}],4:[function(require,module,exports){
-var EnemyFactory, EnemySpawner, G, LoseOverlay, PlayState, Secret, Store, TowerFactory,
+var EnemyFactory, EnemySpawner, G, LoseOverlay, PlayState, Secret, Stats, Store, TowerFactory,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -134,6 +134,8 @@ LoseOverlay = require('./lose-overlay');
 Store = require('./store');
 
 Secret = require('./secret');
+
+Stats = require('./stats');
 
 PlayState = (function(_super) {
   __extends(PlayState, _super);
@@ -161,7 +163,8 @@ PlayState = (function(_super) {
     this.game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT);
     this.game.camera.x = 0;
     this.game.events = {
-      onGameOver: new Phaser.Signal()
+      onGameOver: new Phaser.Signal(),
+      onEnemyKilled: new Phaser.Signal()
     };
     this.game.physics.startSystem(Phaser.Physics.P2JS);
     this.game.physics.p2.setImpactEvents(true);
@@ -170,6 +173,7 @@ PlayState = (function(_super) {
     this.game.groups.tower = this.game.add.group();
     this.game.groups.enemy = this.game.add.group();
     this.game.groups.overlay = this.game.add.group();
+    this.store = new Store(this.game);
     this.game.collisionGroups = {
       secret: this.game.physics.p2.createCollisionGroup(),
       tower: this.game.physics.p2.createCollisionGroup(),
@@ -180,13 +184,13 @@ PlayState = (function(_super) {
     this.background = this.game.add.image(0, 0, 'background');
     this.background.inputEnabled = true;
     this.game.groups.background.add(this.background);
+    this.stats = new Stats(this.game);
     this.game.time.advancedTiming = G.DEBUG;
     this.small = this.enemyFactory.createSmall();
     this.medium = this.enemyFactory.createMedium();
     this.large = this.enemyFactory.createLarge();
     this.secret = new Secret(this.game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT / 2);
     this.loseOverlay = new LoseOverlay(this.game);
-    this.store = new Store(this.game);
     this.gameDifficulty = 1;
     this.enemySpawner = new EnemySpawner(this.enemyFactory, 60, this.gameDifficulty);
     this.background.events.onInputDown.add(this.handlePointerDown);
@@ -201,7 +205,7 @@ PlayState = (function(_super) {
   };
 
   PlayState.prototype.handleGameOver = function() {
-    return this.loseOverlay.show();
+    return this.loseOverlay.show(this.stats.score);
   };
 
   PlayState.prototype.update = function() {
@@ -220,7 +224,7 @@ window.state = new Phaser.Game(G.SCREEN_WIDTH, G.SCREEN_HEIGHT, Phaser.AUTO, 'ga
 
 
 
-},{"./constants":1,"./enemy":3,"./enemy-spawner":2,"./lose-overlay":5,"./secret":6,"./store":7,"./tower":8}],5:[function(require,module,exports){
+},{"./constants":1,"./enemy":3,"./enemy-spawner":2,"./lose-overlay":5,"./secret":6,"./stats":7,"./store":8,"./tower":9}],5:[function(require,module,exports){
 var LoseOverlay;
 
 module.exports = LoseOverlay = (function() {
@@ -228,7 +232,7 @@ module.exports = LoseOverlay = (function() {
     this.game = game;
     this.sprite = this.game.add.sprite(0, 0, 'lose-overlay');
     this.game.groups.overlay.add(this.sprite);
-    this.text = this.game.add.text(200, 200, 'You are the loseriest of losers.', {
+    this.text = this.game.add.text(200, 200, '', {
       font: 'bold 20px Arial',
       fill: 'black',
       align: 'center'
@@ -236,11 +240,10 @@ module.exports = LoseOverlay = (function() {
     this.hide();
   }
 
-  LoseOverlay.prototype.show = function() {
+  LoseOverlay.prototype.show = function(score) {
     this.sprite.visible = true;
-    this.text.visible = true;
-    this.game.world.bringToTop(this.text);
-    return this.game.world.bringToTop(this.sprite);
+    this.text.text = "You are the loseriest of losers.\n\nYour score: " + score;
+    return this.text.visible = true;
   };
 
   LoseOverlay.prototype.hide = function() {
@@ -295,6 +298,55 @@ module.exports = Secret = (function(_super) {
 
 
 },{"./constants":1}],7:[function(require,module,exports){
+var G, Stats,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+G = require('./constants');
+
+module.exports = Stats = (function() {
+  function Stats(game) {
+    this.game = game;
+    this.updateText = __bind(this.updateText, this);
+    this.handleEnemyKilled = __bind(this.handleEnemyKilled, this);
+    this.score = 0;
+    this.gold = 500;
+    this.text = this.game.add.text(20, 20, '', {
+      font: '20px Arial',
+      fill: 'black',
+      align: 'left'
+    });
+    this.updateText();
+    this.game.events.onEnemyKilled.add(this.handleEnemyKilled);
+  }
+
+  Stats.prototype.handleEnemyKilled = function(enemy) {
+    switch (enemy.key) {
+      case 'enemy-small':
+        this.gold += this.game.rnd.between(5, 10);
+        this.score += 5;
+        break;
+      case 'enemy-medium':
+        this.gold += this.game.rnd.between(10, 20);
+        this.score += 10;
+        break;
+      case 'enemy-large':
+        this.gold += this.game.rnd.between(20, 50);
+        this.score += 20;
+    }
+    return this.updateText();
+  };
+
+  Stats.prototype.updateText = function() {
+    return this.text.text = "Gold: " + this.gold + " Score: " + this.score;
+  };
+
+  return Stats;
+
+})();
+
+
+
+},{"./constants":1}],8:[function(require,module,exports){
 var Store,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -307,10 +359,10 @@ module.exports = Store = (function() {
     this.game.groups.overlay.add(this.overlay);
     this.slideDownTween = this.game.add.tween(this.overlay).to({
       y: 0
-    }, 1000, Phaser.Easing.Bounce.Out);
+    }, 700, Phaser.Easing.Bounce.Out);
     this.slideUpTween = this.game.add.tween(this.overlay).to({
       y: -474
-    }, 1000, Phaser.Easing.Bounce.Out);
+    }, 700, Phaser.Easing.Bounce.Out);
     this.overlay.events.onInputDown.add(this.toggleStore);
     this.state = 'up';
   }
@@ -331,7 +383,7 @@ module.exports = Store = (function() {
 
 
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var G, Tower, TowerFactory,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -350,7 +402,6 @@ Tower = (function(_super) {
     this.decreaseCooldownRemaining = __bind(this.decreaseCooldownRemaining, this);
     this.update = __bind(this.update, this);
     Tower.__super__.constructor.call(this, game, x, y, key);
-    game.groups.tower.add(this);
     this.inputEnabled = true;
     this.events.onInputDown.add(this.handleClick, this);
     this.anchor.setTo(0.5, 0.5);
@@ -361,6 +412,7 @@ Tower = (function(_super) {
     this.body.setCollisionGroup(this.game.collisionGroups.tower);
     this.body.collides([this.game.collisionGroups.enemy]);
     game.add.existing(this);
+    game.groups.tower.add(this);
     this.cooldownRemaining = 0;
   }
 
@@ -385,7 +437,8 @@ Tower = (function(_super) {
         var dist;
         dist = Math.sqrt(Math.pow(enemy.x - _this.x, 2) + Math.pow(enemy.y - _this.y, 2));
         if (dist < _this.range) {
-          return enemy.kill();
+          enemy.kill();
+          return _this.game.events.onEnemyKilled.dispatch(enemy);
         }
       };
     })(this));
