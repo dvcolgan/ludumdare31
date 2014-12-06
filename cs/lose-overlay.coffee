@@ -1,7 +1,22 @@
-module.exports = class LoseOverlay extends Phaser.Sprite
-    preload: ->
-        @game.load.image('lose-overlay', 'assets/lose-overlay.png')
+module.exports = class LoseOverlay
+    constructor: (@game) ->
+        @sprite = @game.add.sprite(0, 0, 'lose-overlay')
+        @text = @game.add.text 200, 200, 'You are the loseriest of losers.',
+            font: 'bold 20px Arial'
+            fill: 'black'
+            align: 'center'
 
-    constructor: (game) ->
-        super(game, 0, 0, 'lose-overlay')
-        game.add.existing(@)
+        @hide()
+
+    show: ->
+        @sprite.visible = yes
+        @text.visible = yes
+        @game.world.bringToTop(@text)
+        @game.world.bringToTop(@sprite)
+
+    hide: ->
+        @sprite.visible = no
+        @text.visible = no
+
+    isVisible: ->
+        return @sprite.visible

@@ -113,7 +113,7 @@ module.exports = EnemyFactory = (function() {
 
 
 },{"./constants":1}],4:[function(require,module,exports){
-var EnemyFactory, EnemySpawner, G, PlayState, Secret, TowerFactory,
+var EnemyFactory, EnemySpawner, G, LoseOverlay, PlayState, Secret, TowerFactory,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -125,6 +125,8 @@ EnemySpawner = require('./enemy-spawner');
 EnemyFactory = require('./enemy');
 
 TowerFactory = require('./tower');
+
+LoseOverlay = require('./lose-overlay');
 
 Secret = require('./secret');
 
@@ -144,7 +146,8 @@ PlayState = (function(_super) {
     this.enemyFactory = new EnemyFactory(this.game);
     this.enemyFactory.preload();
     this.towerFactory = new TowerFactory(this.game);
-    return this.towerFactory.preload();
+    this.towerFactory.preload();
+    return this.game.load.image('lose-overlay', 'assets/lose-overlay.png');
   };
 
   PlayState.prototype.create = function() {
@@ -167,6 +170,7 @@ PlayState = (function(_super) {
     this.medium = this.enemyFactory.createMedium();
     this.large = this.enemyFactory.createLarge();
     this.secret = new Secret(this.game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT / 2);
+    this.loseOverlay = new LoseOverlay(this.game);
     this.gameDifficulty = 1;
     this.enemySpawner = new EnemySpawner(this.enemyFactory, 60, this.gameDifficulty);
     this.game.input.onDown.add(this.handlePointerDown);
@@ -174,11 +178,14 @@ PlayState = (function(_super) {
   };
 
   PlayState.prototype.handlePointerDown = function(coords) {
+    if (this.loseOverlay.isVisible()) {
+      return;
+    }
     return this.towerFactory.createAoe(coords.x, coords.y);
   };
 
   PlayState.prototype.handleGameOver = function() {
-    return alert("YOU LOSE");
+    return this.loseOverlay.show();
   };
 
   PlayState.prototype.update = function() {
@@ -197,7 +204,44 @@ window.state = new Phaser.Game(G.SCREEN_WIDTH, G.SCREEN_HEIGHT, Phaser.AUTO, 'ga
 
 
 
-},{"./constants":1,"./enemy":3,"./enemy-spawner":2,"./secret":5,"./tower":6}],5:[function(require,module,exports){
+},{"./constants":1,"./enemy":3,"./enemy-spawner":2,"./lose-overlay":5,"./secret":6,"./tower":7}],5:[function(require,module,exports){
+var LoseOverlay;
+
+module.exports = LoseOverlay = (function() {
+  function LoseOverlay(game) {
+    this.game = game;
+    this.sprite = this.game.add.sprite(0, 0, 'lose-overlay');
+    this.text = this.game.add.text(200, 200, 'You are the loseriest of losers.', {
+      font: 'bold 20px Arial',
+      fill: 'black',
+      align: 'center'
+    });
+    this.hide();
+  }
+
+  LoseOverlay.prototype.show = function() {
+    this.sprite.visible = true;
+    this.text.visible = true;
+    this.game.world.bringToTop(this.text);
+    return this.game.world.bringToTop(this.sprite);
+  };
+
+  LoseOverlay.prototype.hide = function() {
+    this.sprite.visible = false;
+    return this.text.visible = false;
+  };
+
+  LoseOverlay.prototype.isVisible = function() {
+    return this.sprite.visible;
+  };
+
+  return LoseOverlay;
+
+})();
+
+
+
+},{}],6:[function(require,module,exports){
 var G, Secret,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -232,7 +276,7 @@ module.exports = Secret = (function(_super) {
 
 
 
-},{"./constants":1}],6:[function(require,module,exports){
+},{"./constants":1}],7:[function(require,module,exports){
 var G, Tower, TowerFactory,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,

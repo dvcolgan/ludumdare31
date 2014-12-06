@@ -2,8 +2,8 @@ G = require('./constants')
 EnemySpawner = require('./enemy-spawner')
 EnemyFactory = require('./enemy')
 TowerFactory = require('./tower')
+LoseOverlay = require('./lose-overlay')
 Secret = require('./secret')
-
 
 
 class PlayState extends Phaser.State
@@ -16,6 +16,9 @@ class PlayState extends Phaser.State
         @enemyFactory.preload()
         @towerFactory = new TowerFactory(@game)
         @towerFactory.preload()
+
+        @game.load.image('lose-overlay', 'assets/lose-overlay.png')
+
 
     create: ->
         @game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT)
@@ -45,6 +48,8 @@ class PlayState extends Phaser.State
 
         @secret = new Secret(@game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT/2)
 
+        @loseOverlay = new LoseOverlay(@game)
+
         #@group1 = @game.add.group()
         #@group2 = @game.add.group()
 
@@ -60,11 +65,11 @@ class PlayState extends Phaser.State
         @game.events.onGameOver.add(@handleGameOver)
 
     handlePointerDown: (coords) =>
+        if @loseOverlay.isVisible() then return
         @towerFactory.createAoe(coords.x, coords.y)
 
     handleGameOver: =>
-        alert("YOU LOSE")
-
+        @loseOverlay.show()
 
     update: ->
         #pointerIsDown = @game.input.mousePointer?.isDown or @game.input.pointer1?.isDown
