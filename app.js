@@ -332,9 +332,15 @@ Tower = (function(_super) {
     if (this.cooldownRemaining > 0) {
       return;
     }
-    this.game.groups.enemy.forEachAlive(function(enemy) {
-      return console.log(enemy);
-    });
+    this.game.groups.enemy.forEachAlive((function(_this) {
+      return function(enemy) {
+        var dist;
+        dist = Math.sqrt(Math.pow(enemy.x - _this.x, 2) + Math.pow(enemy.y - _this.y, 2));
+        if (dist < _this.range) {
+          return enemy.kill();
+        }
+      };
+    })(this));
     return this.cooldownRemaining = this.cooldown;
   };
 
