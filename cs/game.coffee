@@ -1,5 +1,5 @@
 G = require('./constants')
-DifficultyManager = require('./difficulty-manager')
+EnemySpawner = require('./enemy-spawner')
 EnemyFactory = require('./enemy')
 
 
@@ -38,7 +38,8 @@ class PlayState extends Phaser.State
 
         # TODO: Dynamically pass in framerate (should this stay hardcoded to 60?)
         # TODO: Dynamically pass in difficulty.
-        @difficultyManager = new DifficultyManager(@enemyFactory, 60, 1)
+        @gameDifficulty = 1
+        @enemySpawner = new EnemySpawner(@enemyFactory, 60, @gameDifficulty)
 
 
     #screenWrap: (sprite) =>
