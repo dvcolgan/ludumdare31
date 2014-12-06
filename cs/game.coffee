@@ -52,6 +52,8 @@ class PlayState extends Phaser.State
         @game.time.advancedTiming = G.DEBUG
         window.controller = @
         @gameDifficulty = 3
+        @boughtItem = null
+        @cursorSprite = null
 
     initializePhysicsEngine: () =>
         @game.physics.startSystem(Phaser.Physics.P2JS)
@@ -86,12 +88,20 @@ class PlayState extends Phaser.State
         if @boughtItem
             @towerFactory[@boughtItem.createFn](pointer.x, pointer.y)
             @boughtItem = null
+            @cursorSprite.destroy()
 
     handleGameOver: =>
         @loseOverlay.show(@stats.score)
 
     handleStoreItemPurchased: (itemData) =>
         @boughtItem = itemData
+        @cursorSprite = @game.add.sprite(@game.input.x, @game.input.y, itemData.imageKey)
+        @game.groups.overlay.add(@cursorSprite)
+        @cursorSprite.anchor.setTo(0.5, 0.5)
+        @cursorSprite.alpha = 0.5
+        @cursorSprite.update = =>
+            @cursorSprite.x = @game.input.x
+            @cursorSprite.y = @game.input.y
 
     update: =>
         #pointerIsDown = @game.input.mousePointer?.isDown or @game.input.pointer1?.isDown
