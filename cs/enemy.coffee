@@ -9,9 +9,9 @@ class Enemy extends Phaser.Sprite
         game.physics.p2.enable(@, G.DEBUG)
         @body.clearShapes()
         @body.addCircle(@width/2)
-        @body.setCollisionGroup(game.groups.enemy)
+        @body.setCollisionGroup(game.collisionGroups.enemy)
         @body.collides([
-            game.groups.enemy, game.groups.tower, game.groups.secret,
+            game.collisionGroups.enemy, game.collisionGroups.tower, game.collisionGroups.secret,
             game.physics.p2.boundsCollisionGroup
         ])
 
@@ -31,13 +31,16 @@ module.exports = class EnemyFactory
 
     createSmall: =>
         enemy = new Enemy(@game, 0, @getY(), 'enemy-small')
+        @game.groups.enemy.add(enemy)
         return enemy
 
     createMedium: =>
         enemy = new Enemy(@game, 0, @getY(), 'enemy-medium')
         enemy.body.moveRight(300)
+        @game.groups.enemy.add(enemy)
         return enemy
 
     createLarge: =>
         enemy = new Enemy(@game, 0, @getY(), 'enemy-large')
+        @game.groups.enemy.add(enemy)
         return enemy
