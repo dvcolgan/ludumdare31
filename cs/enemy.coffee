@@ -25,6 +25,12 @@ class Enemy extends Phaser.Sprite
 
         @addChild @healthText
 
+    update: (@secret) =>
+        @pointAtSecret(@secret)
+
+    pointAtSecret: (@secret) =>
+        console.log @secret
+
     damage: (damage) =>
         super(damage)
 

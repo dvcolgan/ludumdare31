@@ -75,6 +75,8 @@ Enemy = (function(_super) {
 
   function Enemy(game, x, y, key, health) {
     this.damage = __bind(this.damage, this);
+    this.pointAtSecret = __bind(this.pointAtSecret, this);
+    this.update = __bind(this.update, this);
     Enemy.__super__.constructor.call(this, game, x, y, key);
     this.health = health;
     this.anchor.setTo(0.5, 0.5);
@@ -91,6 +93,16 @@ Enemy = (function(_super) {
     });
     this.addChild(this.healthText);
   }
+
+  Enemy.prototype.update = function(secret) {
+    this.secret = secret;
+    return this.pointAtSecret(this.secret);
+  };
+
+  Enemy.prototype.pointAtSecret = function(secret) {
+    this.secret = secret;
+    return console.log(this.secret);
+  };
 
   Enemy.prototype.damage = function(damage) {
     Enemy.__super__.damage.call(this, damage);
@@ -180,8 +192,17 @@ PlayState = (function(_super) {
   __extends(PlayState, _super);
 
   function PlayState() {
+    this.render = __bind(this.render, this);
+    this.update = __bind(this.update, this);
     this.handleGameOver = __bind(this.handleGameOver, this);
-    this.handlePointerDown = __bind(this.handlePointerDown, this);
+    this.handlePointerDownOnBackground = __bind(this.handlePointerDownOnBackground, this);
+    this.initializeBackground = __bind(this.initializeBackground, this);
+    this.initializeEvents = __bind(this.initializeEvents, this);
+    this.initializeGroups = __bind(this.initializeGroups, this);
+    this.initializePhysicsEngine = __bind(this.initializePhysicsEngine, this);
+    this.initializeGame = __bind(this.initializeGame, this);
+    this.create = __bind(this.create, this);
+    this.preload = __bind(this.preload, this);
     return PlayState.__super__.constructor.apply(this, arguments);
   }
 
@@ -199,41 +220,62 @@ PlayState = (function(_super) {
   };
 
   PlayState.prototype.create = function() {
+    this.initializeGame();
+    this.initializePhysicsEngine();
+    this.initializeGroups();
+    this.initializeEvents();
+    this.game.physics.p2.updateBoundsCollisionGroup();
+    this.store = new Store(this.game);
+    this.initializeBackground();
+    this.stats = new Stats(this.game);
+    this.secret = new Secret(this.game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT / 2);
+    this.loseOverlay = new LoseOverlay(this.game);
+    this.enemySpawner = new EnemySpawner(this.enemyFactory, 60, this.gameDifficulty);
+    return G.events.onGameOver.add(this.handleGameOver);
+  };
+
+  PlayState.prototype.initializeGame = function() {
     this.game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT);
     this.game.camera.x = 0;
-    G.events = {
-      onGameOver: new Phaser.Signal(),
-      onEnemyKilled: new Phaser.Signal()
-    };
+    this.game.time.advancedTiming = G.DEBUG;
+    window.controller = this;
+    return this.gameDifficulty = 3;
+  };
+
+  PlayState.prototype.initializePhysicsEngine = function() {
     this.game.physics.startSystem(Phaser.Physics.P2JS);
-    this.game.physics.p2.setImpactEvents(true);
-    this.game.groups = {};
-    this.game.groups.background = this.game.add.group();
-    this.game.groups.tower = this.game.add.group();
-    this.game.groups.enemy = this.game.add.group();
-    this.game.groups.overlay = this.game.add.group();
-    this.store = new Store(this.game);
-    this.game.collisionGroups = {
+    return this.game.physics.p2.setImpactEvents(true);
+  };
+
+  PlayState.prototype.initializeGroups = function() {
+    this.game.groups = {
+      background: this.game.add.group(),
+      tower: this.game.add.group(),
+      enemy: this.game.add.group(),
+      overlay: this.game.add.group()
+    };
+    return this.game.collisionGroups = {
       secret: this.game.physics.p2.createCollisionGroup(),
       tower: this.game.physics.p2.createCollisionGroup(),
       enemy: this.game.physics.p2.createCollisionGroup()
     };
-    this.game.physics.p2.updateBoundsCollisionGroup();
-    window.controller = this;
-    this.background = this.game.add.image(0, 0, 'background');
-    this.background.inputEnabled = true;
-    this.game.groups.background.add(this.background);
-    this.stats = new Stats(this.game);
-    this.game.time.advancedTiming = G.DEBUG;
-    this.secret = new Secret(this.game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT / 2);
-    this.loseOverlay = new LoseOverlay(this.game);
-    this.gameDifficulty = 3;
-    this.enemySpawner = new EnemySpawner(this.enemyFactory, 60, this.gameDifficulty);
-    this.background.events.onInputDown.add(this.handlePointerDown);
-    return G.events.onGameOver.add(this.handleGameOver);
   };
 
-  PlayState.prototype.handlePointerDown = function(image, pointer) {
+  PlayState.prototype.initializeEvents = function() {
+    return G.events = {
+      onGameOver: new Phaser.Signal(),
+      onEnemyKilled: new Phaser.Signal()
+    };
+  };
+
+  PlayState.prototype.initializeBackground = function() {
+    this.background = this.game.add.image(0, 0, 'background');
+    this.background.inputEnabled = true;
+    this.background.events.onInputDown.add(this.handlePointerDownOnBackground);
+    return this.game.groups.background.add(this.background);
+  };
+
+  PlayState.prototype.handlePointerDownOnBackground = function(image, pointer) {
     if (this.loseOverlay.isVisible()) {
       return;
     }
@@ -245,7 +287,10 @@ PlayState = (function(_super) {
   };
 
   PlayState.prototype.update = function() {
-    return this.enemySpawner.update();
+    this.enemySpawner.update();
+    return this.game.groups.enemy.forEachAlive((function(_this) {
+      return function(enemy) {};
+    })(this));
   };
 
   PlayState.prototype.render = function() {
