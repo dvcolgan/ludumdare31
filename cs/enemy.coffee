@@ -30,6 +30,7 @@ module.exports = class EnemyFactory
 
     createSmall: =>
         enemy = new Enemy(@game, 0, @getY(), 'enemy-small')
+        enemy.body.moveRight(300)
         @game.groups.enemy.add(enemy)
         return enemy
 
@@ -41,5 +42,6 @@ module.exports = class EnemyFactory
 
     createLarge: =>
         enemy = new Enemy(@game, 0, @getY(), 'enemy-large')
+        enemy.body.moveRight(300)
         @game.groups.enemy.add(enemy)
         return enemy
