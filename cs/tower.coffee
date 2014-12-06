@@ -50,9 +50,6 @@ class Tower extends Phaser.Sprite
 module.exports = class TowerFactory
     constructor: (@game) ->
 
-    preload: =>
-        @game.load.image('tower-aoe', 'assets/tower.png')
-
     createAoe: (x, y) =>
         tower = new Tower(
             @game

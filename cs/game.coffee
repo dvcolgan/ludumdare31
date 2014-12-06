@@ -19,8 +19,7 @@ class PlayState extends Phaser.State
         @game.load.image('enemy-medium', 'assets/enemy-medium.png')
         @game.load.image('enemy-large', 'assets/enemy-large.png')
 
-        @towerFactory = new TowerFactory(@game)
-        @towerFactory.preload()
+        @game.load.image('tower-aoe', 'assets/tower.png')
 
         @game.load.image('lose-overlay', 'assets/lose-overlay.png')
         @game.load.image('store-overlay', 'assets/store-overlay.png')
@@ -36,6 +35,7 @@ class PlayState extends Phaser.State
 
         @game.physics.p2.updateBoundsCollisionGroup()
 
+        @towerFactory = new TowerFactory(@game)
         @stats = new Stats(@game)
         @store = new Store(@game, @towerFactory, @stats)
         @initializeBackground()
