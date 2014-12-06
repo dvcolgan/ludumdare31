@@ -2,10 +2,10 @@ G = require('./constants')
 
 
 class Enemy extends Phaser.Sprite
-    constructor: (game, x, y, key, health) ->
+    constructor: (game, @towerGroup, @secret, x, y, key, health) ->
         super(game, x, y, key)
 
-        @health = health
+        @health = health # necessary to do after call to super()
         @anchor.setTo(0.5, 0.5)
         game.physics.p2.enable(@, G.DEBUG)
         @body.clearShapes()
@@ -25,11 +25,13 @@ class Enemy extends Phaser.Sprite
 
         @addChild @healthText
 
-    update: (@secret) =>
+    update: () =>
         @pointAtSecret(@secret)
 
-    pointAtSecret: (@secret) =>
-        console.log @secret
+    pointAtSecret: (secret) =>
+        dx = secret.x - @x
+        dy = secret.y - @y
+        @body.rotation = Math.atan2(dy, dx) + Math.PI/2
 
     damage: (damage) =>
         super(damage)
@@ -41,30 +43,49 @@ class Enemy extends Phaser.Sprite
 
 
 module.exports = class EnemyFactory
-    constructor: (@game) ->
-
-    preload: =>
-        @game.load.image('enemy-small', 'assets/enemy-small.png')
-        @game.load.image('enemy-medium', 'assets/enemy-medium.png')
-        @game.load.image('enemy-large', 'assets/enemy-large.png')
+    constructor: (@game, @towerGroup, @secret) ->
 
     getY: =>
         return @game.rnd.integerInRange(0, G.SCREEN_HEIGHT)
 
     createSmall: =>
-        enemy = new Enemy(@game, 0, @getY(), 'enemy-small', 10)
+        enemy = new Enemy(
+            @game
+            @towerGroup
+            @secret
+            0
+            @getY()
+            'enemy-small'
+            10
+        )
         enemy.body.moveRight(300)
         @game.groups.enemy.add(enemy)
         return enemy
 
     createMedium: =>
-        enemy = new Enemy(@game, 0, @getY(), 'enemy-medium', 20)
+        enemy = new Enemy(
+            @game
+            @towerGroup
+            @secret
+            0
+            @getY()
+            'enemy-medium'
+            20
+        )
         enemy.body.moveRight(300)
         @game.groups.enemy.add(enemy)
         return enemy
 
     createLarge: =>
-        enemy = new Enemy(@game, 0, @getY(), 'enemy-large', 30)
+        enemy = new Enemy(
+            @game
+            @towerGroup
+            @secret
+            0
+            @getY()
+            'enemy-large'
+            30
+        )
         enemy.body.moveRight(300)
         @game.groups.enemy.add(enemy)
         return enemy

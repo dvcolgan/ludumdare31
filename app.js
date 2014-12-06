@@ -73,7 +73,9 @@ G = require('./constants');
 Enemy = (function(_super) {
   __extends(Enemy, _super);
 
-  function Enemy(game, x, y, key, health) {
+  function Enemy(game, towerGroup, secret, x, y, key, health) {
+    this.towerGroup = towerGroup;
+    this.secret = secret;
     this.damage = __bind(this.damage, this);
     this.pointAtSecret = __bind(this.pointAtSecret, this);
     this.update = __bind(this.update, this);
@@ -94,14 +96,15 @@ Enemy = (function(_super) {
     this.addChild(this.healthText);
   }
 
-  Enemy.prototype.update = function(secret) {
-    this.secret = secret;
+  Enemy.prototype.update = function() {
     return this.pointAtSecret(this.secret);
   };
 
   Enemy.prototype.pointAtSecret = function(secret) {
-    this.secret = secret;
-    return console.log(this.secret);
+    var dx, dy;
+    dx = secret.x - this.x;
+    dy = secret.y - this.y;
+    return this.body.rotation = Math.atan2(dy, dx) + Math.PI / 2;
   };
 
   Enemy.prototype.damage = function(damage) {
@@ -117,20 +120,15 @@ Enemy = (function(_super) {
 })(Phaser.Sprite);
 
 module.exports = EnemyFactory = (function() {
-  function EnemyFactory(game) {
+  function EnemyFactory(game, towerGroup, secret) {
     this.game = game;
+    this.towerGroup = towerGroup;
+    this.secret = secret;
     this.createLarge = __bind(this.createLarge, this);
     this.createMedium = __bind(this.createMedium, this);
     this.createSmall = __bind(this.createSmall, this);
     this.getY = __bind(this.getY, this);
-    this.preload = __bind(this.preload, this);
   }
-
-  EnemyFactory.prototype.preload = function() {
-    this.game.load.image('enemy-small', 'assets/enemy-small.png');
-    this.game.load.image('enemy-medium', 'assets/enemy-medium.png');
-    return this.game.load.image('enemy-large', 'assets/enemy-large.png');
-  };
 
   EnemyFactory.prototype.getY = function() {
     return this.game.rnd.integerInRange(0, G.SCREEN_HEIGHT);
@@ -138,7 +136,7 @@ module.exports = EnemyFactory = (function() {
 
   EnemyFactory.prototype.createSmall = function() {
     var enemy;
-    enemy = new Enemy(this.game, 0, this.getY(), 'enemy-small', 10);
+    enemy = new Enemy(this.game, this.towerGroup, this.secret, 0, this.getY(), 'enemy-small', 10);
     enemy.body.moveRight(300);
     this.game.groups.enemy.add(enemy);
     return enemy;
@@ -146,7 +144,7 @@ module.exports = EnemyFactory = (function() {
 
   EnemyFactory.prototype.createMedium = function() {
     var enemy;
-    enemy = new Enemy(this.game, 0, this.getY(), 'enemy-medium', 20);
+    enemy = new Enemy(this.game, this.towerGroup, this.secret, 0, this.getY(), 'enemy-medium', 20);
     enemy.body.moveRight(300);
     this.game.groups.enemy.add(enemy);
     return enemy;
@@ -154,7 +152,7 @@ module.exports = EnemyFactory = (function() {
 
   EnemyFactory.prototype.createLarge = function() {
     var enemy;
-    enemy = new Enemy(this.game, 0, this.getY(), 'enemy-large', 30);
+    enemy = new Enemy(this.game, this.towerGroup, this.secret, 0, this.getY(), 'enemy-large', 30);
     enemy.body.moveRight(300);
     this.game.groups.enemy.add(enemy);
     return enemy;
@@ -196,6 +194,7 @@ PlayState = (function(_super) {
     this.update = __bind(this.update, this);
     this.handleGameOver = __bind(this.handleGameOver, this);
     this.handlePointerDownOnBackground = __bind(this.handlePointerDownOnBackground, this);
+    this.initializeEnemySpawner = __bind(this.initializeEnemySpawner, this);
     this.initializeBackground = __bind(this.initializeBackground, this);
     this.initializeEvents = __bind(this.initializeEvents, this);
     this.initializeGroups = __bind(this.initializeGroups, this);
@@ -210,8 +209,9 @@ PlayState = (function(_super) {
     this.game.load.image('background', 'assets/background.png');
     this.game.load.image('secret', 'assets/secret.png');
     this.game.load.image('tower', 'assets/tower.png');
-    this.enemyFactory = new EnemyFactory(this.game);
-    this.enemyFactory.preload();
+    this.game.load.image('enemy-small', 'assets/enemy-small.png');
+    this.game.load.image('enemy-medium', 'assets/enemy-medium.png');
+    this.game.load.image('enemy-large', 'assets/enemy-large.png');
     this.towerFactory = new TowerFactory(this.game);
     this.towerFactory.preload();
     this.game.load.image('lose-overlay', 'assets/lose-overlay.png');
@@ -230,7 +230,7 @@ PlayState = (function(_super) {
     this.stats = new Stats(this.game);
     this.secret = new Secret(this.game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT / 2);
     this.loseOverlay = new LoseOverlay(this.game);
-    this.enemySpawner = new EnemySpawner(this.enemyFactory, 60, this.gameDifficulty);
+    this.initializeEnemySpawner();
     return G.events.onGameOver.add(this.handleGameOver);
   };
 
@@ -275,6 +275,12 @@ PlayState = (function(_super) {
     return this.game.groups.background.add(this.background);
   };
 
+  PlayState.prototype.initializeEnemySpawner = function() {
+    var enemyFactory;
+    enemyFactory = new EnemyFactory(this.game, this.game.groups.tower, this.secret);
+    return this.enemySpawner = new EnemySpawner(enemyFactory, 60, this.gameDifficulty);
+  };
+
   PlayState.prototype.handlePointerDownOnBackground = function(image, pointer) {
     if (this.loseOverlay.isVisible()) {
       return;
@@ -287,10 +293,7 @@ PlayState = (function(_super) {
   };
 
   PlayState.prototype.update = function() {
-    this.enemySpawner.update();
-    return this.game.groups.enemy.forEachAlive((function(_this) {
-      return function(enemy) {};
-    })(this));
+    return this.enemySpawner.update();
   };
 
   PlayState.prototype.render = function() {

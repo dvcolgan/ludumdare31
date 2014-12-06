@@ -15,8 +15,10 @@ class PlayState extends Phaser.State
         @game.load.image('secret', 'assets/secret.png')
         @game.load.image('tower', 'assets/tower.png')
 
-        @enemyFactory = new EnemyFactory(@game)
-        @enemyFactory.preload()
+        @game.load.image('enemy-small', 'assets/enemy-small.png')
+        @game.load.image('enemy-medium', 'assets/enemy-medium.png')
+        @game.load.image('enemy-large', 'assets/enemy-large.png')
+
         @towerFactory = new TowerFactory(@game)
         @towerFactory.preload()
 
@@ -40,7 +42,7 @@ class PlayState extends Phaser.State
         @stats = new Stats(@game)
         @secret = new Secret(@game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT/2)
         @loseOverlay = new LoseOverlay(@game)
-        @enemySpawner = new EnemySpawner(@enemyFactory, 60, @gameDifficulty)
+        @initializeEnemySpawner()
 
         G.events.onGameOver.add(@handleGameOver)
 
@@ -78,6 +80,10 @@ class PlayState extends Phaser.State
         @background.events.onInputDown.add(@handlePointerDownOnBackground)
         @game.groups.background.add(@background)
 
+    initializeEnemySpawner: () =>
+        enemyFactory = new EnemyFactory(@game, @game.groups.tower, @secret)
+        @enemySpawner = new EnemySpawner(enemyFactory, 60, @gameDifficulty)
+
 
     handlePointerDownOnBackground: (image, pointer) =>
         if @loseOverlay.isVisible() then return
@@ -92,7 +98,6 @@ class PlayState extends Phaser.State
         #pointerY = @game.input.y
 
         @enemySpawner.update()
-        @game.groups.enemy.forEachAlive (enemy) =>
 
     render: =>
         @game.debug.text(@game.time.fps || '--', 2, 14, "#00ff00")
