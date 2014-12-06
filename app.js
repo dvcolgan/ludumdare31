@@ -43,6 +43,7 @@ module.exports = DifficultyManager = (function() {
 
 },{}],3:[function(require,module,exports){
 var Enemy, EnemyFactory, G,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -52,11 +53,13 @@ Enemy = (function(_super) {
   __extends(Enemy, _super);
 
   function Enemy(game, x, y, key) {
+    this.update = __bind(this.update, this);
     Enemy.__super__.constructor.call(this, game, x, y, key);
+    game.add.existing(this);
   }
 
   Enemy.prototype.update = function() {
-    return console.log(x, y);
+    return console.log(this.x, this.y);
   };
 
   return Enemy;
@@ -66,6 +69,11 @@ Enemy = (function(_super) {
 module.exports = EnemyFactory = (function() {
   function EnemyFactory(game) {
     this.game = game;
+    this.createLarge = __bind(this.createLarge, this);
+    this.createMedium = __bind(this.createMedium, this);
+    this.createSmall = __bind(this.createSmall, this);
+    this.getY = __bind(this.getY, this);
+    this.preload = __bind(this.preload, this);
   }
 
   EnemyFactory.prototype.preload = function() {
@@ -80,7 +88,7 @@ module.exports = EnemyFactory = (function() {
 
   EnemyFactory.prototype.createSmall = function() {
     var enemy;
-    enemy = this.game.add.sprite(0, this.getY(), 'enemy-small');
+    enemy = new Enemy(this.game, 0, this.getY(), 'enemy-small');
     enemy.anchor.setTo(0.5, 0.5);
     this.game.physics.p2.enable(enemy, G.DEBUG);
     enemy.body.damping = 100;
@@ -91,7 +99,7 @@ module.exports = EnemyFactory = (function() {
 
   EnemyFactory.prototype.createMedium = function() {
     var enemy;
-    enemy = this.game.add.sprite(100, this.getY(), 'enemy-medium');
+    enemy = new Enemy(this.game, 100, this.getY(), 'enemy-medium');
     enemy.anchor.setTo(0.5, 0.5);
     this.game.physics.p2.enable(enemy, G.DEBUG);
     enemy.body.damping = 100;
