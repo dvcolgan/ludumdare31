@@ -64,7 +64,7 @@ class PlayState extends Phaser.State
         #if @cursors.left.isDown then @game.camera.x += 5
         #if @cursors.right.isDown then @game.camera.x -= 5
 
-        @difficultyManager.update()
+        @enemySpawner.update()
 
     render: ->
         @game.debug.text(@game.time.fps || '--', 2, 14, "#00ff00")

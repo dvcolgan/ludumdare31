@@ -8,11 +8,11 @@ module.exports = {
 
 
 },{}],2:[function(require,module,exports){
-var DifficultyManager,
+var EnemySpawner,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-module.exports = DifficultyManager = (function() {
-  function DifficultyManager(enemyFactory, framerate, difficulty) {
+module.exports = EnemySpawner = (function() {
+  function EnemySpawner(enemyFactory, framerate, difficulty) {
     this.enemyFactory = enemyFactory;
     this.framerate = framerate;
     this.maybeCreateNewEnemy = __bind(this.maybeCreateNewEnemy, this);
@@ -21,21 +21,21 @@ module.exports = DifficultyManager = (function() {
     this.changeDifficulty(difficulty);
   }
 
-  DifficultyManager.prototype.changeDifficulty = function(difficulty) {
+  EnemySpawner.prototype.changeDifficulty = function(difficulty) {
     return this.frameProbability = 1 / this.framerate * difficulty;
   };
 
-  DifficultyManager.prototype.update = function() {
+  EnemySpawner.prototype.update = function() {
     return this.maybeCreateNewEnemy();
   };
 
-  DifficultyManager.prototype.maybeCreateNewEnemy = function() {
+  EnemySpawner.prototype.maybeCreateNewEnemy = function() {
     if (Math.random() < this.frameProbability) {
       return this.enemyFactory.createMedium();
     }
   };
 
-  return DifficultyManager;
+  return EnemySpawner;
 
 })();
 
@@ -91,7 +91,6 @@ module.exports = EnemyFactory = (function() {
     enemy = new Enemy(this.game, 0, this.getY(), 'enemy-small');
     enemy.anchor.setTo(0.5, 0.5);
     this.game.physics.p2.enable(enemy, G.DEBUG);
-    enemy.body.damping = 100;
     enemy.body.clearShapes();
     enemy.body.addCircle(enemy.width / 2);
     return enemy;
@@ -99,13 +98,11 @@ module.exports = EnemyFactory = (function() {
 
   EnemyFactory.prototype.createMedium = function() {
     var enemy;
-    enemy = new Enemy(this.game, 100, this.getY(), 'enemy-medium');
+    enemy = new Enemy(this.game, 0, this.getY(), 'enemy-medium');
     enemy.anchor.setTo(0.5, 0.5);
     this.game.physics.p2.enable(enemy, G.DEBUG);
-    enemy.body.damping = 100;
     enemy.body.clearShapes();
     enemy.body.addCircle(enemy.width / 2);
-    enemy.body.moveRight(300);
     return enemy;
   };
 
@@ -114,7 +111,6 @@ module.exports = EnemyFactory = (function() {
     enemy = new Enemy(this.game, 0, this.getY(), 'enemy-large');
     enemy.anchor.setTo(0.5, 0.5);
     this.game.physics.p2.enable(enemy, G.DEBUG);
-    enemy.body.damping = 100;
     enemy.body.clearShapes();
     enemy.body.addCircle(enemy.width / 2);
     return enemy;
@@ -127,13 +123,13 @@ module.exports = EnemyFactory = (function() {
 
 
 },{"./constants":1}],4:[function(require,module,exports){
-var DifficultyManager, EnemyFactory, G, PlayState,
+var EnemyFactory, EnemySpawner, G, PlayState,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 G = require('./constants');
 
-DifficultyManager = require('./difficulty-manager');
+EnemySpawner = require('./enemy-spawner');
 
 EnemyFactory = require('./enemy');
 
@@ -164,11 +160,12 @@ PlayState = (function(_super) {
     this.small = this.enemyFactory.createSmall();
     this.medium = this.enemyFactory.createMedium();
     this.large = this.enemyFactory.createLarge();
-    return this.difficultyManager = new DifficultyManager(this.enemyFactory, 60, 1);
+    this.gameDifficulty = 1;
+    return this.enemySpawner = new EnemySpawner(this.enemyFactory, 60, this.gameDifficulty);
   };
 
   PlayState.prototype.update = function() {
-    return this.difficultyManager.update();
+    return this.enemySpawner.update();
   };
 
   PlayState.prototype.render = function() {
@@ -183,4 +180,4 @@ window.state = new Phaser.Game(G.SCREEN_WIDTH, G.SCREEN_HEIGHT, Phaser.AUTO, 'ga
 
 
 
-},{"./constants":1,"./difficulty-manager":2,"./enemy":3}]},{},[4])
+},{"./constants":1,"./enemy":3,"./enemy-spawner":2}]},{},[4])
