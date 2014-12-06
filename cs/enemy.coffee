@@ -7,7 +7,6 @@ class Enemy extends Phaser.Sprite
         game.add.existing(@)
 
     update: =>
-        console.log(@x, @y)
 
 
 module.exports = class EnemyFactory

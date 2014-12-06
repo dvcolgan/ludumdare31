@@ -1,6 +1,7 @@
 G = require('./constants')
 EnemySpawner = require('./enemy-spawner')
 EnemyFactory = require('./enemy')
+Secret = require('./secret')
 
 
 class PlayState extends Phaser.State
@@ -29,6 +30,8 @@ class PlayState extends Phaser.State
         @small = @enemyFactory.createSmall()
         @medium = @enemyFactory.createMedium()
         @large = @enemyFactory.createLarge()
+
+        @secret = new Secret(@game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT/2)
 
         #@group1 = @game.add.group()
         #@group2 = @game.add.group()

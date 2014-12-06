@@ -58,9 +58,7 @@ Enemy = (function(_super) {
     game.add.existing(this);
   }
 
-  Enemy.prototype.update = function() {
-    return console.log(this.x, this.y);
-  };
+  Enemy.prototype.update = function() {};
 
   return Enemy;
 
@@ -123,7 +121,7 @@ module.exports = EnemyFactory = (function() {
 
 
 },{"./constants":1}],4:[function(require,module,exports){
-var EnemyFactory, EnemySpawner, G, PlayState,
+var EnemyFactory, EnemySpawner, G, PlayState, Secret,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -132,6 +130,8 @@ G = require('./constants');
 EnemySpawner = require('./enemy-spawner');
 
 EnemyFactory = require('./enemy');
+
+Secret = require('./secret');
 
 PlayState = (function(_super) {
   __extends(PlayState, _super);
@@ -160,6 +160,7 @@ PlayState = (function(_super) {
     this.small = this.enemyFactory.createSmall();
     this.medium = this.enemyFactory.createMedium();
     this.large = this.enemyFactory.createLarge();
+    this.secret = new Secret(this.game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT / 2);
     this.gameDifficulty = 1;
     return this.enemySpawner = new EnemySpawner(this.enemyFactory, 60, this.gameDifficulty);
   };
@@ -180,4 +181,30 @@ window.state = new Phaser.Game(G.SCREEN_WIDTH, G.SCREEN_HEIGHT, Phaser.AUTO, 'ga
 
 
 
-},{"./constants":1,"./enemy":3,"./enemy-spawner":2}]},{},[4])
+},{"./constants":1,"./enemy":3,"./enemy-spawner":2,"./secret":5}],5:[function(require,module,exports){
+var G, Secret,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+G = require('./constants');
+
+module.exports = Secret = (function(_super) {
+  __extends(Secret, _super);
+
+  function Secret(game, x, y) {
+    Secret.__super__.constructor.call(this, game, x, y, 'secret');
+    game.add.existing(this);
+    this.anchor.setTo(0.5, 0.5);
+    game.physics.p2.enable(this, G.DEBUG);
+    this.body.kinematic = true;
+    this.body.clearShapes();
+    this.body.addCircle(this.width / 2);
+  }
+
+  return Secret;
+
+})(Phaser.Sprite);
+
+
+
+},{"./constants":1}]},{},[4])
