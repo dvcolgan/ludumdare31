@@ -1,31 +1,31 @@
 G = require('./constants')
+EnemyFactory = require('./enemy')
 
 
 class PlayState extends Phaser.State
     preload: ->
-        #@game.load.image('image', 'assets/image.png')
-        #@game.load.spritesheet('spritesheet', 'assets/spritesheet.png', width, height, numframes)
-        #@game.load.text('text', 'assets/words.txt')
-        #@game.load.physics('image_collision', 'assets/image_collision.json')
+        @game.load.image('background', 'assets/background.png')
+        @game.load.image('secret', 'assets/secret.png')
+        @game.load.image('tower', 'assets/tower.png')
 
+        @enemyFactory = new EnemyFactory(@game)
+        @enemyFactory.preload()
 
     create: ->
-        #@game.physics.startSystem(Phaser.Physics.P2JS)
-        #@game.physics.p2.setImpactEvents(true)
-        #@groups =
-        #    player: @game.physics.p2.createCollisionGroup()
-        #    bullet: @game.physics.p2.createCollisionGroup()
-        #    enemy: @game.physics.p2.createCollisionGroup()
+        @game.physics.startSystem(Phaser.Physics.P2JS)
+        @game.physics.p2.setImpactEvents(true)
+        @groups =
+            #player: @game.physics.p2.createCollisionGroup()
+            #bullet: @game.physics.p2.createCollisionGroup()
+            enemy: @game.physics.p2.createCollisionGroup()
 
         window.controller = @
-        #@cursors = @game.input.keyboard.createCursorKeys()
 
-        #@game.world.setBounds(-10000, -10000, 20000, 20000)
-        #@game.camera.x -= Math.floor(@game.stage.width/2)
-        #@game.camera.y -= Math.floor(@game.stage.height/2)
+        @background = @game.add.image(0, 0, 'background')
 
-        @game.stage.backgroundColor = '#c0ffee'
         @game.time.advancedTiming = G.DEBUG
+
+        @small = @enemyFactory.createSmall(100, 200)
 
         #@group1 = @game.add.group()
         #@group2 = @game.add.group()
@@ -62,10 +62,9 @@ class PlayState extends Phaser.State
 
         @difficultyManager.update()
 
-    #render: ->
-    #    @game.debug.text(@game.time.fps || '--', 2, 14, "#00ff00")
-
-    #    @game.debug.body(@ship.sprite)
+    render: ->
+        @game.debug.text(@game.time.fps || '--', 2, 14, "#00ff00")
+        @game.debug.body(@ship.sprite)
 
 
 window.state = new Phaser.Game(G.SCREEN_WIDTH, G.SCREEN_HEIGHT, Phaser.AUTO, 'game-container', new PlayState())

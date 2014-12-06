@@ -14,4 +14,4 @@ module.exports = class DifficultyManager
         if Math.random() < @frameProbability
 
             # Create a new enemy
-            EnemyMedium.create(@game)
+            EnemyFactory.create(@game)
