@@ -2,7 +2,7 @@ G = require('./constants')
 
 
 class Tower extends Phaser.Sprite
-    constructor: (game, x, y, key, @cooldown, @range) ->
+    constructor: (game, x, y, key, @cooldown, @range, @damage) ->
         super(game, x, y, key)
 
         @inputEnabled = true
@@ -17,8 +17,6 @@ class Tower extends Phaser.Sprite
         #@body.createGroupCallback(@game.collisionGroups.enemy, @onEnemyTouch)
 
         game.add.existing(@)
-
-        game.groups.tower.add(@)
 
         # Number of frames before
         @cooldownRemaining = 0
@@ -42,8 +40,7 @@ class Tower extends Phaser.Sprite
         @game.groups.enemy.forEachAlive (enemy) =>
             dist = Math.sqrt((enemy.x - @x)**2 + (enemy.y - @y)**2)
             if dist < @range
-                enemy.kill()
-                @game.events.onEnemyKilled.dispatch(enemy)
+                enemy.damage(@damage)
 
         # Reset cooldown
         @cooldownRemaining = @cooldown
@@ -56,5 +53,13 @@ module.exports = class TowerFactory
         @game.load.image('tower-aoe', 'assets/tower.png')
 
     createAoe: (x, y) =>
-        tower = new Tower(@game, x, y, 'tower-aoe', 60, 100)
+        tower = new Tower(
+            @game
+            x
+            y
+            'tower-aoe'
+            60   # cooldown
+            100  # range
+            10   # damage
+        )
         return tower

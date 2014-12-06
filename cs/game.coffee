@@ -9,6 +9,7 @@ Stats = require('./stats')
 
 
 class PlayState extends Phaser.State
+
     preload: ->
         @game.load.image('background', 'assets/background.png')
         @game.load.image('secret', 'assets/secret.png')
@@ -31,7 +32,7 @@ class PlayState extends Phaser.State
 
         @boughtItem = null
 
-        @game.events =
+        G.events =
             onGameOver: new Phaser.Signal()
             onEnemyKilled: new Phaser.Signal()
 
@@ -61,22 +62,17 @@ class PlayState extends Phaser.State
 
         @game.time.advancedTiming = G.DEBUG
 
-        @small = @enemyFactory.createSmall()
-        @medium = @enemyFactory.createMedium()
-        @large = @enemyFactory.createLarge()
-
         @secret = new Secret(@game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT/2)
 
         @loseOverlay = new LoseOverlay(@game)
 
 
         # TODO: Dynamically pass in framerate (should this stay hardcoded to 60?)
-        # TODO: Dynamically pass in difficulty.
-        @gameDifficulty = 1
+        @gameDifficulty = 3
         @enemySpawner = new EnemySpawner(@enemyFactory, 60, @gameDifficulty)
 
         @background.events.onInputDown.add(@handlePointerDown)
-        @game.events.onGameOver.add(@handleGameOver)
+        G.events.onGameOver.add(@handleGameOver)
 
     handlePointerDown: (image, pointer) =>
         if @loseOverlay.isVisible() then return
