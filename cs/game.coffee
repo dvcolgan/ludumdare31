@@ -29,7 +29,7 @@ class PlayState extends Phaser.State
             onGameOver: new Phaser.Signal()
             onEnemyKilled: new Phaser.Signal()
 
-        @game.stats = new Stats(@game)
+        @stats = new Stats(@game)
 
         @game.physics.startSystem(Phaser.Physics.P2JS)
         @game.physics.p2.setImpactEvents(true)
@@ -72,7 +72,7 @@ class PlayState extends Phaser.State
         @towerFactory.createAoe(pointer.x, pointer.y)
 
     handleGameOver: =>
-        @loseOverlay.show(@game.stats.score)
+        @loseOverlay.show(@stats.score)
 
     update: ->
         #pointerIsDown = @game.input.mousePointer?.isDown or @game.input.pointer1?.isDown
