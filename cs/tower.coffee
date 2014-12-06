@@ -39,7 +39,9 @@ class Tower extends Phaser.Sprite
         # Kill/delete all enemies found within range
         @game.groups.enemy.forEachAlive (enemy) =>
             dist = Math.sqrt((enemy.x - @x)**2 + (enemy.y - @y)**2)
-            enemy.kill() if dist < @range
+            if dist < @range
+                enemy.kill()
+                @game.events.onEnemyKilled.dispatch(enemy)
 
         # Reset cooldown
         @cooldownRemaining = @cooldown

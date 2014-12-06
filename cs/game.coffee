@@ -4,6 +4,7 @@ EnemyFactory = require('./enemy')
 TowerFactory = require('./tower')
 LoseOverlay = require('./lose-overlay')
 Secret = require('./secret')
+Stats = require('./stats')
 
 
 class PlayState extends Phaser.State
@@ -26,6 +27,9 @@ class PlayState extends Phaser.State
 
         @game.events =
             onGameOver: new Phaser.Signal()
+            onEnemyKilled: new Phaser.Signal()
+
+        @game.stats = new Stats(@game)
 
         @game.physics.startSystem(Phaser.Physics.P2JS)
         @game.physics.p2.setImpactEvents(true)
@@ -68,13 +72,13 @@ class PlayState extends Phaser.State
         @towerFactory.createAoe(pointer.x, pointer.y)
 
     handleGameOver: =>
-        @loseOverlay.show()
+        @loseOverlay.show(@game.stats.score)
 
     update: ->
         #pointerIsDown = @game.input.mousePointer?.isDown or @game.input.pointer1?.isDown
         #pointerX = @game.input.x
         #pointerY = @game.input.y
-        
+
         @enemySpawner.update()
 
     render: ->
