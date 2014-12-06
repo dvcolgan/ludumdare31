@@ -5,7 +5,9 @@ module.exports = class Enemy extends Phaser.Sprite
     constructor: (game, x, y, key) ->
         super(game, x, y, key)
 
-Enemy.create = (game, size, x, y) ->
+Enemy.create = (game, x = null, y = null) ->
+    # Todo: If x and y are null, choose a random place to put it
+
     sprite = game.add.sprite(x, y, "enemy_#{size}")
 
     sprite.anchor.setTo(0.5, 0.5)

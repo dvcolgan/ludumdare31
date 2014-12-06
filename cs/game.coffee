@@ -33,6 +33,10 @@ class PlayState extends Phaser.State
         #@group1.add(sprite)
         #@group2.add(sprite)
 
+        # TODO: Dynamically pass in framerate (should this stay hardcoded to 60?)
+        # TODO: Dynamically pass in difficulty.
+        @difficultyManager = new DifficultyManager(@, 60, 1)
+
 
     #screenWrap: (sprite) =>
 
@@ -55,6 +59,8 @@ class PlayState extends Phaser.State
         #if @cursors.down.isDown then @game.camera.y -= 5
         #if @cursors.left.isDown then @game.camera.x += 5
         #if @cursors.right.isDown then @game.camera.x -= 5
+
+        @difficultyManager.update()
 
     #render: ->
     #    @game.debug.text(@game.time.fps || '--', 2, 14, "#00ff00")
