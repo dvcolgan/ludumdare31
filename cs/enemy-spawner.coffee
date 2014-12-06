@@ -11,7 +11,7 @@ module.exports = class EnemySpawner
     calculateProbability: () =>
 
         # For efficiency, since it'll be used every update
-        @frameProbability = 0.1 / @framerate * @difficulty
+        @frameProbability = 0.2 / @framerate * @difficulty
 
     update: () =>
         @maybeCreateNewEnemy()
