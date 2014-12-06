@@ -46,6 +46,12 @@ class PlayState extends Phaser.State
         G.events.onGameOver.add(@handleGameOver)
         G.events.onStoreItemPurchased.add(@handleStoreItemPurchased)
 
+        # TODO: Remove this! Iz for cheats
+        key = @game.input.keyboard.addKey(Phaser.Keyboard.ONE)
+        key.onDown.add () =>
+            @towerFactory['createAoe'](@game.input.mousePointer.x, @game.input.mousePointer.y)
+        , this
+
     initializeGame: () =>
         @game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT)
         @game.camera.x = 0
