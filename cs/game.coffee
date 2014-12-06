@@ -46,6 +46,8 @@ class PlayState extends Phaser.State
         G.events.onGameOver.add(@handleGameOver)
         G.events.onStoreItemPurchased.add(@handleStoreItemPurchased)
 
+        @frame = 0
+
         # TODO: Remove this! Iz for cheats
         key = @game.input.keyboard.addKey(Phaser.Keyboard.ONE)
         key.onDown.add () =>
@@ -114,7 +116,8 @@ class PlayState extends Phaser.State
         #pointerX = @game.input.x
         #pointerY = @game.input.y
 
-        @enemySpawner.update()
+        @frame++
+        @enemySpawner.update(@frame)
 
     render: =>
         @game.debug.text(@game.time.fps || '--', 2, 14, "#00ff00")

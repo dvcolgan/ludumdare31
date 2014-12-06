@@ -8,16 +8,19 @@ module.exports = class EnemySpawner
         @probabilityOfSpawningMediumEnemy = 0.5
         @probabilityOfSpawningLargeEnemy = 0.2
 
+        @secondsUntilSpawnRateDoubled = 60
+        @framesUntilSpawnRateDoubled = @framerate * @secondsUntilSpawnRateDoubled
+
     calculateProbability: () =>
 
         # For efficiency, since it'll be used every update
         @frameProbability = 0.1 / @framerate * @difficulty
 
-    update: () =>
-        @maybeCreateNewEnemy()
+    update: (frame) =>
+        @maybeCreateNewEnemy(frame)
 
-    maybeCreateNewEnemy: () =>
-        if Math.random() < @frameProbability
+    maybeCreateNewEnemy: (frame) =>
+        if Math.random() < @frameProbability * (frame / @framesUntilSpawnRateDoubled + 1)
 
             if @difficulty < @minDifficultyToSpawnMediumEnemies
                 @enemyFactory.createSmall()
