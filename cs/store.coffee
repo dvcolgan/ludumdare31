@@ -14,8 +14,8 @@ module.exports = class Store
         @overlay = @game.add.sprite(0, -474, 'store-overlay')
         @overlay.inputEnabled = true
         @game.groups.overlay.add(@overlay)
-        @slideDownTween = @game.add.tween(@overlay).to({y: 0}, 700, Phaser.Easing.Bounce.Out)
-        @slideUpTween = @game.add.tween(@overlay).to({y: -474}, 700, Phaser.Easing.Bounce.Out)
+        @slideDownTween = @game.add.tween(@overlay).to({y: 0}, 500, Phaser.Easing.Bounce.Out)
+        @slideUpTween = @game.add.tween(@overlay).to({y: -474}, 500, Phaser.Easing.Bounce.Out)
 
         @overlay.events.onInputDown.add(@toggleStore)
         @state = 'up'
@@ -29,14 +29,14 @@ module.exports = class Store
         item.anchor.setTo(0.5, 0.5)
         @overlay.addChild(slot)
         @overlay.addChild(item)
-        item.inputEnabled = true
-        item.input.priorityID = 1
-        item.events.onInputDown.add(@handleClickOnForSaleItem)
-        item.data = itemData
+        slot.inputEnabled = true
+        slot.input.priorityID = 1
+        slot.events.onInputDown.add(@handleClickOnForSaleItem)
+        slot.data = itemData
 
-    handleClickOnForSaleItem: (item) =>
-        @stats.subtractGold(item.data.cost)
-        G.events.onStoreItemPurchased.dispatch(item.data)
+    handleClickOnForSaleItem: (slot) =>
+        @stats.subtractGold(slot.data.cost)
+        G.events.onStoreItemPurchased.dispatch(slot.data)
 
         @toggleStore()
 

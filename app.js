@@ -244,7 +244,9 @@ PlayState = (function(_super) {
     this.game.camera.x = 0;
     this.game.time.advancedTiming = G.DEBUG;
     window.controller = this;
-    return this.gameDifficulty = 3;
+    this.gameDifficulty = 3;
+    this.boughtItem = null;
+    return this.cursorSprite = null;
   };
 
   PlayState.prototype.initializePhysicsEngine = function() {
@@ -283,7 +285,8 @@ PlayState = (function(_super) {
   PlayState.prototype.handlePointerDownOnBackground = function(image, pointer) {
     if (this.boughtItem) {
       this.towerFactory[this.boughtItem.createFn](pointer.x, pointer.y);
-      return this.boughtItem = null;
+      this.boughtItem = null;
+      return this.cursorSprite.destroy();
     }
   };
 
@@ -292,7 +295,17 @@ PlayState = (function(_super) {
   };
 
   PlayState.prototype.handleStoreItemPurchased = function(itemData) {
-    return this.boughtItem = itemData;
+    this.boughtItem = itemData;
+    this.cursorSprite = this.game.add.sprite(this.game.input.x, this.game.input.y, itemData.imageKey);
+    this.game.groups.overlay.add(this.cursorSprite);
+    this.cursorSprite.anchor.setTo(0.5, 0.5);
+    this.cursorSprite.alpha = 0.5;
+    return this.cursorSprite.update = (function(_this) {
+      return function() {
+        _this.cursorSprite.x = _this.game.input.x;
+        return _this.cursorSprite.y = _this.game.input.y;
+      };
+    })(this);
   };
 
   PlayState.prototype.update = function() {
@@ -471,10 +484,10 @@ module.exports = Store = (function() {
     this.game.groups.overlay.add(this.overlay);
     this.slideDownTween = this.game.add.tween(this.overlay).to({
       y: 0
-    }, 700, Phaser.Easing.Bounce.Out);
+    }, 500, Phaser.Easing.Bounce.Out);
     this.slideUpTween = this.game.add.tween(this.overlay).to({
       y: -474
-    }, 700, Phaser.Easing.Bounce.Out);
+    }, 500, Phaser.Easing.Bounce.Out);
     this.overlay.events.onInputDown.add(this.toggleStore);
     this.state = 'up';
     this.addForSaleItem(forSaleItems.towerAoe);
@@ -488,15 +501,15 @@ module.exports = Store = (function() {
     item.anchor.setTo(0.5, 0.5);
     this.overlay.addChild(slot);
     this.overlay.addChild(item);
-    item.inputEnabled = true;
-    item.input.priorityID = 1;
-    item.events.onInputDown.add(this.handleClickOnForSaleItem);
-    return item.data = itemData;
+    slot.inputEnabled = true;
+    slot.input.priorityID = 1;
+    slot.events.onInputDown.add(this.handleClickOnForSaleItem);
+    return slot.data = itemData;
   };
 
-  Store.prototype.handleClickOnForSaleItem = function(item) {
-    this.stats.subtractGold(item.data.cost);
-    G.events.onStoreItemPurchased.dispatch(item.data);
+  Store.prototype.handleClickOnForSaleItem = function(slot) {
+    this.stats.subtractGold(slot.data.cost);
+    G.events.onStoreItemPurchased.dispatch(slot.data);
     return this.toggleStore();
   };
 
