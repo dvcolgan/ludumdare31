@@ -5,6 +5,9 @@ class Enemy extends Phaser.Sprite
     constructor: (game, x, y, key) ->
         super(game, x, y, key)
 
+    update: ->
+        console.log(x, y)
+
 
 module.exports = class EnemyFactory
     constructor: (@game) ->
@@ -15,28 +18,32 @@ module.exports = class EnemyFactory
         @game.load.image('enemy-large', 'assets/enemy-large.png')
 
     getY: ->
-        return @game.rnd.getRandomInteger(0, G.SCREEN_HEIGHT)
+        return @game.rnd.integerInRange(0, G.SCREEN_HEIGHT)
 
     createSmall: ->
-        small = @game.add.sprite(0, @getY(), 'enemy-small')
-        small.anchor.setTo(0.5, 0.5)
-        small.body.damping = 100
-        small.body.clearShapes()
-        small.body.addCircle(small.width/2)
-        return small
+        enemy = @game.add.sprite(0, @getY(), 'enemy-small')
+        enemy.anchor.setTo(0.5, 0.5)
+        @game.physics.p2.enable(enemy, G.DEBUG)
+        enemy.body.damping = 100
+        enemy.body.clearShapes()
+        enemy.body.addCircle(enemy.width/2)
+        return enemy
 
     createMedium: ->
-        medium = @game.add.sprite(0, y, 'enemy-medium')
-        medium.anchor.setTo(0.5, 0.5)
-        medium.body.damping = 100
-        medium.body.clearShapes()
-        medium.body.addCircle(small.width/2)
-        return medium
+        enemy = @game.add.sprite(100, @getY(), 'enemy-medium')
+        enemy.anchor.setTo(0.5, 0.5)
+        @game.physics.p2.enable(enemy, G.DEBUG)
+        enemy.body.damping = 100
+        enemy.body.clearShapes()
+        enemy.body.addCircle(enemy.width/2)
+        enemy.body.moveRight(300)
+        return enemy
 
     createLarge: ->
-        large = new Enemy(@game, 0, y, 'enemy-large')
-        large.anchor.setTo(0.5, 0.5)
-        large.body.damping = 100
-        large.body.clearShapes()
-        large.body.addCircle(small.width/2)
-        return large
+        enemy = new Enemy(@game, 0, @getY(), 'enemy-large')
+        enemy.anchor.setTo(0.5, 0.5)
+        @game.physics.p2.enable(enemy, G.DEBUG)
+        enemy.body.damping = 100
+        enemy.body.clearShapes()
+        enemy.body.addCircle(enemy.width/2)
+        return enemy

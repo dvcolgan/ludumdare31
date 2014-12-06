@@ -8,6 +8,40 @@ module.exports = {
 
 
 },{}],2:[function(require,module,exports){
+var DifficultyManager,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+module.exports = DifficultyManager = (function() {
+  function DifficultyManager(enemyFactory, framerate, difficulty) {
+    this.enemyFactory = enemyFactory;
+    this.framerate = framerate;
+    this.maybeCreateNewEnemy = __bind(this.maybeCreateNewEnemy, this);
+    this.update = __bind(this.update, this);
+    this.changeDifficulty = __bind(this.changeDifficulty, this);
+    this.changeDifficulty(difficulty);
+  }
+
+  DifficultyManager.prototype.changeDifficulty = function(difficulty) {
+    return this.frameProbability = 1 / this.framerate * difficulty;
+  };
+
+  DifficultyManager.prototype.update = function() {
+    return this.maybeCreateNewEnemy();
+  };
+
+  DifficultyManager.prototype.maybeCreateNewEnemy = function() {
+    if (Math.random() < this.frameProbability) {
+      return this.enemyFactory.createMedium();
+    }
+  };
+
+  return DifficultyManager;
+
+})();
+
+
+
+},{}],3:[function(require,module,exports){
 var Enemy, EnemyFactory, G,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -21,19 +55,13 @@ Enemy = (function(_super) {
     Enemy.__super__.constructor.call(this, game, x, y, key);
   }
 
+  Enemy.prototype.update = function() {
+    return console.log(x, y);
+  };
+
   return Enemy;
 
 })(Phaser.Sprite);
-
-Enemy.create = function(game, size, x, y) {
-  var sprite;
-  sprite = game.add.sprite(x, y, "enemy_" + size);
-  sprite.anchor.setTo(0.5, 0.5);
-  sprite.body.damping = 100;
-  sprite.body.clearShapes();
-  sprite.body.loadPolygon("enemy_" + size + "_collision", "enemy_" + size);
-  return new Enemy(game, x, y, "something");
-};
 
 module.exports = EnemyFactory = (function() {
   function EnemyFactory(game) {
@@ -46,34 +74,42 @@ module.exports = EnemyFactory = (function() {
     return this.game.load.image('enemy-large', 'assets/enemy-large.png');
   };
 
-  EnemyFactory.prototype.createSmall = function(x, y) {
-    var small;
-    small = new Enemy(this.game, x, y, 'enemy-small');
-    small.anchor.setTo(0.5, 0.5);
-    small.body.damping = 100;
-    small.body.clearShapes();
-    small.body.addCircle(small.width / 2);
-    return small;
+  EnemyFactory.prototype.getY = function() {
+    return this.game.rnd.integerInRange(0, G.SCREEN_HEIGHT);
   };
 
-  EnemyFactory.prototype.createMedium = function(x, y) {
-    var medium;
-    medium = new Enemy(this.game, x, y, 'enemy-medium');
-    medium.anchor.setTo(0.5, 0.5);
-    medium.body.damping = 100;
-    medium.body.clearShapes();
-    medium.body.addCircle(small.width / 2);
-    return medium;
+  EnemyFactory.prototype.createSmall = function() {
+    var enemy;
+    enemy = this.game.add.sprite(0, this.getY(), 'enemy-small');
+    enemy.anchor.setTo(0.5, 0.5);
+    this.game.physics.p2.enable(enemy, G.DEBUG);
+    enemy.body.damping = 100;
+    enemy.body.clearShapes();
+    enemy.body.addCircle(enemy.width / 2);
+    return enemy;
   };
 
-  EnemyFactory.prototype.createLarge = function(x, y) {
-    var large;
-    large = new Enemy(this.game, x, y, 'enemy-large');
-    large.anchor.setTo(0.5, 0.5);
-    large.body.damping = 100;
-    large.body.clearShapes();
-    large.body.addCircle(small.width / 2);
-    return large;
+  EnemyFactory.prototype.createMedium = function() {
+    var enemy;
+    enemy = this.game.add.sprite(100, this.getY(), 'enemy-medium');
+    enemy.anchor.setTo(0.5, 0.5);
+    this.game.physics.p2.enable(enemy, G.DEBUG);
+    enemy.body.damping = 100;
+    enemy.body.clearShapes();
+    enemy.body.addCircle(enemy.width / 2);
+    enemy.body.moveRight(300);
+    return enemy;
+  };
+
+  EnemyFactory.prototype.createLarge = function() {
+    var enemy;
+    enemy = new Enemy(this.game, 0, this.getY(), 'enemy-large');
+    enemy.anchor.setTo(0.5, 0.5);
+    this.game.physics.p2.enable(enemy, G.DEBUG);
+    enemy.body.damping = 100;
+    enemy.body.clearShapes();
+    enemy.body.addCircle(enemy.width / 2);
+    return enemy;
   };
 
   return EnemyFactory;
@@ -82,12 +118,14 @@ module.exports = EnemyFactory = (function() {
 
 
 
-},{"./constants":1}],3:[function(require,module,exports){
-var EnemyFactory, G, PlayState,
+},{"./constants":1}],4:[function(require,module,exports){
+var DifficultyManager, EnemyFactory, G, PlayState,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 G = require('./constants');
+
+DifficultyManager = require('./difficulty-manager');
 
 EnemyFactory = require('./enemy');
 
@@ -115,14 +153,18 @@ PlayState = (function(_super) {
     window.controller = this;
     this.background = this.game.add.image(0, 0, 'background');
     this.game.time.advancedTiming = G.DEBUG;
-    return this.small = this.enemyFactory.createSmall(100, 200);
+    this.small = this.enemyFactory.createSmall();
+    this.medium = this.enemyFactory.createMedium();
+    this.large = this.enemyFactory.createLarge();
+    return this.difficultyManager = new DifficultyManager(this.enemyFactory, 60, 1);
   };
 
-  PlayState.prototype.update = function() {};
+  PlayState.prototype.update = function() {
+    return this.difficultyManager.update();
+  };
 
   PlayState.prototype.render = function() {
-    this.game.debug.text(this.game.time.fps || '--', 2, 14, "#00ff00");
-    return this.game.debug.body(this.ship.sprite);
+    return this.game.debug.text(this.game.time.fps || '--', 2, 14, "#00ff00");
   };
 
   return PlayState;
@@ -133,4 +175,4 @@ window.state = new Phaser.Game(G.SCREEN_WIDTH, G.SCREEN_HEIGHT, Phaser.AUTO, 'ga
 
 
 
-},{"./constants":1,"./enemy":2}]},{},[3])
+},{"./constants":1,"./difficulty-manager":2,"./enemy":3}]},{},[4])

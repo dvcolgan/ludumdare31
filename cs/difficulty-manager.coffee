@@ -1,6 +1,6 @@
 module.exports = class DifficultyManager
     constructor: (@enemyFactory, @framerate, difficulty) ->
-        @changeDifficulty(@difficulty)
+        @changeDifficulty(difficulty)
 
     changeDifficulty: (difficulty) =>
 

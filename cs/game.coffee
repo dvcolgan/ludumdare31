@@ -1,4 +1,5 @@
 G = require('./constants')
+DifficultyManager = require('./difficulty-manager')
 EnemyFactory = require('./enemy')
 
 
@@ -25,7 +26,9 @@ class PlayState extends Phaser.State
 
         @game.time.advancedTiming = G.DEBUG
 
-        @small = @enemyFactory.createSmall(100, 200)
+        @small = @enemyFactory.createSmall()
+        @medium = @enemyFactory.createMedium()
+        @large = @enemyFactory.createLarge()
 
         #@group1 = @game.add.group()
         #@group2 = @game.add.group()
@@ -64,7 +67,6 @@ class PlayState extends Phaser.State
 
     render: ->
         @game.debug.text(@game.time.fps || '--', 2, 14, "#00ff00")
-        @game.debug.body(@ship.sprite)
 
 
 window.state = new Phaser.Game(G.SCREEN_WIDTH, G.SCREEN_HEIGHT, Phaser.AUTO, 'game-container', new PlayState())
