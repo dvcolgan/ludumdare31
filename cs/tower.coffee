@@ -2,7 +2,7 @@ G = require('./constants')
 
 
 class Tower extends Phaser.Sprite
-    constructor: (game, x, y, key, @cooldown) ->
+    constructor: (game, x, y, key, @cooldown, @range) ->
         super(game, x, y, key)
         game.add.existing(@)
 
@@ -22,6 +22,9 @@ class Tower extends Phaser.Sprite
 
         # TODO: Make things happen
 
+        # Search for all enemies within @range
+        # Kill/delete all enemies found within range
+
         # Reset cooldown
         @cooldown = @cooldownRemaining
 
@@ -33,7 +36,7 @@ module.exports = class TowerFactory
         @game.load.image('tower-aoe', 'assets/tower-aoe.png')
 
     createAoe: (x, y) =>
-        tower = new Tower(@game, x, y, 'tower-aoe', 60)
+        tower = new Tower(@game, x, y, 'tower-aoe', 60, 100)
 
         tower.anchor.setTo(0.5, 0.5)
         tower.body.clearShapes()
