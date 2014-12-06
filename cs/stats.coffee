@@ -6,6 +6,14 @@ module.exports = class Stats
         @score = 0
         @gold = 500
 
+        # Display text on the screen
+        @text = @game.add.text 20, 20, '',
+            font: '20px Arial'
+            fill: 'black'
+            align: 'left'
+
+        @updateText()
+
         @game.events.onEnemyKilled.add(@handleEnemyKilled)
 
     handleEnemyKilled: (enemy) =>
@@ -23,3 +31,7 @@ module.exports = class Stats
                 @gold += @game.rnd.between 20, 50
                 @score += 20
 
+        @updateText()
+
+    updateText: () =>
+        @text.text = "Gold: #{@gold} Score: #{@score}"

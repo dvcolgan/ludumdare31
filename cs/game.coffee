@@ -29,8 +29,6 @@ class PlayState extends Phaser.State
             onGameOver: new Phaser.Signal()
             onEnemyKilled: new Phaser.Signal()
 
-        @stats = new Stats(@game)
-
         @game.physics.startSystem(Phaser.Physics.P2JS)
         @game.physics.p2.setImpactEvents(true)
 
@@ -45,6 +43,8 @@ class PlayState extends Phaser.State
 
         @background = @game.add.image(0, 0, 'background')
         @background.inputEnabled = true
+
+        @stats = new Stats(@game)
 
         @game.groups =
             enemy: @game.add.group()
