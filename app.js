@@ -217,8 +217,7 @@ PlayState = (function(_super) {
     this.game.load.image('enemy-small', 'assets/enemy-small.png');
     this.game.load.image('enemy-medium', 'assets/enemy-medium.png');
     this.game.load.image('enemy-large', 'assets/enemy-large.png');
-    this.towerFactory = new TowerFactory(this.game);
-    this.towerFactory.preload();
+    this.game.load.image('tower-aoe', 'assets/tower.png');
     this.game.load.image('lose-overlay', 'assets/lose-overlay.png');
     this.game.load.image('store-overlay', 'assets/store-overlay.png');
     return this.game.load.image('store-slot', 'assets/store-slot.png');
@@ -229,6 +228,7 @@ PlayState = (function(_super) {
     this.initializePhysicsEngine();
     this.initializeGroups();
     this.game.physics.p2.updateBoundsCollisionGroup();
+    this.towerFactory = new TowerFactory(this.game);
     this.stats = new Stats(this.game);
     this.store = new Store(this.game, this.towerFactory, this.stats);
     this.initializeBackground();
@@ -623,12 +623,7 @@ module.exports = TowerFactory = (function() {
   function TowerFactory(game) {
     this.game = game;
     this.createAoe = __bind(this.createAoe, this);
-    this.preload = __bind(this.preload, this);
   }
-
-  TowerFactory.prototype.preload = function() {
-    return this.game.load.image('tower-aoe', 'assets/tower.png');
-  };
 
   TowerFactory.prototype.createAoe = function(x, y) {
     var tower;

@@ -29,9 +29,31 @@ class Enemy extends Phaser.Sprite
         @pointAtSecret(@secret)
 
     pointAtSecret: (secret) =>
-        dx = secret.x - @x
-        dy = secret.y - @y
-        @body.rotation = Math.atan2(dy, dx) + Math.PI/2
+
+        # Point directly at the secret
+        vector = Phaser.Point.subtract(@, secret)
+
+        # TODO: Come back to this later.
+        ## Invert the magnitude of the vector
+        #magnitude = vector.getMagnitude()
+        #vector.setMagnitude(10000 / magnitude)
+
+        ## Iterate over all the towers and point away from them,
+        ## inversely proportional to the distance from them
+        #@towerGroup.forEachAlive (tower) =>
+
+        #    # Point AWAY from the towers
+        #    vectorToTower = Phaser.Point.subtract(tower, @)
+
+        #    # Invert the magnitude of the vector
+        #    magnitude = vectorToTower.getMagnitude()
+        #    vectorToTower.setMagnitude(1000 / magnitude)
+
+        #    # Add this vector to the angle
+        #    Phaser.Point.add(vector, vectorToTower, vector)
+
+        @body.rotation = vector.angle(new Phaser.Point()) + Math.PI/2
+        @body.thrust 10
 
     damage: (damage) =>
         super(damage)
@@ -58,7 +80,6 @@ module.exports = class EnemyFactory
             'enemy-small'
             10
         )
-        enemy.body.moveRight(300)
         @game.groups.enemy.add(enemy)
         return enemy
 
@@ -72,7 +93,6 @@ module.exports = class EnemyFactory
             'enemy-medium'
             20
         )
-        enemy.body.moveRight(300)
         @game.groups.enemy.add(enemy)
         return enemy
 
@@ -86,6 +106,5 @@ module.exports = class EnemyFactory
             'enemy-large'
             30
         )
-        enemy.body.moveRight(300)
         @game.groups.enemy.add(enemy)
         return enemy
