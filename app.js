@@ -184,11 +184,11 @@ PlayState = (function(_super) {
     return this.game.events.onGameOver.add(this.handleGameOver);
   };
 
-  PlayState.prototype.handlePointerDown = function(coords) {
+  PlayState.prototype.handlePointerDown = function(image, pointer) {
     if (this.loseOverlay.isVisible()) {
       return;
     }
-    return this.towerFactory.createAoe(coords.x, coords.y);
+    return this.towerFactory.createAoe(pointer.x, pointer.y);
   };
 
   PlayState.prototype.handleGameOver = function() {

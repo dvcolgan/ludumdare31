@@ -68,9 +68,9 @@ class PlayState extends Phaser.State
         @background.events.onInputDown.add(@handlePointerDown)
         @game.events.onGameOver.add(@handleGameOver)
 
-    handlePointerDown: (coords) =>
+    handlePointerDown: (image, pointer) =>
         if @loseOverlay.isVisible() then return
-        @towerFactory.createAoe(coords.x, coords.y)
+        @towerFactory.createAoe(pointer.x, pointer.y)
 
     handleGameOver: =>
         @loseOverlay.show()
