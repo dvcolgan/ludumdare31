@@ -2,9 +2,10 @@ G = require('./constants')
 
 
 class Enemy extends Phaser.Sprite
-    constructor: (game, x, y, key) ->
+    constructor: (game, x, y, key, health) ->
         super(game, x, y, key)
 
+        @health = health
         @anchor.setTo(0.5, 0.5)
         game.physics.p2.enable(@, G.DEBUG)
         @body.clearShapes()
@@ -15,6 +16,22 @@ class Enemy extends Phaser.Sprite
         ])
 
         game.add.existing(@)
+
+        # Health text
+        @healthText = new Phaser.Text game, 0, 0, @health,
+            font: '10px Arial'
+            fill: 'black'
+            align: 'center'
+
+        @addChild @healthText
+
+    damage: (damage) =>
+        super(damage)
+
+        @healthText.text = @health
+
+        if @health <= 0
+            G.events.onEnemyKilled.dispatch(@)
 
 
 module.exports = class EnemyFactory
@@ -29,19 +46,19 @@ module.exports = class EnemyFactory
         return @game.rnd.integerInRange(0, G.SCREEN_HEIGHT)
 
     createSmall: =>
-        enemy = new Enemy(@game, 0, @getY(), 'enemy-small')
+        enemy = new Enemy(@game, 0, @getY(), 'enemy-small', 10)
         enemy.body.moveRight(300)
         @game.groups.enemy.add(enemy)
         return enemy
 
     createMedium: =>
-        enemy = new Enemy(@game, 0, @getY(), 'enemy-medium')
+        enemy = new Enemy(@game, 0, @getY(), 'enemy-medium', 20)
         enemy.body.moveRight(300)
         @game.groups.enemy.add(enemy)
         return enemy
 
     createLarge: =>
-        enemy = new Enemy(@game, 0, @getY(), 'enemy-large')
+        enemy = new Enemy(@game, 0, @getY(), 'enemy-large', 30)
         enemy.body.moveRight(300)
         @game.groups.enemy.add(enemy)
         return enemy

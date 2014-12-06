@@ -30,7 +30,7 @@ class PlayState extends Phaser.State
         @game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT)
         @game.camera.x = 0
 
-        @game.events =
+        G.events =
             onGameOver: new Phaser.Signal()
             onEnemyKilled: new Phaser.Signal()
 
@@ -70,7 +70,7 @@ class PlayState extends Phaser.State
         @enemySpawner = new EnemySpawner(@enemyFactory, 60, @gameDifficulty)
 
         @background.events.onInputDown.add(@handlePointerDown)
-        @game.events.onGameOver.add(@handleGameOver)
+        G.events.onGameOver.add(@handleGameOver)
 
     handlePointerDown: (image, pointer) =>
         if @loseOverlay.isVisible() then return

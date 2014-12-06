@@ -14,7 +14,7 @@ module.exports = class Stats
 
         @updateText()
 
-        @game.events.onEnemyKilled.add(@handleEnemyKilled)
+        G.events.onEnemyKilled.add(@handleEnemyKilled)
 
     handleEnemyKilled: (enemy) =>
 

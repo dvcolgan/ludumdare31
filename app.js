@@ -15,14 +15,19 @@ module.exports = EnemySpawner = (function() {
   function EnemySpawner(enemyFactory, framerate, difficulty) {
     this.enemyFactory = enemyFactory;
     this.framerate = framerate;
+    this.difficulty = difficulty;
     this.maybeCreateNewEnemy = __bind(this.maybeCreateNewEnemy, this);
     this.update = __bind(this.update, this);
-    this.changeDifficulty = __bind(this.changeDifficulty, this);
-    this.changeDifficulty(difficulty);
+    this.calculateProbability = __bind(this.calculateProbability, this);
+    this.calculateProbability();
+    this.minDifficultyToSpawnMediumEnemies = 2;
+    this.minDifficultyToSpawnLargeEnemies = 3;
+    this.probabilityOfSpawningMediumEnemy = 0.5;
+    this.probabilityOfSpawningLargeEnemy = 0.2;
   }
 
-  EnemySpawner.prototype.changeDifficulty = function(difficulty) {
-    return this.frameProbability = 1 / this.framerate * difficulty;
+  EnemySpawner.prototype.calculateProbability = function() {
+    return this.frameProbability = 0.2 / this.framerate * this.difficulty;
   };
 
   EnemySpawner.prototype.update = function() {
@@ -31,7 +36,23 @@ module.exports = EnemySpawner = (function() {
 
   EnemySpawner.prototype.maybeCreateNewEnemy = function() {
     if (Math.random() < this.frameProbability) {
-      return this.enemyFactory.createMedium();
+      if (this.difficulty < this.minDifficultyToSpawnMediumEnemies) {
+        return this.enemyFactory.createSmall();
+      } else if (this.difficulty < this.minDifficultyToSpawnLargeEnemies) {
+        if (Math.random() < this.probabilityOfSpawningMediumEnemy) {
+          return this.enemyFactory.createMedium();
+        } else {
+          return this.enemyFactory.createSmall();
+        }
+      } else {
+        if (Math.random() < this.probabilityOfSpawningLargeEnemy) {
+          return this.enemyFactory.createLarge();
+        } else if (Math.random() < this.probabilityOfSpawningMediumEnemy) {
+          return this.enemyFactory.createMedium();
+        } else {
+          return this.enemyFactory.createSmall();
+        }
+      }
     }
   };
 
@@ -43,17 +64,19 @@ module.exports = EnemySpawner = (function() {
 
 },{}],3:[function(require,module,exports){
 var Enemy, EnemyFactory, G,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 G = require('./constants');
 
 Enemy = (function(_super) {
   __extends(Enemy, _super);
 
-  function Enemy(game, x, y, key) {
+  function Enemy(game, x, y, key, health) {
+    this.damage = __bind(this.damage, this);
     Enemy.__super__.constructor.call(this, game, x, y, key);
+    this.health = health;
     this.anchor.setTo(0.5, 0.5);
     game.physics.p2.enable(this, G.DEBUG);
     this.body.clearShapes();
@@ -61,7 +84,21 @@ Enemy = (function(_super) {
     this.body.setCollisionGroup(game.collisionGroups.enemy);
     this.body.collides([game.collisionGroups.enemy, game.collisionGroups.tower, game.collisionGroups.secret]);
     game.add.existing(this);
+    this.healthText = new Phaser.Text(game, 0, 0, this.health, {
+      font: '10px Arial',
+      fill: 'black',
+      align: 'center'
+    });
+    this.addChild(this.healthText);
   }
+
+  Enemy.prototype.damage = function(damage) {
+    Enemy.__super__.damage.call(this, damage);
+    this.healthText.text = this.health;
+    if (this.health <= 0) {
+      return G.events.onEnemyKilled.dispatch(this);
+    }
+  };
 
   return Enemy;
 
@@ -89,14 +126,15 @@ module.exports = EnemyFactory = (function() {
 
   EnemyFactory.prototype.createSmall = function() {
     var enemy;
-    enemy = new Enemy(this.game, 0, this.getY(), 'enemy-small');
+    enemy = new Enemy(this.game, 0, this.getY(), 'enemy-small', 10);
+    enemy.body.moveRight(300);
     this.game.groups.enemy.add(enemy);
     return enemy;
   };
 
   EnemyFactory.prototype.createMedium = function() {
     var enemy;
-    enemy = new Enemy(this.game, 0, this.getY(), 'enemy-medium');
+    enemy = new Enemy(this.game, 0, this.getY(), 'enemy-medium', 20);
     enemy.body.moveRight(300);
     this.game.groups.enemy.add(enemy);
     return enemy;
@@ -104,7 +142,8 @@ module.exports = EnemyFactory = (function() {
 
   EnemyFactory.prototype.createLarge = function() {
     var enemy;
-    enemy = new Enemy(this.game, 0, this.getY(), 'enemy-large');
+    enemy = new Enemy(this.game, 0, this.getY(), 'enemy-large', 30);
+    enemy.body.moveRight(300);
     this.game.groups.enemy.add(enemy);
     return enemy;
   };
@@ -162,7 +201,7 @@ PlayState = (function(_super) {
   PlayState.prototype.create = function() {
     this.game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT);
     this.game.camera.x = 0;
-    this.game.events = {
+    G.events = {
       onGameOver: new Phaser.Signal(),
       onEnemyKilled: new Phaser.Signal()
     };
@@ -186,15 +225,12 @@ PlayState = (function(_super) {
     this.game.groups.background.add(this.background);
     this.stats = new Stats(this.game);
     this.game.time.advancedTiming = G.DEBUG;
-    this.small = this.enemyFactory.createSmall();
-    this.medium = this.enemyFactory.createMedium();
-    this.large = this.enemyFactory.createLarge();
     this.secret = new Secret(this.game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT / 2);
     this.loseOverlay = new LoseOverlay(this.game);
-    this.gameDifficulty = 1;
+    this.gameDifficulty = 3;
     this.enemySpawner = new EnemySpawner(this.enemyFactory, 60, this.gameDifficulty);
     this.background.events.onInputDown.add(this.handlePointerDown);
-    return this.game.events.onGameOver.add(this.handleGameOver);
+    return G.events.onGameOver.add(this.handleGameOver);
   };
 
   PlayState.prototype.handlePointerDown = function(image, pointer) {
@@ -276,7 +312,6 @@ module.exports = Secret = (function(_super) {
     this.onEnemyTouch = __bind(this.onEnemyTouch, this);
     Secret.__super__.constructor.call(this, game, x, y, 'secret');
     game.add.existing(this);
-    game.groups.tower.add(this);
     this.anchor.setTo(0.5, 0.5);
     game.physics.p2.enable(this, G.DEBUG);
     this.body.kinematic = true;
@@ -288,7 +323,7 @@ module.exports = Secret = (function(_super) {
   }
 
   Secret.prototype.onEnemyTouch = function() {
-    return this.game.events.onGameOver.dispatch();
+    return G.events.onGameOver.dispatch();
   };
 
   return Secret;
@@ -316,7 +351,7 @@ module.exports = Stats = (function() {
       align: 'left'
     });
     this.updateText();
-    this.game.events.onEnemyKilled.add(this.handleEnemyKilled);
+    G.events.onEnemyKilled.add(this.handleEnemyKilled);
   }
 
   Stats.prototype.handleEnemyKilled = function(enemy) {
@@ -394,9 +429,10 @@ G = require('./constants');
 Tower = (function(_super) {
   __extends(Tower, _super);
 
-  function Tower(game, x, y, key, cooldown, range) {
+  function Tower(game, x, y, key, cooldown, range, damage) {
     this.cooldown = cooldown;
     this.range = range;
+    this.damage = damage;
     this.fire = __bind(this.fire, this);
     this.handleClick = __bind(this.handleClick, this);
     this.decreaseCooldownRemaining = __bind(this.decreaseCooldownRemaining, this);
@@ -412,7 +448,6 @@ Tower = (function(_super) {
     this.body.setCollisionGroup(this.game.collisionGroups.tower);
     this.body.collides([this.game.collisionGroups.enemy]);
     game.add.existing(this);
-    game.groups.tower.add(this);
     this.cooldownRemaining = 0;
   }
 
@@ -437,8 +472,7 @@ Tower = (function(_super) {
         var dist;
         dist = Math.sqrt(Math.pow(enemy.x - _this.x, 2) + Math.pow(enemy.y - _this.y, 2));
         if (dist < _this.range) {
-          enemy.kill();
-          return _this.game.events.onEnemyKilled.dispatch(enemy);
+          return enemy.damage(_this.damage);
         }
       };
     })(this));
@@ -462,7 +496,7 @@ module.exports = TowerFactory = (function() {
 
   TowerFactory.prototype.createAoe = function(x, y) {
     var tower;
-    tower = new Tower(this.game, x, y, 'tower-aoe', 60, 100);
+    tower = new Tower(this.game, x, y, 'tower-aoe', 60, 100, 10);
     return tower;
   };
 
