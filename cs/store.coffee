@@ -54,6 +54,36 @@ forSaleItems =
             game.groups.tower.forEachAlive (tower) =>
                 tower.resetProperties()
 
+    towerFanUpgrade:
+        name: 'Fan Upgrade'
+        description: 'When purchased, increase the range and damage of all fans'
+        imageKey: 'tower-aoe'
+        placeable: false
+        cost: 500
+        requires: ['game']
+        createFn: (game) =>
+            FanTower.properties.cooldown -= 60
+            FanTower.properties.range += 50
+            FanTower.properties.damage += 10
+
+            game.groups.tower.forEachAlive (tower) =>
+                tower.resetProperties()
+
+    towerSaltUpgrade:
+        name: 'Salt Upgrade'
+        description: 'When purchased, increase the stun range and damage of all salt patches'
+        imageKey: 'tower-aoe'
+        placeable: false
+        cost: 500
+        requires: ['game']
+        createFn: (game) =>
+            SaltTower.properties.cooldown -= 60
+            SaltTower.properties.range += 50
+            SaltTower.properties.damage += 2
+
+            game.groups.tower.forEachAlive (tower) =>
+                tower.resetProperties()
+
 
 module.exports = class Store
     @NUM_ITEMS_PER_ROW = 4

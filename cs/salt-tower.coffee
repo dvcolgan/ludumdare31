@@ -5,7 +5,7 @@ SaltAnimation = require('./salt-patch')
 
 module.exports = class SaltTower extends Tower
     @properties =
-        cooldown: 60
+        cooldown: 120
         range: 50
         damage: 1
         animationCls: SaltAnimation
