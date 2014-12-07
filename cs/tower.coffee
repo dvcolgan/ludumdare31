@@ -151,7 +151,7 @@ module.exports = class TowerFactory
             @game
             x
             y
-            'tower-aoe'
+            'firewood'
             60   # cooldown
             100  # range
             15   # damage
@@ -163,7 +163,7 @@ module.exports = class TowerFactory
             @game
             x
             y
-            'tower-aoe'
+            'fan'
             60   # cooldown
             100  # range
             10   # damage

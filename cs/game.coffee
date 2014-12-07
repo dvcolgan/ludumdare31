@@ -116,7 +116,7 @@ class PlayState extends Phaser.State
             @cursorSprite.destroy()
 
     handleGameOver: =>
-        #@loseOverlay.show(@stats.score)
+        @loseOverlay.show(@stats.score)
 
     handleStoreItemPurchased: (itemData) =>
         @boughtItem = itemData
