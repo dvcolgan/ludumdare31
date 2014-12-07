@@ -116,13 +116,22 @@ class PlayState extends Phaser.State
 
     handleStoreItemPurchased: (itemData) =>
         @boughtItem = itemData
-        @cursorSprite = @game.add.sprite(@game.input.x, @game.input.y, itemData.imageKey)
-        @game.groups.overlay.add(@cursorSprite)
-        @cursorSprite.anchor.setTo(0.5, 0.5)
-        @cursorSprite.alpha = 0.5
-        @cursorSprite.update = =>
-            @cursorSprite.x = @game.input.x
-            @cursorSprite.y = @game.input.y
+
+        if @boughtItem.placeable
+            @cursorSprite = @game.add.sprite(@game.input.x, @game.input.y, itemData.imageKey)
+            @game.groups.overlay.add(@cursorSprite)
+            @cursorSprite.anchor.setTo(0.5, 0.5)
+            @cursorSprite.alpha = 0.5
+            @cursorSprite.update = =>
+                @cursorSprite.x = @game.input.x
+                @cursorSprite.y = @game.input.y
+        else
+            args = []
+            for arg in @boughtItem.requires
+                args.push switch arg
+                    when 'secret' then @secret
+            @boughtItem.createFn.apply @, args
+            @boughtItem = null
 
     update: =>
         @game.frame++

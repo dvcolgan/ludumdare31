@@ -8,19 +8,34 @@ forSaleItems =
         description: 'Click/Tap: Melt snowballs around the fire'
         createFn: 'createFire'
         imageKey: 'firewood'
+        placeable: true
         cost: 100
+
     towerSnowblower:
         name: 'Fan'
         description: 'Click/Tap: Throw snowballs back from whence we came, damaging them in the process'
         createFn: 'createSnowblower'
         imageKey: 'fan'
+        placeable: true
         cost: 50
+
     towerSalt:
         name: 'Salt'
         description: 'Slows and damages snowballs that pass over it. Click/Tap: Stun snowballs.'
         createFn: 'createSalt'
-        imageKey: 'tower-aoe'
+        imageKey: 'salt-patch'
+        placeable: true
         cost: 20
+
+    secretHealth:
+        name: 'Replenish Health'
+        description: 'When purchased, restores the health of your damaged secret.'
+        requires: ['secret']
+        createFn: (secret) =>
+            secret.restoreMaxHealth()
+        imageKey: 'tower-aoe'
+        placeable: false
+        cost: 100
 
 
 module.exports = class Store
@@ -52,6 +67,7 @@ module.exports = class Store
         @addForSaleItem(forSaleItems.towerFire)
         @addForSaleItem(forSaleItems.towerSnowblower)
         @addForSaleItem(forSaleItems.towerSalt)
+        @addForSaleItem(forSaleItems.secretHealth)
 
     addForSaleItem: (itemData) =>
 
