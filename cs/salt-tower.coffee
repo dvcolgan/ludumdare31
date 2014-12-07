@@ -9,9 +9,8 @@ module.exports = class SaltTower extends Tower
         range: 50
         damage: 1
         animationCls: SaltAnimation
-
-    @FRAMES_TO_DO_OCCASIONAL_DAMAGE = 60 * 1
-    @MAX_ENEMY_SPEED = 10
+        framesToDoOccasionalDamage: 60
+        maxEnemySpeed: 10
 
     fire: () =>
         return if not super()
@@ -33,11 +32,11 @@ module.exports = class SaltTower extends Tower
                 # Limit the enemy's speed
                 vector = new Phaser.Point(enemy.body.velocity.x, enemy.body.velocity.y)
                 magnitude = vector.getMagnitude()
-                if magnitude > @constructor.MAX_ENEMY_SPEED
-                    vector.setMagnitude(@constructor.MAX_ENEMY_SPEED)
+                if magnitude > SaltTower.properties.maxEnemySpeed
+                    vector.setMagnitude(SaltTower.properties.maxEnemySpeed)
                     enemy.body.velocity.x = vector.x
                     enemy.body.velocity.y = vector.y
 
                 # Do damage to the enemy
-                if @game.frame % @constructor.FRAMES_TO_DO_OCCASIONAL_DAMAGE == 0
+                if @game.frame % SaltTower.properties.framesToDoOccasionalDamage == 0
                     enemy.damage @damage
