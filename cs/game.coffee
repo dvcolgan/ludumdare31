@@ -43,6 +43,8 @@ class PlayState extends Phaser.State
         @game.load.audio('play-bgm', 'assets/bgm/happybgm.ogg')
         @game.load.audio('gameover-bgm', 'assets/bgm/gameoverbgm.ogg')
 
+        @game.load.spritesheet('rocks', 'assets/rocks.png', 48, 32, 3)
+
     create: =>
         bgm = @game.add.audio('play-bgm', 0.4)
         bgm.loop = yes
