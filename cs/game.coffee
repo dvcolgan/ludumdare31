@@ -47,9 +47,6 @@ class PlayState extends Phaser.State
         @game.load.spritesheet('rocks', 'assets/rocks.png', 48, 32, 3)
 
     create: =>
-        bgm = @game.add.audio('play-bgm', 0.4)
-        bgm.loop = yes
-        bgm.play()
 
         @initializeGame()
         @initializePhysicsEngine()
@@ -60,6 +57,7 @@ class PlayState extends Phaser.State
         @stats = new Stats(@game)
         @store = new Store(@game, @stats)
         @rockManager = new RockManager(@game)
+        @initializeMusic()
         @initializeBackground()
         @initializeSecret()
         @loseOverlay = new LoseOverlay(@game)
@@ -81,6 +79,28 @@ class PlayState extends Phaser.State
         key = @game.input.keyboard.addKey(Phaser.Keyboard.THREE)
         key.onDown.add () =>
             new SaltTower(@game, @game.input.mousePointer.x, @game.input.mousePointer.y)
+
+    initializeMusic: () =>
+        @music = @game.add.audio('play-bgm', 0.4)
+        @music.loop = yes
+        @music.play()
+
+        pauseBtn = @game.add.sprite G.SCREEN_WIDTH, 0, 'tower-aoe'
+        pauseBtn.anchor.setTo(1, 0)
+        pauseBtn.inputEnabled = true
+        pauseBtn.events.onInputDown.add () =>
+            @music.pause()
+            resumeBtn.visible = true
+            pauseBtn.visible = false
+
+        resumeBtn = @game.add.sprite G.SCREEN_WIDTH, 0, 'tower-aoe'
+        resumeBtn.anchor.setTo(1, 0)
+        resumeBtn.visible = false
+        resumeBtn.inputEnabled = true
+        resumeBtn.events.onInputDown.add () =>
+            @music.play()
+            resumeBtn.visible = false
+            pauseBtn.visible = true
 
     initializeGame: () =>
         @game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT)
