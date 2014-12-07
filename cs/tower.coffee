@@ -94,7 +94,8 @@ class Fire extends Tower
         @enemyGroup.forEachAlive (enemy) =>
             dist = Math.sqrt((enemy.x - @x)**2 + (enemy.y - @y)**2)
             if dist < @range
-                enemy.damage Math.floor(@damage / 2)
+                damage = Math.floor((@range - dist) / @range * @damage)
+                enemy.damage damage
 
 
 class Snowblower extends Tower
