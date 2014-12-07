@@ -13,8 +13,15 @@ module.exports = class RockManager
         @rocks = []
 
         for i in [0...@availableRocks]
-            rock = new Phaser.Sprite(@game, 700 + 70 * i, 0, 'firewood')
+            rock = new Phaser.Sprite(@game, 700 + 70 * i, 15, 'rocks')
             rock.anchor.setTo(0.5, 0)
+
+            # Pick a random rock
+            rock.animations.add 'rock', [0, 1, 2], 0
+            rock.animations.play 'rock'
+            rock.animations.stop 'rock'
+            rock.animations.frame = @game.rnd.integerInRange(0, 2)
+
             @game.add.existing rock
             @rocks.push rock
 
