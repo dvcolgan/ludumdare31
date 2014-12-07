@@ -57,8 +57,11 @@ class PlayState extends Phaser.State
     create: =>
 
         @initializeGame()
+        @initializePhysicsEngine()
         @initializeGroups()
         @initializeSoundEffects()
+
+        @game.physics.p2.updateBoundsCollisionGroup()
 
         @stats = new Stats(@game)
         @store = new Store(@game, @stats)
@@ -117,6 +120,11 @@ class PlayState extends Phaser.State
         @boughtItem = null
         @cursorSprite = null
 
+    initializePhysicsEngine: () =>
+        @game.physics.startSystem(Phaser.Physics.P2JS)
+        @game.physics.p2.setImpactEvents(true)
+        @game.physics.p2.setBounds(-200, 64, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT - 64)
+
     initializeGroups: () =>
         @game.groups = {}
         @game.groups.background = @game.add.group()
@@ -125,6 +133,12 @@ class PlayState extends Phaser.State
         @game.groups.secret = @game.add.group()
         @game.groups.overlay = @game.add.group()
         @game.groups.foreground = @game.add.group()
+
+        # Initialize physics collision groups
+        @game.collisionGroups =
+            secret: @game.physics.p2.createCollisionGroup()
+            tower: @game.physics.p2.createCollisionGroup()
+            enemy: @game.physics.p2.createCollisionGroup()
 
     initializeBackground: () =>
         @background = @game.add.image(0, 0, 'background')
