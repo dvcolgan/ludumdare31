@@ -180,6 +180,9 @@ module.exports = class Store
         @descriptionText.text = object.slot.data.description
 
     handleClickOnForSaleItem: (sprite) =>
+        if sprite.data.cost > @stats.gold
+            return
+
         @stats.subtractGold(sprite.data.cost)
         G.events.onStoreItemPurchased.dispatch(sprite.data)
 
