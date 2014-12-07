@@ -35,6 +35,7 @@ class Enemy extends Phaser.Sprite
 
     moveTowardSecret: (secret) =>
         return if @stunDuration-- > 0
+        return if not secret.alive
 
         # Point directly at the secret
         vector = Phaser.Point.subtract(@, secret)
