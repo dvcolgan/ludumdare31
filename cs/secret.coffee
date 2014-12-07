@@ -2,6 +2,8 @@ G = require('./constants')
 
 
 module.exports = class Secret extends Phaser.Sprite
+    @MAX_HEALTH = 100
+
     constructor: (@game, x, y) ->
         super(@game, x, y, 'secret')
         @game.add.existing(@)
@@ -16,12 +18,16 @@ module.exports = class Secret extends Phaser.Sprite
         @enemyGroup = @game.groups.enemy
 
         # Health text
-        @health = 100
+        @health = Secret.MAX_HEALTH
         @healthText = new Phaser.Text @game, 0, 0, @health,
             font: '10px Arial'
             fill: 'black'
             align: 'center'
         @addChild @healthText
+
+
+    restoreMaxHealth: () =>
+        @damage(@health - Secret.MAX_HEALTH)
 
 
     damage: (damage) =>

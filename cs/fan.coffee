@@ -1,7 +1,10 @@
 module.exports = class Fan
-    constructor:  (@game, x, y) ->
-        @sprite = @game.add.sprite(x, y, 'fan')
-        @sprite.anchor.setTo(0.5, 0.5)
+    @spriteKey = 'fan'
+
+    constructor:  (@game, @sprite) ->
+        x = @sprite.x
+        y = @sprite.y
+
         @sprite.animations.add('normal', [0,1,2,3], 60, true)
         @sprite.animations.play('normal')
 
@@ -26,7 +29,6 @@ module.exports = class Fan
         @blastEmitter.setAlpha(1, 0, 1500)
         @blastEmitter.setScale(1, 1.8, 1, 1.8, 1000, Phaser.Easing.Quadratic.InOut)
 
-        @game.time.events.loop(1000, @blast)
 
     blast: =>
         @blastEmitter.start(true, 1500, null, 300)

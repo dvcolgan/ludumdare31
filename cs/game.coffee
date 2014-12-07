@@ -69,10 +69,6 @@ class PlayState extends Phaser.State
         key.onDown.add () =>
             @towerFactory['createSalt'](@game.input.mousePointer.x, @game.input.mousePointer.y)
 
-        @fire = new Fire(@game, 400, 300)
-        @fan = new Fan(@game, 400, 500)
-        @saltPatch = new SaltPatch(@game, 500, 200)
-
     initializeGame: () =>
         @game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT)
         @game.camera.x = 0
@@ -122,13 +118,21 @@ class PlayState extends Phaser.State
 
     handleStoreItemPurchased: (itemData) =>
         @boughtItem = itemData
-        @cursorSprite = @game.add.sprite(@game.input.x, @game.input.y, itemData.imageKey)
-        @game.groups.overlay.add(@cursorSprite)
-        @cursorSprite.anchor.setTo(0.5, 0.5)
-        @cursorSprite.alpha = 0.5
-        @cursorSprite.update = =>
-            @cursorSprite.x = @game.input.x
-            @cursorSprite.y = @game.input.y
+
+        if @boughtItem.placeable
+            @cursorSprite = @game.add.sprite(@game.input.x, @game.input.y, itemData.imageKey)
+            @game.groups.overlay.add(@cursorSprite)
+            @cursorSprite.anchor.setTo(0.5, 0.5)
+            @cursorSprite.alpha = 0.5
+            @cursorSprite.update = =>
+                @cursorSprite.x = @game.input.x
+                @cursorSprite.y = @game.input.y
+        else
+            args = []
+            for arg in @boughtItem.requires
+                args.push @[arg]
+            @boughtItem.createFn.apply @, args
+            @boughtItem = null
 
     update: =>
         @game.frame++

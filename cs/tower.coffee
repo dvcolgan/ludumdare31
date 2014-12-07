@@ -1,29 +1,26 @@
 G = require('./constants')
+Fire = require('./fire')
+Fan = require('./fan')
+SaltPatch = require('./salt-patch')
 
 
 class Tower extends Phaser.Sprite
-    constructor: (@game, x, y, key, @cooldown, @range, @damage) ->
-        super(@game, x, y, key)
-        @game.add.existing(@)
+    constructor: (@game, x, y, cls, @cooldown, @range, @damage) ->
+        super(@game, x, y, cls.spriteKey)
+
+        @animation = new cls @game, @
+
+        @game.add.existing @
 
         @inputEnabled = true
-        @events.onInputDown.add(@handleClick, @)
+        @events.onInputDown.add @handleClick, @
         @anchor.setTo(0.5, 0.5)
-        @game.physics.p2.enable(@, G.DEBUG)
-        @body.clearShapes()
-        @body.addCircle(@width/2)
-        @body.kinematic = yes
-        @body.setCollisionGroup(@game.collisionGroups.tower)
-        #@body.collides([@game.collisionGroups.enemy])
+
         @game.groups.tower.add(@)
-        #@body.createGroupCallback(@game.collisionGroups.enemy, @onEnemyTouch)
 
         @enemyGroup = @game.groups.enemy
 
-
-        # Number of frames before
         @cooldownRemaining = 0
-
         @cooldownMeterData = @game.add.bitmapData(@width + 16, @height + 16)
         @cooldownMeter = @game.add.sprite(0, 0, @cooldownMeterData)
         @cooldownMeter.anchor.setTo(0.5, 0.5)
@@ -72,11 +69,13 @@ class Tower extends Phaser.Sprite
         return @cooldownRemaining < 0
 
 
-class Fire extends Tower
+class FireTower extends Tower
     @FRAMES_TO_DO_OCCASIONAL_DAMAGE = 60 * 10
 
     fire: () =>
         return if not super()
+
+        @animation.blast()
 
         # Search for all enemies within @range
         # Kill/delete all enemies found within range
@@ -89,7 +88,7 @@ class Fire extends Tower
         return if not super()
         return if @game.frame % @constructor.FRAMES_TO_DO_OCCASIONAL_DAMAGE != 0
 
-        @resetCooldown()
+        @animation.blast()
 
         @enemyGroup.forEachAlive (enemy) =>
             dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
@@ -98,9 +97,11 @@ class Fire extends Tower
                 enemy.damage damage
 
 
-class Snowblower extends Tower
+class SnowblowerTower extends Tower
     fire: () =>
         return if not super()
+
+        @animation.blast()
 
         # If there are any enemies directly to the left, damage them and shoot them back
         @enemyGroup.forEachAlive (enemy) =>
@@ -111,12 +112,14 @@ class Snowblower extends Tower
                 enemy.damage @damage
 
 
-class Salt extends Tower
+class SaltTower extends Tower
     @FRAMES_TO_DO_OCCASIONAL_DAMAGE = 60 * 1
     @MAX_ENEMY_SPEED = 10
 
     fire: () =>
         return if not super()
+
+        @animation.blast()
 
         # If there are any enemies on top of it, stun them
         @enemyGroup.forEachAlive (enemy) =>
@@ -147,11 +150,11 @@ module.exports = class TowerFactory
     constructor: (@game) ->
 
     createFire: (x, y) =>
-        tower = new Fire(
+        tower = new FireTower(
             @game
             x
             y
-            'firewood'
+            Fire
             60   # cooldown
             100  # range
             15   # damage
@@ -159,22 +162,22 @@ module.exports = class TowerFactory
         return tower
 
     createSnowblower: (x, y) =>
-        tower = new Snowblower(
+        tower = new SnowblowerTower(
             @game
             x
             y
-            'fan'
+            Fan
             60   # cooldown
             100  # range
             10   # damage
         )
 
     createSalt: (x, y) =>
-        tower = new Salt(
+        tower = new SaltTower(
             @game
             x
             y
-            'tower-aoe'
+            SaltPatch
             60   # cooldown
             50   # range
             1    # damage
