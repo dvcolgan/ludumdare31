@@ -6,6 +6,7 @@ LoseOverlay = require('./lose-overlay')
 Store = require('./store')
 Secret = require('./secret')
 Stats = require('./stats')
+Fire = require('./fire')
 
 
 class PlayState extends Phaser.State
@@ -25,7 +26,8 @@ class PlayState extends Phaser.State
         @game.load.image('store-overlay', 'assets/store-overlay.png')
         @game.load.image('store-slot', 'assets/store-slot.png')
 
-
+        @game.load.image('firewood', 'assets/firewood.png')
+        @game.load.image('fire-particle', 'assets/fire-particle.png')
 
     create: =>
 
@@ -53,6 +55,8 @@ class PlayState extends Phaser.State
         key.onDown.add () =>
             @towerFactory['createAoe'](@game.input.mousePointer.x, @game.input.mousePointer.y)
         , this
+
+        @fire = new Fire(@game, 400, 300)
 
     initializeGame: () =>
         @game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT)

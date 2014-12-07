@@ -29,18 +29,20 @@ module.exports = EnemySpawner = (function() {
     this.minDifficultyToSpawnLargeEnemies = 3;
     this.probabilityOfSpawningMediumEnemy = 0.5;
     this.probabilityOfSpawningLargeEnemy = 0.2;
+    this.secondsUntilSpawnRateDoubled = 60;
+    this.framesUntilSpawnRateDoubled = this.framerate * this.secondsUntilSpawnRateDoubled;
   }
 
   EnemySpawner.prototype.calculateProbability = function() {
     return this.frameProbability = 0.1 / this.framerate * this.difficulty;
   };
 
-  EnemySpawner.prototype.update = function() {
-    return this.maybeCreateNewEnemy();
+  EnemySpawner.prototype.update = function(frame) {
+    return this.maybeCreateNewEnemy(frame);
   };
 
-  EnemySpawner.prototype.maybeCreateNewEnemy = function() {
-    if (Math.random() < this.frameProbability) {
+  EnemySpawner.prototype.maybeCreateNewEnemy = function(frame) {
+    if (Math.random() < this.frameProbability * (frame / this.framesUntilSpawnRateDoubled + 1)) {
       if (this.difficulty < this.minDifficultyToSpawnMediumEnemies) {
         return this.enemyFactory.createSmall();
       } else if (this.difficulty < this.minDifficultyToSpawnLargeEnemies) {
@@ -106,10 +108,10 @@ Enemy = (function(_super) {
   };
 
   Enemy.prototype.pointAtSecret = function(secret) {
-    var dx, dy;
-    dx = secret.x - this.x;
-    dy = secret.y - this.y;
-    return this.body.rotation = Math.atan2(dy, dx) + Math.PI / 2;
+    var vector;
+    vector = Phaser.Point.subtract(this, secret);
+    this.body.rotation = vector.angle(new Phaser.Point()) + Math.PI / 2;
+    return this.body.thrust(10);
   };
 
   Enemy.prototype.damage = function(damage) {
@@ -142,7 +144,6 @@ module.exports = EnemyFactory = (function() {
   EnemyFactory.prototype.createSmall = function() {
     var enemy;
     enemy = new Enemy(this.game, this.towerGroup, this.secret, 0, this.getY(), 'enemy-small', 10);
-    enemy.body.moveRight(300);
     this.game.groups.enemy.add(enemy);
     return enemy;
   };
@@ -150,7 +151,6 @@ module.exports = EnemyFactory = (function() {
   EnemyFactory.prototype.createMedium = function() {
     var enemy;
     enemy = new Enemy(this.game, this.towerGroup, this.secret, 0, this.getY(), 'enemy-medium', 20);
-    enemy.body.moveRight(300);
     this.game.groups.enemy.add(enemy);
     return enemy;
   };
@@ -158,7 +158,6 @@ module.exports = EnemyFactory = (function() {
   EnemyFactory.prototype.createLarge = function() {
     var enemy;
     enemy = new Enemy(this.game, this.towerGroup, this.secret, 0, this.getY(), 'enemy-large', 30);
-    enemy.body.moveRight(300);
     this.game.groups.enemy.add(enemy);
     return enemy;
   };
@@ -170,7 +169,33 @@ module.exports = EnemyFactory = (function() {
 
 
 },{"./constants":1}],4:[function(require,module,exports){
-var EnemyFactory, EnemySpawner, G, LoseOverlay, PlayState, Secret, Stats, Store, TowerFactory,
+var Fire;
+
+module.exports = Fire = (function() {
+  function Fire(game, x, y) {
+    this.game = game;
+    this.wood = this.game.add.sprite(x, y, 'firewood');
+    this.wood.anchor.setTo(0.5, 0.5);
+    this.emitter = this.game.add.emitter(x, y + 5, 300);
+    this.emitter.makeParticles('fire-particle');
+    this.emitter.width = this.wood.width / 3;
+    this.emitter.height = 5;
+    this.emitter.gravity = 10;
+    this.emitter.setXSpeed(-2, 2);
+    this.emitter.setYSpeed(-40, -60);
+    this.emitter.setAlpha(1, 0.0, 3000);
+    this.emitter.setScale(1, 0.5, 1, 0.5, 4000, Phaser.Easing.Quadratic.InOut);
+    this.emitter.start(false, 3000, 1);
+  }
+
+  return Fire;
+
+})();
+
+
+
+},{}],5:[function(require,module,exports){
+var EnemyFactory, EnemySpawner, Fire, G, LoseOverlay, PlayState, Secret, Stats, Store, TowerFactory,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -190,6 +215,8 @@ Store = require('./store');
 Secret = require('./secret');
 
 Stats = require('./stats');
+
+Fire = require('./fire');
 
 PlayState = (function(_super) {
   __extends(PlayState, _super);
@@ -220,10 +247,13 @@ PlayState = (function(_super) {
     this.game.load.image('tower-aoe', 'assets/tower.png');
     this.game.load.image('lose-overlay', 'assets/lose-overlay.png');
     this.game.load.image('store-overlay', 'assets/store-overlay.png');
-    return this.game.load.image('store-slot', 'assets/store-slot.png');
+    this.game.load.image('store-slot', 'assets/store-slot.png');
+    this.game.load.image('firewood', 'assets/firewood.png');
+    return this.game.load.image('fire-particle', 'assets/fire-particle.png');
   };
 
   PlayState.prototype.create = function() {
+    var key;
     this.initializeGame();
     this.initializePhysicsEngine();
     this.initializeGroups();
@@ -236,7 +266,15 @@ PlayState = (function(_super) {
     this.loseOverlay = new LoseOverlay(this.game);
     this.initializeEnemySpawner();
     G.events.onGameOver.add(this.handleGameOver);
-    return G.events.onStoreItemPurchased.add(this.handleStoreItemPurchased);
+    G.events.onStoreItemPurchased.add(this.handleStoreItemPurchased);
+    this.frame = 0;
+    key = this.game.input.keyboard.addKey(Phaser.Keyboard.ONE);
+    key.onDown.add((function(_this) {
+      return function() {
+        return _this.towerFactory['createAoe'](_this.game.input.mousePointer.x, _this.game.input.mousePointer.y);
+      };
+    })(this), this);
+    return this.fire = new Fire(this.game, 400, 300);
   };
 
   PlayState.prototype.initializeGame = function() {
@@ -309,7 +347,8 @@ PlayState = (function(_super) {
   };
 
   PlayState.prototype.update = function() {
-    return this.enemySpawner.update();
+    this.frame++;
+    return this.enemySpawner.update(this.frame);
   };
 
   PlayState.prototype.render = function() {
@@ -324,7 +363,7 @@ window.state = new Phaser.Game(G.SCREEN_WIDTH, G.SCREEN_HEIGHT, Phaser.AUTO, 'ga
 
 
 
-},{"./constants":1,"./enemy":3,"./enemy-spawner":2,"./lose-overlay":5,"./secret":6,"./stats":7,"./store":8,"./tower":9}],5:[function(require,module,exports){
+},{"./constants":1,"./enemy":3,"./enemy-spawner":2,"./fire":4,"./lose-overlay":6,"./secret":7,"./stats":8,"./store":9,"./tower":10}],6:[function(require,module,exports){
 var LoseOverlay;
 
 module.exports = LoseOverlay = (function() {
@@ -361,7 +400,7 @@ module.exports = LoseOverlay = (function() {
 
 
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var G, Secret,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -376,7 +415,6 @@ module.exports = Secret = (function(_super) {
     this.onEnemyTouch = __bind(this.onEnemyTouch, this);
     Secret.__super__.constructor.call(this, game, x, y, 'secret');
     game.add.existing(this);
-    game.groups.tower.add(this);
     this.anchor.setTo(0.5, 0.5);
     game.physics.p2.enable(this, G.DEBUG);
     this.body.kinematic = true;
@@ -397,7 +435,7 @@ module.exports = Secret = (function(_super) {
 
 
 
-},{"./constants":1}],7:[function(require,module,exports){
+},{"./constants":1}],8:[function(require,module,exports){
 var G, Stats,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -456,7 +494,7 @@ module.exports = Stats = (function() {
 
 
 
-},{"./constants":1}],8:[function(require,module,exports){
+},{"./constants":1}],9:[function(require,module,exports){
 var G, Store, TowerFactory, forSaleItems,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -529,7 +567,7 @@ module.exports = Store = (function() {
 
 
 
-},{"./constants":1,"./tower":9}],9:[function(require,module,exports){
+},{"./constants":1,"./tower":10}],10:[function(require,module,exports){
 var G, Tower, TowerFactory,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
@@ -637,4 +675,4 @@ module.exports = TowerFactory = (function() {
 
 
 
-},{"./constants":1}]},{},[4])
+},{"./constants":1}]},{},[5])
