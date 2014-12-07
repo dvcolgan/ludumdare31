@@ -6,6 +6,7 @@ class Enemy extends Phaser.Sprite
         super(game, x, y, key)
 
         @health = health # necessary to do after call to super()
+        @stunDuration = 0
         game.physics.p2.enable(@, G.DEBUG)
         @anchor.setTo(0.5, 0.69)
 
@@ -34,7 +35,7 @@ class Enemy extends Phaser.Sprite
             @health++
             @healthText.text = @health
 
-        @pointAtSecret(@secret)
+        @moveTowardSecret(@secret)
 
         # Make the snowman sized according to health
         magnitude = Phaser.Point.parse(@body.velocity).getMagnitude()
@@ -45,7 +46,8 @@ class Enemy extends Phaser.Sprite
 
         @setScaleForHealth()
 
-    pointAtSecret: (secret) =>
+    moveTowardSecret: (secret) =>
+        return if @stunDuration-- > 0
 
         # Point directly at the secret
         vector = Phaser.Point.subtract(@, secret)

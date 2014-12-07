@@ -11,6 +11,7 @@ module.exports = class SaltTower extends Tower
         animationCls: SaltAnimation
         framesToDoOccasionalDamage: 60
         maxEnemySpeed: 10
+        stunDuration: 60
 
     fire: () =>
         return if not super()
@@ -22,6 +23,7 @@ module.exports = class SaltTower extends Tower
             dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
             if dist < (@width + enemy.width) / 2 + @range
                 enemy.body.setZeroVelocity()
+                enemy.stunDuration = SaltTower.properties.stunDuration
 
     doConstantEffect: () =>
         # If there are any enemies on top of it, slow them down

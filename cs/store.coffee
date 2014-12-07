@@ -84,6 +84,7 @@ forSaleItems =
             SaltTower.properties.cooldown -= 60
             SaltTower.properties.range += 50
             SaltTower.properties.damage += 2
+            SaltTower.properties.stunDuration += 60 * 2
 
             game.groups.tower.forEachAlive (tower) =>
                 tower.resetProperties()
