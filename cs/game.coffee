@@ -11,6 +11,7 @@ Stats = require('./stats')
 Fire = require('./fire')
 Fan = require('./fan')
 SaltPatch = require('./salt-patch')
+WeatherGenerator = require('./weather-generator')
 
 
 class PlayState extends Phaser.State
@@ -59,6 +60,7 @@ class PlayState extends Phaser.State
         @initializeSecret()
         @loseOverlay = new LoseOverlay(@game)
         @initializeEnemySpawner()
+        @weatherGenerator = new WeatherGenerator(@game)
 
         G.events.onGameOver.add(@handleGameOver)
         G.events.onStoreItemPurchased.add(@handleStoreItemPurchased)
@@ -97,6 +99,7 @@ class PlayState extends Phaser.State
         @game.groups.enemy = @game.add.group()
         @game.groups.secret = @game.add.group()
         @game.groups.overlay = @game.add.group()
+        @game.groups.foreground = @game.add.group()
 
         # Initialize physics collision groups
         @game.collisionGroups =
