@@ -116,7 +116,13 @@ class Salt extends Tower
     @MAX_ENEMY_SPEED = 10
 
     fire: () =>
+        return if not super()
+
         # If there are any enemies on top of it, stun them
+        @enemyGroup.forEachAlive (enemy) =>
+            dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
+            if dist < (@width + enemy.width) / 2 + @range
+                enemy.body.setZeroVelocity()
 
     doConstantEffect: () =>
         # If there are any enemies on top of it, slow them down
@@ -170,6 +176,6 @@ module.exports = class TowerFactory
             y
             'tower-aoe'
             60   # cooldown
-            0    # range
+            50   # range
             1    # damage
         )
