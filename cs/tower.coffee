@@ -97,7 +97,7 @@ class FireTower extends Tower
                 enemy.damage damage
 
 
-class SnowblowerTower extends Tower
+class FanTower extends Tower
     fire: () =>
         return if not super()
 
@@ -161,8 +161,8 @@ module.exports = class TowerFactory
         )
         return tower
 
-    createSnowblower: (x, y) =>
-        tower = new SnowblowerTower(
+    createFan: (x, y) =>
+        tower = new FanTower(
             @game
             x
             y

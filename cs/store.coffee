@@ -11,10 +11,10 @@ forSaleItems =
         placeable: true
         cost: 100
 
-    towerSnowblower:
+    towerFan:
         name: 'Fan'
         description: 'Click/Tap: Throw snowballs back from whence we came, damaging them in the process'
-        createFn: 'createSnowblower'
+        createFn: 'createFan'
         imageKey: 'fan'
         placeable: true
         cost: 50
@@ -65,7 +65,7 @@ module.exports = class Store
         @slotNumber = 1
 
         @addForSaleItem(forSaleItems.towerFire)
-        @addForSaleItem(forSaleItems.towerSnowblower)
+        @addForSaleItem(forSaleItems.towerFan)
         @addForSaleItem(forSaleItems.towerSalt)
         @addForSaleItem(forSaleItems.secretHealth)
 

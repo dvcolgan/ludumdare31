@@ -62,7 +62,7 @@ class PlayState extends Phaser.State
             @towerFactory['createFire'](@game.input.mousePointer.x, @game.input.mousePointer.y)
         key = @game.input.keyboard.addKey(Phaser.Keyboard.TWO)
         key.onDown.add () =>
-            @towerFactory['createSnowblower'](@game.input.mousePointer.x, @game.input.mousePointer.y)
+            @towerFactory['createFan'](@game.input.mousePointer.x, @game.input.mousePointer.y)
         key = @game.input.keyboard.addKey(Phaser.Keyboard.THREE)
         key.onDown.add () =>
             @towerFactory['createSalt'](@game.input.mousePointer.x, @game.input.mousePointer.y)
