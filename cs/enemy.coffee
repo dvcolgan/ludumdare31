@@ -22,7 +22,6 @@ class Enemy extends Phaser.Sprite
             font: '10px Arial'
             fill: 'black'
             align: 'center'
-
         @addChild @healthText
 
     update: () =>
@@ -60,7 +59,7 @@ class Enemy extends Phaser.Sprite
         @body.thrust 10
 
     damage: (damage) =>
-        super(damage)
+        super damage
 
         @healthText.text = @health
 

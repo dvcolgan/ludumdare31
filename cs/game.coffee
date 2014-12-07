@@ -50,15 +50,18 @@ class PlayState extends Phaser.State
         G.events.onGameOver.add(@handleGameOver)
         G.events.onStoreItemPurchased.add(@handleStoreItemPurchased)
 
-        @frame = 0
+        @game.frame = 0
 
         # TODO: Remove this! Iz for cheats
-        one = @game.input.keyboard.addKey(Phaser.Keyboard.ONE)
-        one.onDown.add () =>
+        key = @game.input.keyboard.addKey(Phaser.Keyboard.ONE)
+        key.onDown.add () =>
             @towerFactory['createFire'](@game.input.mousePointer.x, @game.input.mousePointer.y)
-        two = @game.input.keyboard.addKey(Phaser.Keyboard.TWO)
-        two.onDown.add () =>
+        key = @game.input.keyboard.addKey(Phaser.Keyboard.TWO)
+        key.onDown.add () =>
             @towerFactory['createSnowblower'](@game.input.mousePointer.x, @game.input.mousePointer.y)
+        key = @game.input.keyboard.addKey(Phaser.Keyboard.THREE)
+        key.onDown.add () =>
+            @towerFactory['createSalt'](@game.input.mousePointer.x, @game.input.mousePointer.y)
 
         @fire = new Fire(@game, 400, 300)
         @fan = new Fan(@game, 400, 500)
@@ -121,12 +124,8 @@ class PlayState extends Phaser.State
             @cursorSprite.y = @game.input.y
 
     update: =>
-        #pointerIsDown = @game.input.mousePointer?.isDown or @game.input.pointer1?.isDown
-        #pointerX = @game.input.x
-        #pointerY = @game.input.y
-
-        @frame++
-        @enemySpawner.update(@frame)
+        @game.frame++
+        @enemySpawner.update(@game.frame)
 
     render: =>
         @game.debug.text(@game.time.fps || '--', 2, 14, "#00ff00")

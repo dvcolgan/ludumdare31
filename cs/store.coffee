@@ -6,9 +6,13 @@ forSaleItems =
     towerFire:
         createFn: 'createFire'
         imageKey: 'tower-aoe'
-        cost: 50
+        cost: 100
     towerSnowblower:
         createFn: 'createSnowblower'
+        imageKey: 'tower-aoe'
+        cost: 50
+    towerSalt:
+        createFn: 'createSalt'
         imageKey: 'tower-aoe'
         cost: 20
 
@@ -24,13 +28,19 @@ module.exports = class Store
         @overlay.events.onInputDown.add(@toggleStore)
         @state = 'up'
 
+        @slotNumber = 1
+
         @addForSaleItem(forSaleItems.towerFire)
         @addForSaleItem(forSaleItems.towerSnowblower)
+        @addForSaleItem(forSaleItems.towerSalt)
 
     addForSaleItem: (itemData) ->
-        slot = @game.add.sprite(200, 100, 'store-slot')
+        x = @slotNumber * 200
+        y = Math.floor(@slotNumber / 5) * 100 + 100
+
+        slot = @game.add.sprite(x, y, 'store-slot')
         slot.anchor.setTo(0.5, 0.5)
-        item = @game.add.sprite(200, 100, itemData.imageKey)
+        item = @game.add.sprite(x, y, itemData.imageKey)
         item.anchor.setTo(0.5, 0.5)
         @overlay.addChild(slot)
         @overlay.addChild(item)
@@ -38,6 +48,8 @@ module.exports = class Store
         slot.input.priorityID = 1
         slot.events.onInputDown.add(@handleClickOnForSaleItem)
         slot.data = itemData
+
+        @slotNumber++
 
     handleClickOnForSaleItem: (slot) =>
         @stats.subtractGold(slot.data.cost)
