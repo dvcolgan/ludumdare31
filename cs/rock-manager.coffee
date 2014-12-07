@@ -4,6 +4,7 @@ module.exports = class RockManager
     @properties =
         maxDamage: 20
         range: 50
+        framesToRegenerateRock: 60
 
     constructor: (@game) ->
         @maxRocks = 3
@@ -45,7 +46,7 @@ module.exports = class RockManager
         @availableRocks--
 
     update: (frame) =>
-        if @availableRocks < @maxRocks and frame % 60 == 0
+        if @availableRocks < @maxRocks and frame % RockManager.properties.framesToRegenerateRock == 0
             @regenerateRock()
 
     regenerateRock: () =>
