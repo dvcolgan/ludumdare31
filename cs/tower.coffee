@@ -39,7 +39,6 @@ class Tower extends Phaser.Sprite
             ctx.beginPath()
             remaining = @cooldown - @cooldownRemaining / @cooldown
             ctx.arc(width/2, height/2, @width/2 + 4, remaining * Math.PI * 2 - Math.PI/2, -Math.PI/2)
-            console.log(remaining * Math.PI * 2)
             ctx.stroke()
             ctx.closePath()
         @cooldownMeterData.render()
@@ -57,24 +56,54 @@ class Tower extends Phaser.Sprite
         @fire()
 
     fire: () =>
-        return if @cooldownRemaining > 0
+        return false if @cooldownRemaining > 0
+
+        # Reset cooldown
+        @cooldownRemaining = @cooldown
+
+        return true
+
+class Fire extends Tower
+    fire: () =>
+        return if not super()
 
         # Search for all enemies within @range
         # Kill/delete all enemies found within range
         @game.groups.enemy.forEachAlive (enemy) =>
             dist = Math.sqrt((enemy.x - @x)**2 + (enemy.y - @y)**2)
             if dist < @range
-                enemy.damage(@damage)
+                enemy.damage @damage
 
-        # Reset cooldown
-        @cooldownRemaining = @cooldown
+
+class Snowblower extends Tower
+    fire: () =>
+        return if not super()
+
+        # If there are any enemies directly to the left, damage them and shoot them back
+        @game.groups.enemy.forEachAlive (enemy) =>
+            dx = @x - enemy.x
+            if Phaser.Math.within(enemy.y, @y, 30) and dx >= 0 and dx <= @range # TODO: Change hardcoded value of 30
+                enemy.body.moveLeft @range
+                enemy.damage @damage
 
 
 module.exports = class TowerFactory
     constructor: (@game) ->
 
-    createAoe: (x, y) =>
-        tower = new Tower(
+    createFire: (x, y) =>
+        tower = new Fire(
+            @game
+            x
+            y
+            'tower-aoe'
+            60   # cooldown
+            100  # range
+            15   # damage
+        )
+        return tower
+
+    createSnowblower: (x, y) =>
+        tower = new Snowblower(
             @game
             x
             y
@@ -83,4 +112,3 @@ module.exports = class TowerFactory
             100  # range
             10   # damage
         )
-        return tower

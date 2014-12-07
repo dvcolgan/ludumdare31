@@ -3,10 +3,14 @@ TowerFactory = require('./tower')
 
 
 forSaleItems =
-    towerAoe:
-        createFn: 'createAoe'
+    towerFire:
+        createFn: 'createFire'
         imageKey: 'tower-aoe'
-        cost: 10
+        cost: 50
+    towerSnowblower:
+        createFn: 'createSnowblower'
+        imageKey: 'tower-aoe'
+        cost: 20
 
 
 module.exports = class Store
@@ -20,7 +24,8 @@ module.exports = class Store
         @overlay.events.onInputDown.add(@toggleStore)
         @state = 'up'
 
-        @addForSaleItem(forSaleItems.towerAoe)
+        @addForSaleItem(forSaleItems.towerFire)
+        @addForSaleItem(forSaleItems.towerSnowblower)
 
     addForSaleItem: (itemData) ->
         slot = @game.add.sprite(200, 100, 'store-slot')
