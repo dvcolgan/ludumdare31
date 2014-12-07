@@ -26,7 +26,5 @@ module.exports = class Fire
         @flare.setAlpha(1, 0, 1000)
         @flare.setScale(1, 0.8, 1, 0.8, 3000, Phaser.Easing.Quadratic.InOut)
 
-        # @game.time.events.loop(3000, @blast)
-
     blast: =>
         @flare.start(true, 1000, null, 300)

@@ -1,6 +1,7 @@
 G = require('./constants')
 Fire = require('./fire')
 Fan = require('./fan')
+SaltPatch = require('./salt-patch')
 
 
 class Tower extends Phaser.Sprite
@@ -118,6 +119,8 @@ class SaltTower extends Tower
     fire: () =>
         return if not super()
 
+        @animation.blast()
+
         # If there are any enemies on top of it, stun them
         @enemyGroup.forEachAlive (enemy) =>
             dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
@@ -174,7 +177,7 @@ module.exports = class TowerFactory
             @game
             x
             y
-            'tower-aoe'
+            SaltPatch
             60   # cooldown
             50   # range
             1    # damage

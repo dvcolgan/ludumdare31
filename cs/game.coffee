@@ -8,6 +8,7 @@ Secret = require('./secret')
 Stats = require('./stats')
 Fire = require('./fire')
 Fan = require('./fan')
+SaltPatch = require('./salt-patch')
 
 
 class PlayState extends Phaser.State
@@ -30,6 +31,9 @@ class PlayState extends Phaser.State
 
         @game.load.spritesheet('fan', 'assets/fan.png', 64, 64, 4)
         @game.load.spritesheet('snow-particles', 'assets/snow-particles.png', 4, 4, 4)
+        @game.load.spritesheet('snowflake-particles', 'assets/snowflake-particles.png', 16, 16, 5)
+        @game.load.image('salt-patch', 'assets/salt-patch.png', 64, 64)
+        @game.load.image('salt-particle', 'assets/salt-particle.png')
 
     create: =>
 
