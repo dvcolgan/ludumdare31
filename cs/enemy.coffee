@@ -6,10 +6,11 @@ class Enemy extends Phaser.Sprite
         super(game, x, y, key)
 
         @health = health # necessary to do after call to super()
-        @anchor.setTo(0.5, 0.5)
         game.physics.p2.enable(@, G.DEBUG)
+        @anchor.setTo(0.5, 0.69)
+
         @body.clearShapes()
-        @body.addCircle(@width/2)
+        @body.addCircle(32)
         @body.setCollisionGroup(game.collisionGroups.enemy)
         @body.collides([
             game.collisionGroups.enemy, game.collisionGroups.tower, game.collisionGroups.secret
@@ -24,12 +25,25 @@ class Enemy extends Phaser.Sprite
             align: 'center'
         @addChild @healthText
 
+        @animations.add('walk', [0...8], 10, true)
+        @play('walk')
+
+
     update: () =>
         if Math.random() < 1 / 60
             @health++
             @healthText.text = @health
 
         @pointAtSecret(@secret)
+
+        # Make the snowman sized according to health
+        magnitude = Phaser.Point.parse(@body.velocity).getMagnitude()
+        delay = 100 - (magnitude/2)
+        if delay < 10
+            delay = 10
+        @animations.currentAnim.delay = delay
+
+        @setScaleForHealth()
 
     pointAtSecret: (secret) =>
 
@@ -57,11 +71,24 @@ class Enemy extends Phaser.Sprite
 
         @body.rotation = vector.angle(new Phaser.Point()) + Math.PI/2
         @body.thrust 10
+        @body.rotation = 0
+
+    setScaleForHealth: =>
+        @scale.x = @health / 50
+        @scale.y = @health / 50
+        @body.clearShapes()
+        @body.addCircle(32 * @scale.x)
+
+        @body.setCollisionGroup(@game.collisionGroups.enemy)
+        @body.collides([
+            @game.collisionGroups.enemy, @game.collisionGroups.tower, @game.collisionGroups.secret
+        ])
 
     damage: (damage) =>
         super damage
 
         @healthText.text = @health
+        @setScaleForHealth()
 
         if @health <= 0
             G.events.onEnemyKilled.dispatch(@)
@@ -80,7 +107,7 @@ module.exports = class EnemyFactory
             @secret
             0
             @getY()
-            'enemy-medium'
+            'snowman'
             10
         )
         @game.groups.enemy.add(enemy)

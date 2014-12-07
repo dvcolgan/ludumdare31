@@ -37,6 +37,8 @@ class PlayState extends Phaser.State
         @game.load.image('salt-patch', 'assets/salt-patch.png', 64, 64)
         @game.load.image('salt-particle', 'assets/salt-particle.png')
 
+        @game.load.spritesheet('snowman', 'assets/snowman.png', 94, 101, 8)
+
     create: =>
 
         @initializeGame()
@@ -83,11 +85,11 @@ class PlayState extends Phaser.State
         @game.physics.p2.setBounds(-200, 64, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT - 64)
 
     initializeGroups: () =>
-        @game.groups =
-            background: @game.add.group()
-            tower: @game.add.group()
-            enemy: @game.add.group()
-            overlay: @game.add.group()
+        @game.groups = {}
+        @game.groups.background = @game.add.group()
+        @game.groups.tower = @game.add.group()
+        @game.groups.enemy = @game.add.group()
+        @game.groups.overlay = @game.add.group()
 
         # Initialize physics collision groups
         @game.collisionGroups =
@@ -136,6 +138,7 @@ class PlayState extends Phaser.State
     update: =>
         @game.frame++
         @enemySpawner.update(@game.frame)
+        @game.groups.enemy.sort('y', Phaser.Group.SORT_ASCENDING)
 
     render: =>
         @game.debug.text(@game.time.fps || '--', 2, 14, "#00ff00")
