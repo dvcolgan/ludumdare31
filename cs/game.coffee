@@ -128,8 +128,7 @@ class PlayState extends Phaser.State
         else
             args = []
             for arg in @boughtItem.requires
-                args.push switch arg
-                    when 'secret' then @secret
+                args.push @[arg]
             @boughtItem.createFn.apply @, args
             @boughtItem = null
 
