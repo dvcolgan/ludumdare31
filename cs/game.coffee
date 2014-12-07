@@ -1,4 +1,5 @@
 G = require('./constants')
+RockManager = require('./rock-manager')
 EnemySpawner = require('./enemy-spawner')
 EnemyFactory = require('./enemy')
 FireTower = require('./fire-tower')
@@ -55,6 +56,7 @@ class PlayState extends Phaser.State
 
         @stats = new Stats(@game)
         @store = new Store(@game, @stats)
+        @rockManager = new RockManager(@game)
         @initializeBackground()
         @initializeSecret()
         @loseOverlay = new LoseOverlay(@game)
@@ -124,10 +126,14 @@ class PlayState extends Phaser.State
             new @boughtItem.class(@game, pointer.x, pointer.y)
             @boughtItem = null
             @cursorSprite.destroy()
+        else
+            @rockManager.throwRock(pointer.x, pointer.y)
+
 
     handleGameOver: =>
         @enemySpawner.stop()
         @loseOverlay.show(@stats.score, @stats.enemiesKilled)
+
 
     handleStoreItemPurchased: (itemData) =>
         @boughtItem = itemData
@@ -150,6 +156,7 @@ class PlayState extends Phaser.State
     update: =>
         @game.frame++
         @enemySpawner.update(@game.frame)
+        @rockManager.update(@game.frame)
         @game.groups.enemy.sort('y', Phaser.Group.SORT_ASCENDING)
 
     render: =>
