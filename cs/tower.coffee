@@ -2,30 +2,30 @@ G = require('./constants')
 
 
 class Tower extends Phaser.Sprite
-    constructor: (game, x, y, key, @cooldown, @range, @damage) ->
-        super(game, x, y, key)
-        game.add.existing(@)
+    constructor: (@game, x, y, key, @cooldown, @range, @damage) ->
+        super(@game, x, y, key)
+        @game.add.existing(@)
 
         @inputEnabled = true
         @events.onInputDown.add(@handleClick, @)
         @anchor.setTo(0.5, 0.5)
-        game.physics.p2.enable(@, G.DEBUG)
+        @game.physics.p2.enable(@, G.DEBUG)
         @body.clearShapes()
         @body.addCircle(@width/2)
         @body.kinematic = yes
         @body.setCollisionGroup(@game.collisionGroups.tower)
         @body.collides([@game.collisionGroups.enemy])
-        game.groups.tower.add(@)
+        @game.groups.tower.add(@)
         #@body.createGroupCallback(@game.collisionGroups.enemy, @onEnemyTouch)
 
-        @enemyGroup = game.groups.enemy
+        @enemyGroup = @game.groups.enemy
 
 
         # Number of frames before
         @cooldownRemaining = 0
 
-        @cooldownMeterData = game.add.bitmapData(@width + 16, @height + 16)
-        @cooldownMeter = game.add.sprite(0, 0, @cooldownMeterData)
+        @cooldownMeterData = @game.add.bitmapData(@width + 16, @height + 16)
+        @cooldownMeter = @game.add.sprite(0, 0, @cooldownMeterData)
         @cooldownMeter.anchor.setTo(0.5, 0.5)
         @addChild(@cooldownMeter)
 
@@ -46,6 +46,7 @@ class Tower extends Phaser.Sprite
         @cooldownMeterData.render()
 
     update: () =>
+        @doOccasionalDamageToEnemies()
         @decreaseCooldownRemaining()
         @makeCooldownMeter()
 
@@ -57,15 +58,23 @@ class Tower extends Phaser.Sprite
     handleClick: () =>
         @fire()
 
+    resetCooldown: () =>
+        @cooldownRemaining = @cooldown
+
     fire: () =>
         return false if @cooldownRemaining > 0
 
-        # Reset cooldown
-        @cooldownRemaining = @cooldown
+        @resetCooldown()
 
         return true
 
+    doOccasionalDamageToEnemies: () =>
+        return @cooldownRemaining < 0
+
+
 class Fire extends Tower
+    @FRAMES_TO_DO_OCCASIONAL_DAMAGE = 60 * 10
+
     fire: () =>
         return if not super()
 
@@ -75,6 +84,17 @@ class Fire extends Tower
             dist = Math.sqrt((enemy.x - @x)**2 + (enemy.y - @y)**2)
             if dist < @range
                 enemy.damage @damage
+
+    doOccasionalDamageToEnemies: () =>
+        return if not super()
+        return if @game.frame % @constructor.FRAMES_TO_DO_OCCASIONAL_DAMAGE != 0
+
+        @resetCooldown()
+
+        @enemyGroup.forEachAlive (enemy) =>
+            dist = Math.sqrt((enemy.x - @x)**2 + (enemy.y - @y)**2)
+            if dist < @range
+                enemy.damage Math.floor(@damage / 2)
 
 
 class Snowblower extends Tower
