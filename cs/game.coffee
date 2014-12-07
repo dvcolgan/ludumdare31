@@ -108,7 +108,7 @@ class PlayState extends Phaser.State
 
     handlePointerDownOnBackground: (image, pointer) =>
         if @boughtItem
-            new @boughtItem.class(pointer.x, pointer.y)
+            new @boughtItem.class(@game, pointer.x, pointer.y)
             @boughtItem = null
             @cursorSprite.destroy()
 
