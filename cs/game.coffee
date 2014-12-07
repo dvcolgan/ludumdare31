@@ -7,6 +7,7 @@ Store = require('./store')
 Secret = require('./secret')
 Stats = require('./stats')
 Fire = require('./fire')
+Fan = require('./fan')
 
 
 class PlayState extends Phaser.State
@@ -26,6 +27,9 @@ class PlayState extends Phaser.State
 
         @game.load.image('firewood', 'assets/firewood.png')
         @game.load.image('fire-particle', 'assets/fire-particle.png')
+
+        @game.load.spritesheet('fan', 'assets/fan.png', 64, 64, 4)
+        @game.load.spritesheet('snow-particles', 'assets/snow-particles.png', 4, 4, 4)
 
     create: =>
 
@@ -57,6 +61,7 @@ class PlayState extends Phaser.State
             @towerFactory['createSnowblower'](@game.input.mousePointer.x, @game.input.mousePointer.y)
 
         @fire = new Fire(@game, 400, 300)
+        @fan = new Fan(@game, 400, 500)
 
     initializeGame: () =>
         @game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT)
@@ -103,7 +108,7 @@ class PlayState extends Phaser.State
             @cursorSprite.destroy()
 
     handleGameOver: =>
-        @loseOverlay.show(@stats.score)
+        #@loseOverlay.show(@stats.score)
 
     handleStoreItemPurchased: (itemData) =>
         @boughtItem = itemData
