@@ -1,7 +1,9 @@
 G = require('./constants')
 EnemySpawner = require('./enemy-spawner')
 EnemyFactory = require('./enemy')
-TowerFactory = require('./tower')
+FireTower = require('./fire-tower')
+FanTower = require('./fan-tower')
+SaltTower = require('./salt-tower')
 LoseOverlay = require('./lose-overlay')
 Store = require('./store')
 Secret = require('./secret')
@@ -45,9 +47,8 @@ class PlayState extends Phaser.State
 
         @game.physics.p2.updateBoundsCollisionGroup()
 
-        @towerFactory = new TowerFactory(@game)
         @stats = new Stats(@game)
-        @store = new Store(@game, @towerFactory, @stats)
+        @store = new Store(@game, @stats)
         @initializeBackground()
         @secret = new Secret(@game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT/2)
         @loseOverlay = new LoseOverlay(@game)
@@ -61,13 +62,13 @@ class PlayState extends Phaser.State
         # TODO: Remove this! Iz for cheats
         key = @game.input.keyboard.addKey(Phaser.Keyboard.ONE)
         key.onDown.add () =>
-            @towerFactory['createFire'](@game.input.mousePointer.x, @game.input.mousePointer.y)
+            new FireTower(@game, @game.input.mousePointer.x, @game.input.mousePointer.y)
         key = @game.input.keyboard.addKey(Phaser.Keyboard.TWO)
         key.onDown.add () =>
-            @towerFactory['createSnowblower'](@game.input.mousePointer.x, @game.input.mousePointer.y)
+            new FanTower(@game, @game.input.mousePointer.x, @game.input.mousePointer.y)
         key = @game.input.keyboard.addKey(Phaser.Keyboard.THREE)
         key.onDown.add () =>
-            @towerFactory['createSalt'](@game.input.mousePointer.x, @game.input.mousePointer.y)
+            new SaltTower(@game, @game.input.mousePointer.x, @game.input.mousePointer.y)
 
     initializeGame: () =>
         @game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT)
@@ -109,7 +110,7 @@ class PlayState extends Phaser.State
 
     handlePointerDownOnBackground: (image, pointer) =>
         if @boughtItem
-            @towerFactory[@boughtItem.createFn](pointer.x, pointer.y)
+            new @boughtItem.class(pointer.x, pointer.y)
             @boughtItem = null
             @cursorSprite.destroy()
 
