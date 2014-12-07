@@ -19,6 +19,7 @@ module.exports = class EnemySpawner
     maybeCreateNewEnemy: (frame) =>
         if Math.random() < @frameProbability * (frame / @framesUntilSpawnRateDoubled + 1)
             @enemyFactory.createEnemy()
+            @stop()
 
     stop: () =>
         @stopped = true
