@@ -2,10 +2,13 @@ G = require('./constants')
 
 
 module.exports = class Secret extends Phaser.Sprite
-    @MAX_HEALTH = 100
+    @properties =
+        maxHealth: 100
+        damageDistance: 10 # How many pixels away can an enemy start doing damage?
 
     constructor: (@game, x, y) ->
         super(@game, x, y, 'secret')
+
         @game.add.existing(@)
         @anchor.setTo(0.5, 0.5)
         @game.physics.p2.enable(@, G.DEBUG)
@@ -18,7 +21,7 @@ module.exports = class Secret extends Phaser.Sprite
         @enemyGroup = @game.groups.enemy
 
         # Health text
-        @health = Secret.MAX_HEALTH
+        @health = Secret.properties.maxHealth
         @healthText = new Phaser.Text @game, 0, 0, @health,
             font: '10px Arial'
             fill: 'black'
@@ -27,7 +30,7 @@ module.exports = class Secret extends Phaser.Sprite
 
 
     restoreMaxHealth: () =>
-        @damage(@health - Secret.MAX_HEALTH)
+        @damage(@health - Secret.properties.maxHealth)
 
 
     damage: (damage) =>
@@ -46,7 +49,7 @@ module.exports = class Secret extends Phaser.Sprite
             if Phaser.Math.within(
                 Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
                 (@width + enemy.width) / 2
-                6 # How close does the enemy have to be to do damage?
+                Secret.properties.damageDistance
             )
                 enemy.damage 1
                 @damage 1
