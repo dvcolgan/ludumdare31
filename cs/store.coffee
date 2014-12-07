@@ -72,6 +72,8 @@ module.exports = class Store
         item.inputEnabled = true
         item.input.priorityID = 2
         item.events.onInputOver.add @showDescription
+        item.events.onInputDown.add @handleClickOnForSaleItem
+        item.data = itemData
         item.anchor.setTo(0.5, 0.5)
         item.slot = slot
 
@@ -84,9 +86,10 @@ module.exports = class Store
             @game
             0
             slot.width / 2 + 20
-            itemData.name + '' # Because coffeescript gets confused and I like weird syntax
+            itemData.name + "\nCost: #{itemData.cost}g" + '' # Because coffeescript gets confused and I like weird syntax
                 font: '20px Arial'
                 fill: 'black'
+                align: 'center'
         )
         text.anchor.setTo 0.5, 0.5
         slot.addChild text
@@ -113,9 +116,9 @@ module.exports = class Store
     showDescription: (object) =>
         @descriptionText.text = object.slot.data.description
 
-    handleClickOnForSaleItem: (slot) =>
-        @stats.subtractGold(slot.data.cost)
-        G.events.onStoreItemPurchased.dispatch(slot.data)
+    handleClickOnForSaleItem: (sprite) =>
+        @stats.subtractGold(sprite.data.cost)
+        G.events.onStoreItemPurchased.dispatch(sprite.data)
 
         @toggleStore()
 
