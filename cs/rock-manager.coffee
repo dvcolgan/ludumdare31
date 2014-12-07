@@ -13,16 +13,7 @@ module.exports = class RockManager
         @rocks = []
 
         for i in [0...@availableRocks]
-            rock = new Phaser.Sprite(@game, 700 + 70 * i, 15, 'rocks')
-            rock.anchor.setTo(0.5, 0)
-
-            # Pick a random rock
-            rock.animations.add 'rock', [0, 1, 2], 0
-            rock.animations.play 'rock'
-            rock.animations.stop 'rock'
-            rock.animations.frame = @game.rnd.integerInRange(0, 2)
-
-            @game.add.existing rock
+            rock = @makeRandomRock(700 + 70 * i, 15)
             @rocks.push rock
 
     throwRock: (x, y) =>
@@ -31,6 +22,7 @@ module.exports = class RockManager
         @rocks[@availableRocks - 1].visible = false
 
         damageEnemies = () =>
+            @game.sounds['snowHit' + @game.rnd.integerInRange(1, 2)].play()
             @game.groups.enemy.forEachAlive (enemy) =>
                 dist = Phaser.Math.distance(enemy.x, enemy.y, x, y)
                 if dist < RockManager.properties.range
@@ -40,7 +32,22 @@ module.exports = class RockManager
                         dist / RockManager.properties.range
                     )
                     enemy.damage damage
-        damageEnemies()
+
+        rock = @makeRandomRock(-40, -40)
+        @game.groups.foreground.add(rock)
+        tweenX = @game.add.tween(rock)
+        tweenX.to({x: x}, 500, Phaser.Easing.Linear.In)
+        tweenX.start()
+        tweenY = @game.add.tween(rock)
+        tweenY.to({y: y}, 500, Phaser.Easing.Cubic.In)
+        tweenY.onComplete.add(damageEnemies)
+        tweenY.onComplete.add =>
+            @game.add.tween(rock).to({alpha: 0}, 1000, Phaser.Easing.Linear.In).start()
+            
+        tweenY.start()
+
+        rock.update = ->
+            console.log(rock.x, rock.y)
 
         @availableRocks--
 
@@ -55,3 +62,14 @@ module.exports = class RockManager
 
     stop: () =>
         @stopped = true
+
+    makeRandomRock: (x, y) =>
+        rock = @game.add.sprite(x, y, 'rocks')
+        rock.anchor.setTo(0.5, 0)
+
+        # Pick a random rock
+        rock.animations.add 'rock', [0, 1, 2], 0
+        rock.animations.play 'rock'
+        rock.animations.stop 'rock'
+        rock.animations.frame = @game.rnd.integerInRange(0, 2)
+        return rock

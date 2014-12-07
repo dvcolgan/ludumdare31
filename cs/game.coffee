@@ -41,10 +41,18 @@ class PlayState extends Phaser.State
 
         @game.load.spritesheet('snowman', 'assets/snowman.png', 94, 101, 8)
 
-        @game.load.audio('play-bgm', 'assets/bgm/happybgm.ogg')
-        @game.load.audio('gameover-bgm', 'assets/bgm/gameoverbgm.ogg')
+        @game.load.audio('play-bgm', 'assets/happybgm.ogg')
+        @game.load.audio('gameover-bgm', 'assets/gameoverbgm.ogg')
 
         @game.load.spritesheet('rocks', 'assets/rocks.png', 48, 32, 3)
+
+        @game.load.audio('snow-hit1', 'assets/snow-hit1.ogg')
+        @game.load.audio('snow-hit2', 'assets/snow-hit2.ogg')
+
+    initializeSoundEffects: =>
+        @game.sounds =
+            snowHit1: @game.add.audio('snow-hit1')
+            snowHit2: @game.add.audio('snow-hit2')
 
     create: =>
         bgm = @game.add.audio('play-bgm', 0.4)
@@ -54,6 +62,7 @@ class PlayState extends Phaser.State
         @initializeGame()
         @initializePhysicsEngine()
         @initializeGroups()
+        @initializeSoundEffects()
 
         @game.physics.p2.updateBoundsCollisionGroup()
 
