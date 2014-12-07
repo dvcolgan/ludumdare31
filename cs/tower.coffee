@@ -18,6 +18,8 @@ class Tower extends Phaser.Sprite
         game.groups.tower.add(@)
         #@body.createGroupCallback(@game.collisionGroups.enemy, @onEnemyTouch)
 
+        @enemyGroup = game.groups.enemy
+
 
         # Number of frames before
         @cooldownRemaining = 0
@@ -69,7 +71,7 @@ class Fire extends Tower
 
         # Search for all enemies within @range
         # Kill/delete all enemies found within range
-        @game.groups.enemy.forEachAlive (enemy) =>
+        @enemyGroup.forEachAlive (enemy) =>
             dist = Math.sqrt((enemy.x - @x)**2 + (enemy.y - @y)**2)
             if dist < @range
                 enemy.damage @damage
@@ -80,7 +82,7 @@ class Snowblower extends Tower
         return if not super()
 
         # If there are any enemies directly to the left, damage them and shoot them back
-        @game.groups.enemy.forEachAlive (enemy) =>
+        @enemyGroup.forEachAlive (enemy) =>
             dx = @x - enemy.x
             if Phaser.Math.within(enemy.y, @y, 30) and dx >= 0 and dx <= @range # TODO: Change hardcoded value of 30
                 enemy.body.moveLeft @range
