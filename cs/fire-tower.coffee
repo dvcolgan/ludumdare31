@@ -9,8 +9,7 @@ module.exports = class FireTower extends Tower
         range: 100
         damage: 15
         animationCls: FireAnimation
-
-    @FRAMES_TO_DO_OCCASIONAL_DAMAGE = 60 * 10
+        framesToDoOccasionalDamage: 600
 
     fire: () =>
         return if not super()
@@ -26,7 +25,7 @@ module.exports = class FireTower extends Tower
 
     doConstantEffect: () =>
         return if not super()
-        return if @game.frame % @constructor.FRAMES_TO_DO_OCCASIONAL_DAMAGE != 0
+        return if @game.frame % FireTower.properties.framesToDoOccasionalDamage != 0
 
         @animation.blast()
 

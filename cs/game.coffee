@@ -56,7 +56,7 @@ class PlayState extends Phaser.State
         @stats = new Stats(@game)
         @store = new Store(@game, @stats)
         @initializeBackground()
-        @secret = new Secret(@game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT/2)
+        @initializeSecret()
         @loseOverlay = new LoseOverlay(@game)
         @initializeEnemySpawner()
 
@@ -95,6 +95,7 @@ class PlayState extends Phaser.State
         @game.groups.background = @game.add.group()
         @game.groups.tower = @game.add.group()
         @game.groups.enemy = @game.add.group()
+        @game.groups.secret = @game.add.group()
         @game.groups.overlay = @game.add.group()
 
         # Initialize physics collision groups
@@ -113,6 +114,10 @@ class PlayState extends Phaser.State
         enemyFactory = new EnemyFactory(@game, @game.groups.tower, @secret)
         @enemySpawner = new EnemySpawner(enemyFactory, 60, @gameDifficulty)
 
+    initializeSecret: () =>
+        @secret = new Secret(@game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT/2)
+        @game.groups.secret.add(@secret)
+
 
     handlePointerDownOnBackground: (image, pointer) =>
         if @boughtItem
@@ -121,7 +126,8 @@ class PlayState extends Phaser.State
             @cursorSprite.destroy()
 
     handleGameOver: =>
-        @loseOverlay.show(@stats.score)
+        @enemySpawner.stop()
+        @loseOverlay.show(@stats.score, @stats.enemiesKilled)
 
     handleStoreItemPurchased: (itemData) =>
         @boughtItem = itemData

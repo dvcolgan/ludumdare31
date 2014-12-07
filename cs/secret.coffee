@@ -46,7 +46,7 @@ module.exports = class Secret extends Phaser.Sprite
             if Phaser.Math.within(
                 Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
                 (@width + enemy.width) / 2
-                3 # How close does the enemy have to be to do damage?
+                6 # How close does the enemy have to be to do damage?
             )
                 enemy.damage 1
                 @damage 1

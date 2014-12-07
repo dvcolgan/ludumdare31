@@ -45,8 +45,8 @@ forSaleItems =
         imageKey: 'tower-aoe'
         placeable: false
         cost: 500
-        requires: ['game']
-        createFn: (game) =>
+        requires: ['game', 'store']
+        createFn: (game, store) =>
             FireTower.properties.cooldown -= 60
             FireTower.properties.range += 50
             FireTower.properties.damage += 10
@@ -54,14 +54,16 @@ forSaleItems =
             game.groups.tower.forEachAlive (tower) =>
                 tower.resetProperties()
 
+            store.removeItem 'towerFireUpgrade'
+
     towerFanUpgrade:
         name: 'Fan Upgrade'
         description: 'When purchased, increase the range and damage of all fans'
         imageKey: 'tower-aoe'
         placeable: false
         cost: 500
-        requires: ['game']
-        createFn: (game) =>
+        requires: ['game', 'store']
+        createFn: (game, store) =>
             FanTower.properties.cooldown -= 60
             FanTower.properties.range += 50
             FanTower.properties.damage += 10
@@ -69,20 +71,25 @@ forSaleItems =
             game.groups.tower.forEachAlive (tower) =>
                 tower.resetProperties()
 
+            store.removeItem 'towerFanUpgrade'
+
     towerSaltUpgrade:
         name: 'Salt Upgrade'
         description: 'When purchased, increase the stun range and damage of all salt patches'
         imageKey: 'tower-aoe'
         placeable: false
         cost: 500
-        requires: ['game']
-        createFn: (game) =>
+        requires: ['game', 'store']
+        createFn: (game, store) =>
             SaltTower.properties.cooldown -= 60
             SaltTower.properties.range += 50
             SaltTower.properties.damage += 2
+            SaltTower.properties.stunDuration += 60 * 2
 
             game.groups.tower.forEachAlive (tower) =>
                 tower.resetProperties()
+
+            store.removeItem 'towerSaltUpgrade'
 
 
 module.exports = class Store
@@ -114,9 +121,9 @@ module.exports = class Store
         @slotNumber = 0
 
         for type, item of forSaleItems
-            @addForSaleItem item
+            @addForSaleItem type, item
 
-    addForSaleItem: (itemData) =>
+    addForSaleItem: (itemType, itemData) =>
 
         # Calculate where the item should go
         x = (@slotNumber % Store.NUM_ITEMS_PER_ROW + 1) * 200
@@ -129,6 +136,7 @@ module.exports = class Store
         slot.input.priorityID = 1
         slot.events.onInputDown.add @handleClickOnForSaleItem
         slot.data = itemData
+        slot.type = itemType
 
         # Add the sprite for the item
         item = @game.add.sprite(x, y, itemData.imageKey)
@@ -137,6 +145,7 @@ module.exports = class Store
         item.events.onInputOver.add @showDescription
         item.events.onInputDown.add @handleClickOnForSaleItem
         item.data = itemData
+        item.type = itemType
         item.anchor.setTo(0.5, 0.5)
         item.slot = slot
 
@@ -176,10 +185,22 @@ module.exports = class Store
 
         @slotNumber++
 
+    removeItem: (key) =>
+        childrenToDestroy = []
+        for child in @overlay.children
+            if child?.type is key
+                childrenToDestroy.push child
+
+        for child in childrenToDestroy
+            child.destroy()
+
     showDescription: (object) =>
         @descriptionText.text = object.slot.data.description
 
     handleClickOnForSaleItem: (sprite) =>
+        if sprite.data.cost > @stats.gold
+            return
+
         @stats.subtractGold(sprite.data.cost)
         G.events.onStoreItemPurchased.dispatch(sprite.data)
 

@@ -5,6 +5,7 @@ module.exports = class Stats
     constructor: (@game) ->
         @score = 0
         @gold = 500
+        @enemiesKilled = 0
 
         # Display text on the screen
         @text = @game.add.text 20, 20, '',
@@ -25,6 +26,7 @@ module.exports = class Stats
         @updateText()
 
     handleEnemyKilled: (enemy) =>
+        @enemiesKilled++
 
         switch enemy.key
             when 'enemy-small'

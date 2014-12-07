@@ -6,6 +6,7 @@ class Enemy extends Phaser.Sprite
         super(game, x, y, key)
 
         @health = health # necessary to do after call to super()
+        @stunDuration = 0
         game.physics.p2.enable(@, G.DEBUG)
         @anchor.setTo(0.5, 0.69)
 
@@ -18,34 +19,23 @@ class Enemy extends Phaser.Sprite
 
         game.add.existing(@)
 
-        # Health text
-        @healthText = new Phaser.Text game, 0, 0, @health,
-            font: '10px Arial'
-            fill: 'black'
-            align: 'center'
-        @addChild @healthText
-
         @animations.add('walk', [0...8], 10, true)
         @play('walk')
 
 
     update: () =>
-        if Math.random() < 1 / 60
-            @health++
-            @healthText.text = @health
-
-        @pointAtSecret(@secret)
-
-        # Make the snowman sized according to health
-        magnitude = Phaser.Point.parse(@body.velocity).getMagnitude()
-        delay = 100 - (magnitude/2)
-        if delay < 10
-            delay = 10
-        @animations.currentAnim.delay = delay
-
+        @updateHealth()
+        @moveTowardSecret(@secret)
+        @updateAnimationDelay()
         @setScaleForHealth()
 
-    pointAtSecret: (secret) =>
+    updateHealth: () =>
+        speed = Phaser.Point.parse(@body.velocity).getMagnitude()
+        @health += speed / 3000
+
+    moveTowardSecret: (secret) =>
+        return if @stunDuration-- > 0
+        return if not secret.alive
 
         # Point directly at the secret
         vector = Phaser.Point.subtract(@, secret)
@@ -73,6 +63,14 @@ class Enemy extends Phaser.Sprite
         @body.thrust 10
         @body.rotation = 0
 
+    updateAnimationDelay: =>
+        magnitude = Phaser.Point.parse(@body.velocity).getMagnitude()
+        delay = 100 - (magnitude/2)
+        if delay < 10
+            delay = 10
+        @animations.currentAnim.delay = delay
+
+
     setScaleForHealth: =>
         @scale.x = @health / 50
         @scale.y = @health / 50
@@ -87,7 +85,6 @@ class Enemy extends Phaser.Sprite
     damage: (damage) =>
         super damage
 
-        @healthText.text = @health
         @setScaleForHealth()
 
         if @health <= 0

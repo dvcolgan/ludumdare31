@@ -9,12 +9,13 @@ module.exports = class LoseOverlay
 
         @hide()
 
-    show: (score) ->
+    show: (score, enemiesKilled) ->
         @sprite.visible = yes
         @text.text = switch @game.rnd.between(0, 1)
             when 0 then "You are the loseriest of losers."
             when 1 then "Apparently, you suck."
         @text.text += "\n\nYour score: #{score}"
+        @text.text += "\nSnowmen killed: #{enemiesKilled}"
         @text.visible = yes
 
     hide: ->
