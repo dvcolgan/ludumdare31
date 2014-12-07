@@ -19,32 +19,20 @@ class Enemy extends Phaser.Sprite
 
         game.add.existing(@)
 
-        # Health text
-        @healthText = new Phaser.Text game, 0, 0, @health,
-            font: '10px Arial'
-            fill: 'black'
-            align: 'center'
-        @addChild @healthText
-
         @animations.add('walk', [0...8], 10, true)
         @play('walk')
 
 
     update: () =>
+        @updateHealth()
+        @moveTowardSecret(@secret)
+        @setAnimationDelay()
+        @setScaleForHealth()
+
+    updateHealth: () =>
+        speed = Phaser.Point.parse(@body.velocity).getMagnitude()
         if Math.random() < 1 / 60
             @health++
-            @healthText.text = @health
-
-        @moveTowardSecret(@secret)
-
-        # Make the snowman sized according to health
-        magnitude = Phaser.Point.parse(@body.velocity).getMagnitude()
-        delay = 100 - (magnitude/2)
-        if delay < 10
-            delay = 10
-        @animations.currentAnim.delay = delay
-
-        @setScaleForHealth()
 
     moveTowardSecret: (secret) =>
         return if @stunDuration-- > 0
@@ -75,6 +63,14 @@ class Enemy extends Phaser.Sprite
         @body.thrust 10
         @body.rotation = 0
 
+    updateAnimationDelay: =>
+        magnitude = Phaser.Point.parse(@body.velocity).getMagnitude()
+        delay = 100 - (magnitude/2)
+        if delay < 10
+            delay = 10
+        @animations.currentAnim.delay = delay
+
+
     setScaleForHealth: =>
         @scale.x = @health / 50
         @scale.y = @health / 50
@@ -89,7 +85,6 @@ class Enemy extends Phaser.Sprite
     damage: (damage) =>
         super damage
 
-        @healthText.text = @health
         @setScaleForHealth()
 
         if @health <= 0
