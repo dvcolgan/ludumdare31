@@ -1,14 +1,21 @@
 G = require('./constants')
-Fire = require('./fire')
-Fan = require('./fan')
-SaltPatch = require('./salt-patch')
 
 
-class Tower extends Phaser.Sprite
-    constructor: (@game, x, y, cls, @cooldown, @range, @damage) ->
-        super(@game, x, y, cls.spriteKey)
+module.exports = class Tower extends Phaser.Sprite
+    @properties = []
 
-        @animation = new cls @game, @
+    resetProperties: () ->
+        @animationCls = @constructor.properties.animationCls
+        @cooldown = @constructor.properties.cooldown
+        @range = @constructor.properties.range
+        @damage = @constructor.properties.damage
+
+    constructor: (@game, x, y) ->
+        @resetProperties()
+
+        super(@game, x, y, @animationCls.spriteKey)
+
+        @animation = new @animationCls @game, @
 
         @game.add.existing @
 
@@ -67,118 +74,3 @@ class Tower extends Phaser.Sprite
 
     doConstantEffect: () =>
         return @cooldownRemaining < 0
-
-
-class FireTower extends Tower
-    @FRAMES_TO_DO_OCCASIONAL_DAMAGE = 60 * 10
-
-    fire: () =>
-        return if not super()
-
-        @animation.blast()
-
-        # Search for all enemies within @range
-        # Kill/delete all enemies found within range
-        @enemyGroup.forEachAlive (enemy) =>
-            dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
-            if dist < (@width + enemy.width) / 2 + @range
-                enemy.damage @damage
-
-    doConstantEffect: () =>
-        return if not super()
-        return if @game.frame % @constructor.FRAMES_TO_DO_OCCASIONAL_DAMAGE != 0
-
-        @animation.blast()
-
-        @enemyGroup.forEachAlive (enemy) =>
-            dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
-            if dist < (@width + enemy.width) / 2 + @range
-                damage = Math.floor((@range - dist + (@width + enemy.width) / 2) / @range * @damage)
-                enemy.damage damage
-
-
-class FanTower extends Tower
-    fire: () =>
-        return if not super()
-
-        @animation.blast()
-
-        # If there are any enemies directly to the left, damage them and shoot them back
-        @enemyGroup.forEachAlive (enemy) =>
-            dx = @x - enemy.x
-            dy = @y - enemy.y
-            if Math.abs(dy) < @height / 2 and dx >= 0 and dx <= @range
-                enemy.body.moveLeft @range
-                enemy.damage @damage
-
-
-class SaltTower extends Tower
-    @FRAMES_TO_DO_OCCASIONAL_DAMAGE = 60 * 1
-    @MAX_ENEMY_SPEED = 10
-
-    fire: () =>
-        return if not super()
-
-        @animation.blast()
-
-        # If there are any enemies on top of it, stun them
-        @enemyGroup.forEachAlive (enemy) =>
-            dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
-            if dist < (@width + enemy.width) / 2 + @range
-                enemy.body.setZeroVelocity()
-
-    doConstantEffect: () =>
-        # If there are any enemies on top of it, slow them down
-        @enemyGroup.forEachAlive (enemy) =>
-            dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
-            if dist < (@width + enemy.width) / 2
-
-                # Limit the enemy's speed
-                vector = new Phaser.Point(enemy.body.velocity.x, enemy.body.velocity.y)
-                magnitude = vector.getMagnitude()
-                if magnitude > @constructor.MAX_ENEMY_SPEED
-                    vector.setMagnitude(@constructor.MAX_ENEMY_SPEED)
-                    enemy.body.velocity.x = vector.x
-                    enemy.body.velocity.y = vector.y
-
-                # Do damage to the enemy
-                if @game.frame % @constructor.FRAMES_TO_DO_OCCASIONAL_DAMAGE == 0
-                    enemy.damage @damage
-
-
-module.exports = class TowerFactory
-    constructor: (@game) ->
-
-    createFire: (x, y) =>
-        tower = new FireTower(
-            @game
-            x
-            y
-            Fire
-            60   # cooldown
-            100  # range
-            15   # damage
-        )
-        return tower
-
-    createFan: (x, y) =>
-        tower = new FanTower(
-            @game
-            x
-            y
-            Fan
-            60   # cooldown
-            100  # range
-            10   # damage
-        )
-
-    createSalt: (x, y) =>
-        tower = new SaltTower(
-            @game
-            x
-            y
-            SaltPatch
-            60   # cooldown
-            50   # range
-            1    # damage
-        )

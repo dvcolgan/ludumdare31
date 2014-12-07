@@ -1,12 +1,14 @@
 G = require('./constants')
-TowerFactory = require('./tower')
+FireTower = require('./fire-tower')
+FanTower = require('./fan-tower')
+SaltTower = require('./salt-tower')
 
 
 forSaleItems =
     towerFire:
         name: 'Fire'
         description: 'Click/Tap: Melt snowballs around the fire'
-        createFn: 'createFire'
+        class: FireTower
         imageKey: 'firewood'
         placeable: true
         cost: 100
@@ -14,7 +16,7 @@ forSaleItems =
     towerFan:
         name: 'Fan'
         description: 'Click/Tap: Throw snowballs back from whence we came, damaging them in the process'
-        createFn: 'createFan'
+        class: FanTower
         imageKey: 'fan'
         placeable: true
         cost: 50
@@ -22,7 +24,7 @@ forSaleItems =
     towerSalt:
         name: 'Salt'
         description: 'Slows and damages snowballs that pass over it. Click/Tap: Stun snowballs.'
-        createFn: 'createSalt'
+        class: SaltTower
         imageKey: 'salt-patch'
         placeable: true
         cost: 20
@@ -30,16 +32,33 @@ forSaleItems =
     secretHealth:
         name: 'Replenish Health'
         description: 'When purchased, restores the health of your damaged secret.'
-        requires: ['secret']
-        createFn: (secret) =>
-            secret.restoreMaxHealth()
         imageKey: 'tower-aoe'
         placeable: false
         cost: 100
+        requires: ['secret']
+        createFn: (secret) =>
+            secret.restoreMaxHealth()
+
+    towerFireUpgrade:
+        name: 'Fire Upgrade'
+        description: 'When purchased, increase the range and damage of all campfires'
+        imageKey: 'tower-aoe'
+        placeable: false
+        cost: 500
+        requires: ['game']
+        createFn: (game) =>
+            FireTower.properties.cooldown -= 60
+            FireTower.properties.range += 50
+            FireTower.properties.damage += 10
+
+            game.groups.tower.forEachAlive (tower) =>
+                tower.resetProperties()
 
 
 module.exports = class Store
-    constructor: (@game, @towerFactory, @stats) ->
+    @NUM_ITEMS_PER_ROW = 4
+
+    constructor: (@game, @stats) ->
         @overlay = @game.add.sprite(0, -474, 'store-overlay')
         @overlay.inputEnabled = true
         @game.groups.overlay.add(@overlay)
@@ -62,18 +81,16 @@ module.exports = class Store
         @descriptionText.anchor.setTo 0, 1
         @overlay.addChild @descriptionText
 
-        @slotNumber = 1
+        @slotNumber = 0
 
-        @addForSaleItem(forSaleItems.towerFire)
-        @addForSaleItem(forSaleItems.towerFan)
-        @addForSaleItem(forSaleItems.towerSalt)
-        @addForSaleItem(forSaleItems.secretHealth)
+        for type, item of forSaleItems
+            @addForSaleItem item
 
     addForSaleItem: (itemData) =>
 
         # Calculate where the item should go
-        x = @slotNumber * 200
-        y = Math.floor(@slotNumber / 5) * 100 + 100
+        x = (@slotNumber % Store.NUM_ITEMS_PER_ROW + 1) * 200
+        y = Math.floor(@slotNumber / Store.NUM_ITEMS_PER_ROW) * 150 + 100
 
         # Add the sprite for the slot
         slot = @game.add.sprite(x, y, 'store-slot')
