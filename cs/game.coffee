@@ -12,6 +12,7 @@ Stats = require('./stats')
 Fire = require('./fire')
 Fan = require('./fan')
 SaltPatch = require('./salt-patch')
+WeatherGenerator = require('./weather-generator')
 
 
 class PlayState extends Phaser.State
@@ -43,6 +44,8 @@ class PlayState extends Phaser.State
         @game.load.audio('play-bgm', 'assets/bgm/happybgm.ogg')
         @game.load.audio('gameover-bgm', 'assets/bgm/gameoverbgm.ogg')
 
+        @game.load.spritesheet('rocks', 'assets/rocks.png', 48, 32, 3)
+
     create: =>
         bgm = @game.add.audio('play-bgm', 0.4)
         bgm.loop = yes
@@ -61,6 +64,7 @@ class PlayState extends Phaser.State
         @initializeSecret()
         @loseOverlay = new LoseOverlay(@game)
         @initializeEnemySpawner()
+        @weatherGenerator = new WeatherGenerator(@game)
 
         G.events.onGameOver.add(@handleGameOver)
         G.events.onStoreItemPurchased.add(@handleStoreItemPurchased)
@@ -99,6 +103,7 @@ class PlayState extends Phaser.State
         @game.groups.enemy = @game.add.group()
         @game.groups.secret = @game.add.group()
         @game.groups.overlay = @game.add.group()
+        @game.groups.foreground = @game.add.group()
 
         # Initialize physics collision groups
         @game.collisionGroups =
