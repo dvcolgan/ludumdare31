@@ -26,13 +26,12 @@ class Enemy extends Phaser.Sprite
     update: () =>
         @updateHealth()
         @moveTowardSecret(@secret)
-        @setAnimationDelay()
+        @updateAnimationDelay()
         @setScaleForHealth()
 
     updateHealth: () =>
         speed = Phaser.Point.parse(@body.velocity).getMagnitude()
-        if Math.random() < 1 / 60
-            @health++
+        @health += speed / 3000
 
     moveTowardSecret: (secret) =>
         return if @stunDuration-- > 0

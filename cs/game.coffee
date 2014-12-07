@@ -115,6 +115,7 @@ class PlayState extends Phaser.State
             @cursorSprite.destroy()
 
     handleGameOver: =>
+        @enemySpawner.stop()
         @loseOverlay.show(@stats.score, @stats.enemiesKilled)
 
     handleStoreItemPurchased: (itemData) =>
