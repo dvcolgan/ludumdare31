@@ -39,7 +39,13 @@ class PlayState extends Phaser.State
 
         @game.load.spritesheet('snowman', 'assets/snowman.png', 94, 101, 8)
 
+        @game.load.audio('play-bgm', 'assets/bgm/happybgm.ogg')
+        @game.load.audio('gameover-bgm', 'assets/bgm/gameoverbgm.ogg')
+
     create: =>
+        bgm = @game.add.audio('play-bgm', 0.4)
+        bgm.loop = yes
+        bgm.play()
 
         @initializeGame()
         @initializePhysicsEngine()
