@@ -34,6 +34,7 @@ module.exports = class Secret extends Phaser.Sprite
 
 
     update: () =>
+        return if not @alive
         return if @game.frame % 10 != 0
         @enemyGroup.forEachAlive (enemy) =>
             if Phaser.Math.within(

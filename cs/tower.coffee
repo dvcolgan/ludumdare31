@@ -14,7 +14,7 @@ class Tower extends Phaser.Sprite
         @body.addCircle(@width/2)
         @body.kinematic = yes
         @body.setCollisionGroup(@game.collisionGroups.tower)
-        @body.collides([@game.collisionGroups.enemy])
+        #@body.collides([@game.collisionGroups.enemy])
         @game.groups.tower.add(@)
         #@body.createGroupCallback(@game.collisionGroups.enemy, @onEnemyTouch)
 
@@ -46,7 +46,7 @@ class Tower extends Phaser.Sprite
         @cooldownMeterData.render()
 
     update: () =>
-        @doOccasionalDamageToEnemies()
+        @doConstantEffect()
         @decreaseCooldownRemaining()
         @makeCooldownMeter()
 
@@ -68,7 +68,7 @@ class Tower extends Phaser.Sprite
 
         return true
 
-    doOccasionalDamageToEnemies: () =>
+    doConstantEffect: () =>
         return @cooldownRemaining < 0
 
 
@@ -81,14 +81,11 @@ class Fire extends Tower
         # Search for all enemies within @range
         # Kill/delete all enemies found within range
         @enemyGroup.forEachAlive (enemy) =>
-            if Phaser.Math.within(
-                Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
-                (@width + enemy.width) / 2
-                @range
-            )
+            dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
+            if dist < (@width + enemy.width) / 2 + @range
                 enemy.damage @damage
 
-    doOccasionalDamageToEnemies: () =>
+    doConstantEffect: () =>
         return if not super()
         return if @game.frame % @constructor.FRAMES_TO_DO_OCCASIONAL_DAMAGE != 0
 
@@ -96,11 +93,7 @@ class Fire extends Tower
 
         @enemyGroup.forEachAlive (enemy) =>
             dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
-            if Phaser.Math.within(
-                dist
-                (@width + enemy.width) / 2
-                @range
-            )
+            if dist < (@width + enemy.width) / 2 + @range
                 damage = Math.floor((@range - dist + (@width + enemy.width) / 2) / @range * @damage)
                 enemy.damage damage
 
@@ -112,9 +105,36 @@ class Snowblower extends Tower
         # If there are any enemies directly to the left, damage them and shoot them back
         @enemyGroup.forEachAlive (enemy) =>
             dx = @x - enemy.x
-            if Phaser.Math.within(enemy.y, @y, 30) and dx >= 0 and dx <= @range # TODO: Change hardcoded value of 30
+            dy = @y - enemy.y
+            if Math.abs(dy) < @height / 2 and dx >= 0 and dx <= @range
                 enemy.body.moveLeft @range
                 enemy.damage @damage
+
+
+class Salt extends Tower
+    @FRAMES_TO_DO_OCCASIONAL_DAMAGE = 60 * 1
+    @MAX_ENEMY_SPEED = 10
+
+    fire: () =>
+        # If there are any enemies on top of it, stun them
+
+    doConstantEffect: () =>
+        # If there are any enemies on top of it, slow them down
+        @enemyGroup.forEachAlive (enemy) =>
+            dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
+            if dist < (@width + enemy.width) / 2
+
+                # Limit the enemy's speed
+                vector = new Phaser.Point(enemy.body.velocity.x, enemy.body.velocity.y)
+                magnitude = vector.getMagnitude()
+                if magnitude > @constructor.MAX_ENEMY_SPEED
+                    vector.setMagnitude(@constructor.MAX_ENEMY_SPEED)
+                    enemy.body.velocity.x = vector.x
+                    enemy.body.velocity.y = vector.y
+
+                # Do damage to the enemy
+                if @game.frame % @constructor.FRAMES_TO_DO_OCCASIONAL_DAMAGE == 0
+                    enemy.damage @damage
 
 
 module.exports = class TowerFactory
@@ -141,4 +161,15 @@ module.exports = class TowerFactory
             60   # cooldown
             100  # range
             10   # damage
+        )
+
+    createSalt: (x, y) =>
+        tower = new Salt(
+            @game
+            x
+            y
+            'tower-aoe'
+            60   # cooldown
+            0    # range
+            1    # damage
         )

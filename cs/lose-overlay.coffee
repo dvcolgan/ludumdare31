@@ -5,13 +5,16 @@ module.exports = class LoseOverlay
         @text = @game.add.text 200, 200, '',
             font: 'bold 20px Arial'
             fill: 'black'
-            align: 'center'
+            align: 'left'
 
         @hide()
 
     show: (score) ->
         @sprite.visible = yes
-        @text.text = "You are the loseriest of losers.\n\nYour score: #{score}"
+        @text.text = switch @game.rnd.between(0, 1)
+            when 0 then "You are the loseriest of losers."
+            when 1 then "Apparently, you suck."
+        @text.text += "\n\nYour score: #{score}"
         @text.visible = yes
 
     hide: ->

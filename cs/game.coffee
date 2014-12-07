@@ -49,12 +49,15 @@ class PlayState extends Phaser.State
         @game.frame = 0
 
         # TODO: Remove this! Iz for cheats
-        one = @game.input.keyboard.addKey(Phaser.Keyboard.ONE)
-        one.onDown.add () =>
+        key = @game.input.keyboard.addKey(Phaser.Keyboard.ONE)
+        key.onDown.add () =>
             @towerFactory['createFire'](@game.input.mousePointer.x, @game.input.mousePointer.y)
-        two = @game.input.keyboard.addKey(Phaser.Keyboard.TWO)
-        two.onDown.add () =>
+        key = @game.input.keyboard.addKey(Phaser.Keyboard.TWO)
+        key.onDown.add () =>
             @towerFactory['createSnowblower'](@game.input.mousePointer.x, @game.input.mousePointer.y)
+        key = @game.input.keyboard.addKey(Phaser.Keyboard.THREE)
+        key.onDown.add () =>
+            @towerFactory['createSalt'](@game.input.mousePointer.x, @game.input.mousePointer.y)
 
         @fire = new Fire(@game, 400, 300)
 
