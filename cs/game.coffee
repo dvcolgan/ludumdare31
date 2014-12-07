@@ -63,9 +63,6 @@ class PlayState extends Phaser.State
         key.onDown.add () =>
             @towerFactory['createSalt'](@game.input.mousePointer.x, @game.input.mousePointer.y)
 
-        @fire = new Fire(@game, 400, 300)
-        @fan = new Fan(@game, 400, 500)
-
     initializeGame: () =>
         @game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT)
         @game.camera.x = 0
