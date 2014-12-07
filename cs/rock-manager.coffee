@@ -7,6 +7,7 @@ module.exports = class RockManager
 
     constructor: (@game) ->
         @maxRocks = 3
+        @stopped = false
 
         @availableRocks = @maxRocks
         @rocks = []
@@ -18,7 +19,7 @@ module.exports = class RockManager
             @rocks.push rock
 
     throwRock: (x, y) =>
-        return if not @availableRocks
+        return if not @availableRocks or @stopped
 
         @rocks[@availableRocks - 1].visible = false
 
@@ -41,5 +42,9 @@ module.exports = class RockManager
             @regenerateRock()
 
     regenerateRock: () =>
+        return if @stopped
         @rocks[@availableRocks].visible = true
         @availableRocks++
+
+    stop: () =>
+        @stopped = true

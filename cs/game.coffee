@@ -132,6 +132,7 @@ class PlayState extends Phaser.State
 
     handleGameOver: =>
         @enemySpawner.stop()
+        @rockManager.stop()
         @loseOverlay.show(@stats.score, @stats.enemiesKilled)
 
 
