@@ -81,8 +81,11 @@ class Fire extends Tower
         # Search for all enemies within @range
         # Kill/delete all enemies found within range
         @enemyGroup.forEachAlive (enemy) =>
-            dist = Math.sqrt((enemy.x - @x)**2 + (enemy.y - @y)**2)
-            if dist < @range
+            if Phaser.Math.within(
+                Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
+                (@width + enemy.width) / 2
+                @range
+            )
                 enemy.damage @damage
 
     doOccasionalDamageToEnemies: () =>
@@ -92,9 +95,13 @@ class Fire extends Tower
         @resetCooldown()
 
         @enemyGroup.forEachAlive (enemy) =>
-            dist = Math.sqrt((enemy.x - @x)**2 + (enemy.y - @y)**2)
-            if dist < @range
-                damage = Math.floor((@range - dist) / @range * @damage)
+            dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
+            if Phaser.Math.within(
+                dist
+                (@width + enemy.width) / 2
+                @range
+            )
+                damage = Math.floor((@range - dist + (@width + enemy.width) / 2) / @range * @damage)
                 enemy.damage damage
 
 
