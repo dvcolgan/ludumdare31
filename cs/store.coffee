@@ -6,9 +6,13 @@ forSaleItems =
     towerFire:
         createFn: 'createFire'
         imageKey: 'tower-aoe'
-        cost: 50
+        cost: 100
     towerSnowblower:
         createFn: 'createSnowblower'
+        imageKey: 'tower-aoe'
+        cost: 50
+    towerSalt:
+        createFn: 'createSalt'
         imageKey: 'tower-aoe'
         cost: 20
 
