@@ -32,11 +32,11 @@ module.exports = class Tower extends Phaser.Sprite
         @rangeMarker.anchor.setTo(0.5, 0.5)
         @game.groups.tower.add(@rangeMarker)
 
-        @cooldownRemaining = 0
-        @cooldownMeterData = @game.add.bitmapData(@width + 16, @height + 16)
-        @cooldownMeter = @game.add.sprite(@x, @y, @cooldownMeterData)
-        @cooldownMeter.anchor.setTo(0.5, 0.5)
+        @cooldownMeter = @game.add.sprite(@x, @y, 'cooldown')
+        @cooldownMeter.anchor.setTo(0.5)
+        @cooldownMeter.animations.add('running', [0..12], 0)
         @game.groups.tower.add(@cooldownMeter)
+        @cooldownMeter.animations.currentAnim.frame = 12
 
     makeRangeMarker: =>
         @rangeMarkerData.cls()
@@ -52,26 +52,15 @@ module.exports = class Tower extends Phaser.Sprite
             ctx.closePath()
         @rangeMarkerData.render()
 
-    makeCooldownMeter: =>
-        @cooldownMeterData.cls()
+    updateCooldown: =>
         if @cooldownRemaining > 0
-            ctx = @cooldownMeterData.context
-            width = @cooldownMeterData.width
-            height = @cooldownMeterData.height
-
-            ctx.strokeStyle = 'black'
-            ctx.lineWidth = 8
-            ctx.beginPath()
-            remaining = @cooldown - @cooldownRemaining / @cooldown
-            ctx.arc(width/2, height/2, @width/2 + 4, remaining * Math.PI * 2 - Math.PI/2, -Math.PI/2)
-            ctx.stroke()
-            ctx.closePath()
-        @cooldownMeterData.render()
+            remaining = @cooldownRemaining / @cooldown
+            @cooldownMeter.animations.currentAnim.frame = (13 - Math.floor(13 * remaining)) - 1
 
     update: () =>
         @doConstantEffect()
         @decreaseCooldownRemaining()
-        @makeCooldownMeter()
+        @updateCooldown()
         @makeRangeMarker()
 
     decreaseCooldownRemaining: () =>

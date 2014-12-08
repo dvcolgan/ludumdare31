@@ -8,8 +8,7 @@ module.exports = class LoseOverlay
             align: 'left'
 
         button = @game.add.button @sprite.width / 2, @sprite.height - 110, 'tower-aoe', () =>
-            # TODO: Reset the game!
-            console.log 'herro'
+            @game.state.start('Play')
         button.anchor.set 0.5
         @sprite.addChild button
 

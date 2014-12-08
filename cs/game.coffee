@@ -15,9 +15,21 @@ SaltPatch = require('./salt-patch')
 WeatherGenerator = require('./weather-generator')
 
 
-class PlayState extends Phaser.State
+class BootState
+    preload: ->
+        @load.image('loading-bar', 'assets/loading-bar.png')
 
-    preload: =>
+    create: ->
+        @game.state.start('Preload')
+
+
+class PreloadState
+    preload: ->
+        @game.stage.backgroundColor = 'black'
+        @loadingBar = @game.add.sprite(G.SCREEN_WIDTH/2, G.SCREEN_HEIGHT/2, 'loading-bar')
+        @loadingBar.anchor.setTo(0.5)
+        @game.load.setPreloadSprite(@loadingBar)
+
         @game.load.image('background', 'assets/background.png')
         @game.load.image('secret', 'assets/secret.png')
         @game.load.image('tower', 'assets/tower.png')
@@ -32,10 +44,14 @@ class PlayState extends Phaser.State
 
         @game.load.image('firewood', 'assets/firewood.png')
         @game.load.image('fire-particle', 'assets/fire-particle.png')
+        @game.load.spritesheet('flames', 'assets/flames.png', 64, 82, 5)
 
         @game.load.spritesheet('fan', 'assets/fan.png', 64, 64, 4)
         @game.load.spritesheet('snow-particles', 'assets/snow-particles.png', 4, 4, 4)
         @game.load.spritesheet('snowflake-particles', 'assets/snowflake-particles.png', 16, 16, 5)
+
+        @game.load.spritesheet('cooldown', 'assets/cooldown.png', 96, 96, 13)
+
         @game.load.image('salt-patch', 'assets/salt-patch.png', 64, 64)
         @game.load.image('salt-particle', 'assets/salt-particle.png')
 
@@ -51,13 +67,36 @@ class PlayState extends Phaser.State
 
         @game.load.image('music-on', 'assets/speaker-icon.png')
 
+    create: ->
+        @game.state.start('Play')
+
+
+class MainMenuState
+    create: ->
+        @game.add.sprite(0, 0, 'screen-mainmenu')
+        @game.add.sprite((320-221)/2, 40, 'title')
+        @startButton = @game.add.button((320-146)/2, 200, 'button-start', @startGame, this, 1, 0, 2)
+        @game.add.text(
+            60, 250, "Use arrow keys on desktop, \n  accelerometer on mobile",
+            {font: "16px Arial", fill: "#b921fe", stroke: "#22053a", strokeThickness: 3}
+        )
+
+    startGame: =>
+        @game.state.start('HowToPlay')
+
+
+class HowToPlayState
+
+
+
+class PlayState extends Phaser.State
+
     initializeSoundEffects: =>
         @game.sounds =
             snowHit1: @game.add.audio('snow-hit1')
             snowHit2: @game.add.audio('snow-hit2')
 
     create: =>
-
         @initializeGame()
         @initializePhysicsEngine()
         @initializeGroups()
@@ -201,4 +240,10 @@ class PlayState extends Phaser.State
         @game.debug.text(@game.time.fps || '--', 2, 14, "#00ff00")
 
 
-window.state = new Phaser.Game(G.SCREEN_WIDTH, G.SCREEN_HEIGHT, Phaser.AUTO, 'game-container', new PlayState())
+window.game = new Phaser.Game(G.SCREEN_WIDTH, G.SCREEN_HEIGHT, Phaser.AUTO, 'game-container')
+window.game.state.add('Boot', BootState)
+window.game.state.add('Preload', PreloadState)
+window.game.state.add('MainMenu', MainMenuState)
+window.game.state.add('HowToPlay', HowToPlayState)
+window.game.state.add('Play', PlayState)
+window.game.state.start('Boot')
