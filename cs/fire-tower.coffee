@@ -10,6 +10,7 @@ module.exports = class FireTower extends Tower
         damage: 15
         animationCls: FireAnimation
         framesToDoOccasionalDamage: 120
+        drawRangeMarker: true
 
     fire: () =>
         return if not super()
