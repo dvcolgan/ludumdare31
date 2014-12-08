@@ -12,5 +12,6 @@ module.exports =
         onEnemyKilled: new Phaser.Signal()
         onStoreItemPurchased: new Phaser.Signal()
         onGoldAmountChanged: new Phaser.Signal()
+        onSecretDamaged: new Phaser.Signal()
 
     DEBUG: false
