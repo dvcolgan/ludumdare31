@@ -10,8 +10,8 @@ module.exports = class SaltTower extends Tower
         damage: 1
         animationCls: SaltAnimation
         framesToDoOccasionalDamage: 60
-        maxEnemySpeed: 10
-        stunDuration: 60
+        maxEnemySpeed: 20
+        stunDuration: 30
 
     fire: () =>
         return if not super()

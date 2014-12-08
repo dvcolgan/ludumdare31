@@ -11,7 +11,7 @@ forSaleItems =
         class: FireTower
         imageKey: 'fire-store-icon'
         placeable: true
-        cost: 100
+        cost: 200
 
     towerFan:
         name: 'Fan'
@@ -19,7 +19,7 @@ forSaleItems =
         class: FanTower
         imageKey: 'fan'
         placeable: true
-        cost: 50
+        cost: 10
 
     towerSalt:
         name: 'Salt'
@@ -27,7 +27,7 @@ forSaleItems =
         class: SaltTower
         imageKey: 'salt-patch'
         placeable: true
-        cost: 20
+        cost: 50
 
     towerFireUpgrade:
         name: 'Fire Upgrade'
@@ -118,7 +118,7 @@ forSaleItems =
                 .to({x: 2, y: 2}, 3000, Phaser.Easing.Circular.Out, true)
                 .onComplete.add ->
                     nuke.destroy()
-            
+
 
 
 module.exports = class Store
