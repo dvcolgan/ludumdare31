@@ -9,7 +9,9 @@ module.exports = class Secret extends Phaser.Sprite
     constructor: (@game, x, y) ->
         super(@game, x, y, 'secret')
 
+
         @game.add.existing(@)
+        @game.groups.secret.add(@)
         @anchor.setTo 0.5
         @game.physics.p2.enable(@, G.DEBUG)
         @body.kinematic = yes
@@ -20,23 +22,46 @@ module.exports = class Secret extends Phaser.Sprite
 
         @enemyGroup = @game.groups.enemy
 
-        # Health text
         @health = Secret.properties.maxHealth
-        @healthText = @game.add.text 0, 0, @health,
-            font: '10px Droid Sans'
-            fill: 'black'
-            align: 'center'
-        @addChild @healthText
 
+        @healthMeterData = @game.add.bitmapData(96, 16)
+        @healthMeter = @game.add.sprite(@x, @y-40, @healthMeterData)
+        @healthMeter.anchor.setTo(0.5)
+        @game.groups.secret.add(@healthMeter)
+
+        @makeHealthMeter()
+
+    makeHealthMeter: () =>
+        @healthMeterData.cls()
+        amount = (@health / Secret.properties.maxHealth) * @healthMeterData.width
+        color = if amount > 32
+            '#00ff00'
+        else if amount > 16
+            '#ffff00'
+        else
+            '#ff0000'
+
+        @healthMeterData.rect(
+            0, 0,
+            @healthMeterData.width,
+            @healthMeterData.height,
+            'black')
+        @healthMeterData.rect(
+            2, 2,
+            amount-4,
+            @healthMeterData.height-4,
+            color)
+        @healthMeterData.render()
 
     restoreMaxHealth: () =>
         @damage(@health - Secret.properties.maxHealth)
+        @makeHealthMeter()
 
 
     damage: (damage) =>
         super damage
 
-        @healthText.text = @health
+        @makeHealthMeter()
 
         if @health <= 0
             G.events.onGameOver.dispatch()

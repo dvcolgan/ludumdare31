@@ -259,7 +259,6 @@ class PlayState extends Phaser.State
 
     initializeSecret: () =>
         @secret = new Secret(@game, G.SCREEN_WIDTH - 50, G.SCREEN_HEIGHT/2)
-        @game.groups.secret.add(@secret)
 
 
     handlePointerDownOnBackground: (image, pointer) =>
