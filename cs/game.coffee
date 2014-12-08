@@ -74,6 +74,8 @@ class PreloadState
         @game.load.image('fan-upgrade', 'assets/fan-upgrade.png')
         @game.load.image('secret-heal', 'assets/secret-heal.png')
 
+        @game.load.image('mini-nuke', 'assets/mini-nuke.png')
+
     create: ->
         @game.state.start('Play')
 
