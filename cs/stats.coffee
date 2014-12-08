@@ -30,7 +30,7 @@ module.exports = class Stats
     handleEnemyKilled: (enemy) =>
         @enemiesKilled++
 
-        @addGold(@game.rnd.between(20, 50) / @game.difficulty)
+        @addGold(Math.floor(@game.rnd.between(20, 50) / @game.difficulty))
         @score += 10
 
         @updateText()
