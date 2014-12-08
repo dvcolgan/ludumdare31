@@ -39,6 +39,7 @@ class PreloadState
         @game.load.image('tower-aoe', 'assets/tower.png')
 
         @game.load.image('title-screen', 'assets/title-screen.png')
+        @game.load.image('how-to-play', 'assets/how-to-play.png')
         @game.load.image('lose-overlay', 'assets/lose-overlay.png')
         @game.load.image('store-overlay', 'assets/store-overlay.png')
         @game.load.image('store-slot', 'assets/store-slot.png')
@@ -78,6 +79,8 @@ class PreloadState
         @game.load.image('mini-nuke', 'assets/mini-nuke.png')
         @game.load.image('nuke-blast', 'assets/nuke-blast.png')
 
+        @game.load.spritesheet('button', 'assets/button.png', 150, 48, 3)
+
     create: ->
         @game.state.start('Title')
 
@@ -106,21 +109,21 @@ class TitleState
 
 class HowToPlayState
     create: ->
-        overlay = @game.add.sprite(0, 0, 'lose-overlay')
+        overlay = @game.add.sprite(0, 0, 'how-to-play')
 
         buttons = []
-        buttons.push @game.add.button 0, 0, 'tower-aoe', @startEasy
-        buttons.push @game.add.button 0, 0, 'tower-aoe', @startMedium
-        buttons.push @game.add.button 0, 0, 'tower-aoe', @startHard
+        buttons.push @game.add.button 0, 0, 'button', @startEasy, @, 1, 0, 2
+        buttons.push @game.add.button 0, 0, 'button', @startMedium, @, 1, 0, 2
+        buttons.push @game.add.button 0, 0, 'button', @startHard, @, 1, 0, 2
 
         for button, i in buttons
             button.text = @game.add.text button.width / 2, button.height / 2, '',
-                font: 'bold 20px Droid Sans'
-                fill: 'black'
+                font: '20px Droid Sans'
+                fill: 'white'
             button.text.anchor.setTo 0.5
             button.addChild button.text
-            button.x = (i + 1) * overlay.width / 4 - button.width / 2 + overlay.x
-            button.y = overlay.height - 150 + overlay.y
+            button.x = 20 + (i * 200)
+            button.y = overlay.height - 150 + overlay.y + 10
             overlay.addChild button
 
         buttons[0].text.text = 'Easy'
