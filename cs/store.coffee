@@ -9,7 +9,7 @@ forSaleItems =
         name: 'Fire'
         description: 'Click/Tap: Melt snowballs around the fire'
         class: FireTower
-        imageKey: 'firewood'
+        imageKey: 'fire-store-icon'
         placeable: true
         cost: 100
 
@@ -43,6 +43,7 @@ forSaleItems =
 
             game.groups.tower.forEachAlive (tower) =>
                 tower.resetProperties?()
+                tower.makeRangeMarker()
 
             store.removeItem 'towerFireUpgrade'
 
@@ -60,6 +61,7 @@ forSaleItems =
 
             game.groups.tower.forEachAlive (tower) =>
                 tower.resetProperties?()
+                tower.makeRangeMarker()
 
             store.removeItem 'towerFanUpgrade'
 
@@ -78,6 +80,7 @@ forSaleItems =
 
             game.groups.tower.forEachAlive (tower) =>
                 tower.resetProperties?()
+                tower.makeRangeMarker()
 
             store.removeItem 'towerSaltUpgrade'
 

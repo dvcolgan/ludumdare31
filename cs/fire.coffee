@@ -5,10 +5,10 @@ module.exports = class Fire
         x = @sprite.x
         y = @sprite.y
 
-        @flames = @game.add.sprite(x, y-12, 'flames')
+        @flames = @game.add.sprite(x, y+5, 'flames')
         @flames.animations.add('burn', [0..4], 10, true)
         @flames.animations.play('burn')
-        @flames.anchor.setTo(0.5, 0.61)
+        @flames.anchor.setTo(0.5, 0.91)
         @flames.scale.setTo(0.8)
 
         #@emitter = @game.add.emitter(x, y+5, 300)
@@ -33,4 +33,8 @@ module.exports = class Fire
         #@flare.setScale(1, 0.8, 1, 0.8, 3000, Phaser.Easing.Quadratic.InOut)
 
     blast: =>
+        @game.add.tween(@flames.scale)
+            .to({x: 1.5, y: 2}, 400, Phaser.Easing.Circular.Out)
+            .to({x: 1, y: 1}, 400, Phaser.Easing.Circular.In)
+            .start()
         #@flare.start(true, 1000, null, 300)

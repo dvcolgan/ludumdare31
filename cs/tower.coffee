@@ -38,6 +38,8 @@ module.exports = class Tower extends Phaser.Sprite
         @game.groups.tower.add(@cooldownMeter)
         @cooldownMeter.animations.currentAnim.frame = 12
 
+        @makeRangeMarker()
+
     makeRangeMarker: =>
         @rangeMarkerData.cls()
         if @constructor?.properties?.range?
@@ -61,7 +63,6 @@ module.exports = class Tower extends Phaser.Sprite
         @doConstantEffect()
         @decreaseCooldownRemaining()
         @updateCooldown()
-        @makeRangeMarker()
 
     decreaseCooldownRemaining: () =>
 
