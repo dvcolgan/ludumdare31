@@ -102,6 +102,13 @@ module.exports = class Store
         @slideDownTween = @game.add.tween(@overlay).to({y: 0}, 500, Phaser.Easing.Bounce.Out)
         @slideUpTween = @game.add.tween(@overlay).to({y: -474}, 500, Phaser.Easing.Bounce.Out)
 
+        @storeText = @game.add.text @overlay.width / 2, @overlay.height - 15, 'Store',
+            font: '40px Arial'
+            fill: 'black'
+            align: 'center'
+        @storeText.anchor.setTo 0.5, 1
+        @overlay.addChild @storeText
+
         @overlay.events.onInputDown.add(@toggleStore)
         @state = 'up'
 
