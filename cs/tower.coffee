@@ -40,7 +40,7 @@ module.exports = class Tower extends Phaser.Sprite
 
         @makeRangeMarker()
 
-    makeRangeMarker: =>
+    makeRangeMarker: () =>
         @rangeMarkerData.cls()
         if @constructor?.properties?.range?
             ctx = @rangeMarkerData.context
