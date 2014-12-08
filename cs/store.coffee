@@ -32,7 +32,7 @@ forSaleItems =
     towerFireUpgrade:
         name: 'Fire Upgrade'
         description: 'When purchased, increase the range and damage of all campfires'
-        imageKey: 'tower-aoe'
+        imageKey: 'fire-upgrade'
         placeable: false
         cost: 500
         requires: ['game', 'store']
@@ -49,7 +49,7 @@ forSaleItems =
     towerFanUpgrade:
         name: 'Fan Upgrade'
         description: 'When purchased, increase the range and damage of all fans'
-        imageKey: 'tower-aoe'
+        imageKey: 'fan-upgrade'
         placeable: false
         cost: 500
         requires: ['game', 'store']
@@ -66,7 +66,7 @@ forSaleItems =
     towerSaltUpgrade:
         name: 'Salt Upgrade'
         description: 'When purchased, increase the stun range and damage of all salt patches'
-        imageKey: 'tower-aoe'
+        imageKey: 'salt-upgrade'
         placeable: false
         cost: 500
         requires: ['game', 'store']
@@ -84,7 +84,7 @@ forSaleItems =
     secretHealth:
         name: 'Replenish Health'
         description: 'When purchased, restores the health of your damaged secret.'
-        imageKey: 'tower-aoe'
+        imageKey: 'secret-heal'
         placeable: false
         cost: 100
         requires: ['secret']

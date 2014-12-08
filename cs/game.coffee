@@ -68,6 +68,11 @@ class PreloadState
         @game.load.image('music-on', 'assets/speaker-icon.png')
         @game.load.bitmapFont('font', 'assets/font.png', 'assets/font.fnt')
 
+        @game.load.image('fire-upgrade', 'assets/fire-upgrade.png')
+        @game.load.image('salt-upgrade', 'assets/salt-upgrade.png')
+        @game.load.image('fan-upgrade', 'assets/fan-upgrade.png')
+        @game.load.image('secret-heal', 'assets/secret-heal.png')
+
     create: ->
         @game.state.start('Play')
 
