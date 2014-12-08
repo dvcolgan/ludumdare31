@@ -212,7 +212,6 @@ class PlayState extends Phaser.State
         @game.camera.x = 0
         @game.time.advancedTiming = G.DEBUG
         window.controller = @
-        @game.difficulty = 3
         @boughtItem = null
         @cursorSprite = null
 
