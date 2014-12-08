@@ -22,8 +22,8 @@ module.exports = class Secret extends Phaser.Sprite
 
         # Health text
         @health = Secret.properties.maxHealth
-        @healthText = new Phaser.Text @game, 0, 0, @health,
-            font: '10px Arial'
+        @healthText = @game.add.text 0, 0, @health,
+            font: '10px Droid Sans'
             fill: 'black'
             align: 'center'
         @addChild @healthText

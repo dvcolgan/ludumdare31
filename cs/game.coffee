@@ -66,6 +66,7 @@ class PreloadState
         @game.load.audio('snow-hit2', 'assets/snow-hit2.ogg')
 
         @game.load.image('music-on', 'assets/speaker-icon.png')
+        @game.load.bitmapFont('font', 'assets/font.png', 'assets/font.fnt')
 
     create: ->
         @game.state.start('Play')
@@ -90,7 +91,6 @@ class HowToPlayState
 
 
 class PlayState extends Phaser.State
-
     initializeSoundEffects: =>
         @game.sounds =
             snowHit1: @game.add.audio('snow-hit1')

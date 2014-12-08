@@ -9,7 +9,7 @@ module.exports = class FireTower extends Tower
         range: 100
         damage: 15
         animationCls: FireAnimation
-        framesToDoOccasionalDamage: 600
+        framesToDoOccasionalDamage: 60
 
     fire: () =>
         return if not super()
@@ -27,10 +27,7 @@ module.exports = class FireTower extends Tower
         return if not super()
         return if @game.frame % FireTower.properties.framesToDoOccasionalDamage != 0
 
-        @animation.blast()
-
         @enemyGroup.forEachAlive (enemy) =>
             dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
             if dist < enemy.radius / 2 + @range
-                damage = Math.floor((@range - dist + (@width + enemy.radius) / 2) / @range * @damage)
-                enemy.damage damage
+                enemy.damage 1

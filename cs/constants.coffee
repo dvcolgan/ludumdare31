@@ -6,5 +6,6 @@ module.exports =
         onGameOver: new Phaser.Signal()
         onEnemyKilled: new Phaser.Signal()
         onStoreItemPurchased: new Phaser.Signal()
+        onGoldAmountChanged: new Phaser.Signal()
 
     DEBUG: false

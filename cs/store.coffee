@@ -29,16 +29,6 @@ forSaleItems =
         placeable: true
         cost: 20
 
-    secretHealth:
-        name: 'Replenish Health'
-        description: 'When purchased, restores the health of your damaged secret.'
-        imageKey: 'tower-aoe'
-        placeable: false
-        cost: 100
-        requires: ['secret']
-        createFn: (secret) =>
-            secret.restoreMaxHealth()
-
     towerFireUpgrade:
         name: 'Fire Upgrade'
         description: 'When purchased, increase the range and damage of all campfires'
@@ -52,7 +42,7 @@ forSaleItems =
             FireTower.properties.damage += 10
 
             game.groups.tower.forEachAlive (tower) =>
-                tower.resetProperties()
+                tower.resetProperties?()
 
             store.removeItem 'towerFireUpgrade'
 
@@ -69,7 +59,7 @@ forSaleItems =
             FanTower.properties.damage += 10
 
             game.groups.tower.forEachAlive (tower) =>
-                tower.resetProperties()
+                tower.resetProperties?()
 
             store.removeItem 'towerFanUpgrade'
 
@@ -87,13 +77,23 @@ forSaleItems =
             SaltTower.properties.stunDuration += 60 * 2
 
             game.groups.tower.forEachAlive (tower) =>
-                tower.resetProperties()
+                tower.resetProperties?()
 
             store.removeItem 'towerSaltUpgrade'
 
+    secretHealth:
+        name: 'Replenish Health'
+        description: 'When purchased, restores the health of your damaged secret.'
+        imageKey: 'tower-aoe'
+        placeable: false
+        cost: 100
+        requires: ['secret']
+        createFn: (secret) =>
+            secret.restoreMaxHealth()
+
 
 module.exports = class Store
-    @NUM_ITEMS_PER_ROW = 4
+    @numItemsPerRow = 6
 
     constructor: (@game, @stats) ->
         @overlay = @game.add.sprite(0, -474, 'store-overlay')
@@ -102,32 +102,33 @@ module.exports = class Store
         @slideDownTween = @game.add.tween(@overlay).to({y: 0}, 500, Phaser.Easing.Bounce.Out)
         @slideUpTween = @game.add.tween(@overlay).to({y: -474}, 500, Phaser.Easing.Bounce.Out)
 
+        @storeText = @game.add.bitmapText 0, 0, 'font', 'STORE', 40
+        @storeText.x = @overlay.width / 2 - @storeText.width / 2
+        @storeText.y = @overlay.height - 25 - @storeText.height
+        @overlay.addChild @storeText
+
         @overlay.events.onInputDown.add(@toggleStore)
         @state = 'up'
 
         # Place to put description text
-        @descriptionText = new Phaser.Text(
-            @game
-            20
-            @overlay.height - 100
-            ''
-                font: '20px Arial'
-                fill: 'black'
-                align: 'center'
-        )
-        @descriptionText.anchor.setTo 0, 1
+        @descriptionText = @game.add.bitmapText 0, 0, 'font', '', 30
+        @descriptionText.x = 20
+        @descriptionText.y = @overlay.height - 120 - @descriptionText.height
         @overlay.addChild @descriptionText
 
         @slotNumber = 0
+        @slots = []
 
         for type, item of forSaleItems
             @addForSaleItem type, item
 
+        G.events.onGoldAmountChanged.add(@recalculateBuyableItems)
+
     addForSaleItem: (itemType, itemData) =>
 
         # Calculate where the item should go
-        x = (@slotNumber % Store.NUM_ITEMS_PER_ROW + 1) * 200
-        y = Math.floor(@slotNumber / Store.NUM_ITEMS_PER_ROW) * 150 + 100
+        x = (@slotNumber % Store.numItemsPerRow) * 150 + 100
+        y = Math.floor(@slotNumber / Store.numItemsPerRow) * 180 + 100
 
         # Add the sprite for the slot
         slot = @game.add.sprite(x, y, 'store-slot')
@@ -137,6 +138,7 @@ module.exports = class Store
         slot.events.onInputDown.add @handleClickOnForSaleItem
         slot.data = itemData
         slot.type = itemType
+        @slots.push slot
 
         # Add the sprite for the item
         item = @game.add.sprite(x, y, itemData.imageKey)
@@ -154,25 +156,24 @@ module.exports = class Store
         @overlay.addChild(item)
 
         # Add the name
-        text = new Phaser.Text(
-            @game
+        text = @game.add.text(
             0
-            slot.width / 2 + 20
+            slot.width / 2 + 30
             itemData.name + "\nCost: #{itemData.cost}g" + '' # Because coffeescript gets confused and I like weird syntax
-                font: '20px Arial'
+                font: '20px Droid Sans'
                 fill: 'black'
                 align: 'center'
         )
         text.anchor.setTo 0.5, 0.5
+        slot.text = text
         slot.addChild text
 
         # Add the question mark text
-        questionText = new Phaser.Text(
-            @game
+        questionText = @game.add.text(
             slot.width / 2 + 15
             -1 * slot.height / 2
             '?'
-                font: '30px Arial'
+                font: '30px Droid Sans'
                 fill: 'black'
         )
         questionText.anchor.setTo 0.5, 0
@@ -213,3 +214,11 @@ module.exports = class Store
         else if @state == 'down'
             @slideUpTween.start()
             @state = 'up'
+
+    recalculateBuyableItems: (availableGold) =>
+        for slot in @slots
+            if slot.data.cost <= availableGold
+                slot.text.addColor 'black', 0
+            else
+                slot.text.addColor '#ff3333', 0
+        return

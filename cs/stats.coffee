@@ -9,7 +9,7 @@ module.exports = class Stats
 
         # Display text on the screen
         @text = @game.add.text 20, 20, '',
-            font: '20px Arial'
+            font: '20px Droid Sans'
             fill: 'black'
             align: 'left'
 
@@ -20,26 +20,18 @@ module.exports = class Stats
     addGold: (amount) ->
         @gold += amount
         @updateText()
+        G.events.onGoldAmountChanged.dispatch(@gold)
 
     subtractGold: (amount) ->
         @gold -= amount
         @updateText()
+        G.events.onGoldAmountChanged.dispatch(@gold)
 
     handleEnemyKilled: (enemy) =>
         @enemiesKilled++
 
-        switch enemy.key
-            when 'enemy-small'
-                @gold += @game.rnd.between 5, 10
-                @score += 5
-
-            when 'enemy-medium'
-                @gold += @game.rnd.between 10, 20
-                @score += 10
-
-            when 'enemy-large'
-                @gold += @game.rnd.between 20, 50
-                @score += 20
+        @addGold @game.rnd.between 20, 50
+        @score += 20
 
         @updateText()
 

@@ -3,7 +3,7 @@ module.exports = class LoseOverlay
         @sprite = @game.add.sprite(0, 0, 'lose-overlay')
         @game.groups.overlay.add(@sprite)
         @text = @game.add.text 200, 200, '',
-            font: 'bold 20px Arial'
+            font: 'bold 20px Droid Sans'
             fill: 'black'
             align: 'left'
 
@@ -13,7 +13,7 @@ module.exports = class LoseOverlay
         @sprite.addChild button
 
         restartText = @game.add.text 0, 0, 'Restart',
-            font: 'bold 20px Arial'
+            font: 'bold 20px Droid Sans'
             fill: 'black'
             align: 'center'
         restartText.anchor.set 0.5
