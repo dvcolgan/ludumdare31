@@ -97,7 +97,7 @@ forSaleItems =
     nuke:
         name: 'Nuke'
         description: 'Melts all snowmen on screen. Reusable.'
-        imageKey: 'secret-heal'
+        imageKey: 'mini-nuke'
         placeable: false
         cost: 5000
         requires: ['game']
@@ -136,6 +136,7 @@ module.exports = class Store
         for type, item of forSaleItems
             @addForSaleItem type, item
 
+        @recalculateBuyableItems(@stats.gold)
         G.events.onGoldAmountChanged.add(@recalculateBuyableItems)
 
     addForSaleItem: (itemType, itemData) =>
