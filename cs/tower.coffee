@@ -27,13 +27,32 @@ module.exports = class Tower extends Phaser.Sprite
 
         @enemyGroup = @game.groups.enemy
 
+        @rangeMarkerData = @game.add.bitmapData(512, 512)
+        @rangeMarker = @game.add.sprite(@x, @y, @rangeMarkerData)
+        @rangeMarker.anchor.setTo(0.5, 0.5)
+        @game.groups.tower.add(@rangeMarker)
+
         @cooldownRemaining = 0
         @cooldownMeterData = @game.add.bitmapData(@width + 16, @height + 16)
-        @cooldownMeter = @game.add.sprite(0, 0, @cooldownMeterData)
+        @cooldownMeter = @game.add.sprite(@x, @y, @cooldownMeterData)
         @cooldownMeter.anchor.setTo(0.5, 0.5)
-        @addChild(@cooldownMeter)
+        @game.groups.tower.add(@cooldownMeter)
 
-    makeCooldownMeter: ->
+    makeRangeMarker: =>
+        @rangeMarkerData.cls()
+        if @constructor?.properties?.range?
+            ctx = @rangeMarkerData.context
+            width = @rangeMarkerData.width
+            height = @rangeMarkerData.height
+            ctx.strokeStyle = 'black'
+            ctx.lineWidth = 2
+            ctx.beginPath()
+            ctx.arc(width/2, height/2, @constructor.properties.range, 0, Math.PI*2)
+            ctx.stroke()
+            ctx.closePath()
+        @rangeMarkerData.render()
+
+    makeCooldownMeter: =>
         @cooldownMeterData.cls()
         if @cooldownRemaining > 0
             ctx = @cooldownMeterData.context
@@ -53,6 +72,7 @@ module.exports = class Tower extends Phaser.Sprite
         @doConstantEffect()
         @decreaseCooldownRemaining()
         @makeCooldownMeter()
+        @makeRangeMarker()
 
     decreaseCooldownRemaining: () =>
 

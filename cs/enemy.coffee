@@ -21,6 +21,7 @@ class Enemy extends Phaser.Sprite
 
         @animations.add('walk', [0...8], 10, true)
         @play('walk')
+        @radius = 32
 
 
     update: () =>
@@ -75,7 +76,8 @@ class Enemy extends Phaser.Sprite
         @scale.x = @health / 50
         @scale.y = @health / 50
         @body.clearShapes()
-        @body.addCircle(32 * @scale.x)
+        @radius = 32 * @scale.x
+        @body.addCircle(@radius)
 
         @body.setCollisionGroup(@game.collisionGroups.enemy)
         @body.collides([
