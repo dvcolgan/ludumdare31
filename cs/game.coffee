@@ -217,7 +217,12 @@ class PlayState extends Phaser.State
     initializePhysicsEngine: () =>
         @game.physics.startSystem(Phaser.Physics.P2JS)
         @game.physics.p2.setImpactEvents(true)
-        @game.physics.p2.setBounds(-200, 64, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT - 64)
+        @game.physics.p2.setBounds(
+            G.PHYSICS_BOUNDS_X_MIN
+            G.PHYSICS_BOUNDS_Y_MIN
+            G.PHYSICS_BOUNDS_X_MAX
+            G.PHYSICS_BOUNDS_Y_MAX
+        )
 
     initializeGroups: () =>
         @game.groups = {}

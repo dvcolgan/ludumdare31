@@ -3,6 +3,8 @@ G = require('./constants')
 
 class Enemy extends Phaser.Sprite
     @framesUntilGrowthRateDoubled = 60 * 120
+    @baseRadius = 32
+    @healthScale = 60
 
     constructor: (game, @towerGroup, @secret, x, y, key, health) ->
         super(game, x, y, key)
@@ -12,8 +14,9 @@ class Enemy extends Phaser.Sprite
         game.physics.p2.enable(@, G.DEBUG)
         @anchor.setTo(0.5, 0.69)
 
+        @setScaleForHealth()
         @body.clearShapes()
-        @body.addCircle(32)
+        @body.addCircle(@radius)
         @body.setCollisionGroup(game.collisionGroups.enemy)
         @body.collides([
             game.collisionGroups.enemy, game.collisionGroups.tower, game.collisionGroups.secret
@@ -23,7 +26,6 @@ class Enemy extends Phaser.Sprite
 
         @animations.add('walk', [0...8], 10, true)
         @play('walk')
-        @radius = 32
 
 
     update: () =>
@@ -76,10 +78,10 @@ class Enemy extends Phaser.Sprite
 
 
     setScaleForHealth: =>
-        @scale.x = @health / 50
-        @scale.y = @health / 50
+        @scale.x = @health / Enemy.healthScale + 0.2
+        @scale.y = @health / Enemy.healthScale + 0.2
         @body.clearShapes()
-        @radius = 32 * @scale.x
+        @radius = Enemy.baseRadius * @scale.x
         @body.addCircle(@radius)
 
         @body.setCollisionGroup(@game.collisionGroups.enemy)
@@ -97,20 +99,46 @@ class Enemy extends Phaser.Sprite
 
 
 module.exports = class EnemyFactory
+
+    @defaultHealth = 10
+    @defaultRadius = Enemy.baseRadius * (EnemyFactory.defaultHealth / Enemy.healthScale + 0.2)
+
     constructor: (@game, @towerGroup, @secret) ->
 
+    getX: =>
+        return @game.rnd.integerInRange(-75, 0)
+
     getY: =>
-        return @game.rnd.integerInRange(0, G.SCREEN_HEIGHT)
+        minY = G.PHYSICS_BOUNDS_Y_MIN + EnemyFactory.defaultRadius + 1
+        maxY = G.PHYSICS_BOUNDS_Y_MAX - EnemyFactory.defaultRadius - 1
+
+        return @game.rnd.integerInRange(minY, maxY)
+
+    intersectsWithExistingEnemy: (x, y, enemyGroup) =>
+        intersects = false
+
+        enemyGroup.forEachAlive (enemy) =>
+            if Phaser.Math.distance(enemy.x, enemy.y, x, y) <= enemy.radius + EnemyFactory.defaultRadius + 2
+                intersects = true
+                return
+
+        return intersects
 
     createEnemy: =>
+        i = 0
+        loop
+            x = @getX()
+            y = @getY()
+            break if not @intersectsWithExistingEnemy(x, y, @game.groups.enemy) or i++ > 10
+
         enemy = new Enemy(
             @game
             @towerGroup
             @secret
-            0
-            @getY()
+            x
+            y
             'snowman'
-            10
+            EnemyFactory.defaultHealth
         )
         @game.groups.enemy.add(enemy)
         return enemy
