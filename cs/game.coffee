@@ -200,7 +200,7 @@ class PlayState extends Phaser.State
         @enemySpawner = new EnemySpawner(enemyFactory, 60, @game.difficulty)
 
     initializeSecret: () =>
-        @secret = new Secret(@game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT/2)
+        @secret = new Secret(@game, G.SCREEN_WIDTH - 50, G.SCREEN_HEIGHT/2)
         @game.groups.secret.add(@secret)
 
 
