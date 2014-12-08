@@ -29,16 +29,6 @@ forSaleItems =
         placeable: true
         cost: 20
 
-    secretHealth:
-        name: 'Replenish Health'
-        description: 'When purchased, restores the health of your damaged secret.'
-        imageKey: 'tower-aoe'
-        placeable: false
-        cost: 100
-        requires: ['secret']
-        createFn: (secret) =>
-            secret.restoreMaxHealth()
-
     towerFireUpgrade:
         name: 'Fire Upgrade'
         description: 'When purchased, increase the range and damage of all campfires'
@@ -91,9 +81,19 @@ forSaleItems =
 
             store.removeItem 'towerSaltUpgrade'
 
+    secretHealth:
+        name: 'Replenish Health'
+        description: 'When purchased, restores the health of your damaged secret.'
+        imageKey: 'tower-aoe'
+        placeable: false
+        cost: 100
+        requires: ['secret']
+        createFn: (secret) =>
+            secret.restoreMaxHealth()
+
 
 module.exports = class Store
-    @NUM_ITEMS_PER_ROW = 4
+    @numItemsPerRow = 6
 
     constructor: (@game, @stats) ->
         @overlay = @game.add.sprite(0, -474, 'store-overlay')
@@ -102,27 +102,18 @@ module.exports = class Store
         @slideDownTween = @game.add.tween(@overlay).to({y: 0}, 500, Phaser.Easing.Bounce.Out)
         @slideUpTween = @game.add.tween(@overlay).to({y: -474}, 500, Phaser.Easing.Bounce.Out)
 
-        @storeText = @game.add.text @overlay.width / 2, @overlay.height - 15, 'Store',
-            font: '40px Arial'
-            fill: 'black'
-            align: 'center'
-        @storeText.anchor.setTo 0.5, 1
+        @storeText = @game.add.bitmapText 0, 0, 'font', 'STORE', 40
+        @storeText.x = @overlay.width / 2 - @storeText.width / 2
+        @storeText.y = @overlay.height - 25 - @storeText.height
         @overlay.addChild @storeText
 
         @overlay.events.onInputDown.add(@toggleStore)
         @state = 'up'
 
         # Place to put description text
-        @descriptionText = new Phaser.Text(
-            @game
-            20
-            @overlay.height - 100
-            ''
-                font: '20px Arial'
-                fill: 'black'
-                align: 'center'
-        )
-        @descriptionText.anchor.setTo 0, 1
+        @descriptionText = @game.add.bitmapText 0, 0, 'font', '', 30
+        @descriptionText.x = 20
+        @descriptionText.y = @overlay.height - 120 - @descriptionText.height
         @overlay.addChild @descriptionText
 
         @slotNumber = 0
@@ -136,8 +127,8 @@ module.exports = class Store
     addForSaleItem: (itemType, itemData) =>
 
         # Calculate where the item should go
-        x = (@slotNumber % Store.NUM_ITEMS_PER_ROW + 1) * 200
-        y = Math.floor(@slotNumber / Store.NUM_ITEMS_PER_ROW) * 150 + 100
+        x = (@slotNumber % Store.numItemsPerRow) * 150 + 100
+        y = Math.floor(@slotNumber / Store.numItemsPerRow) * 180 + 100
 
         # Add the sprite for the slot
         slot = @game.add.sprite(x, y, 'store-slot')
@@ -165,12 +156,11 @@ module.exports = class Store
         @overlay.addChild(item)
 
         # Add the name
-        text = new Phaser.Text(
-            @game
+        text = @game.add.text(
             0
-            slot.width / 2 + 20
+            slot.width / 2 + 30
             itemData.name + "\nCost: #{itemData.cost}g" + '' # Because coffeescript gets confused and I like weird syntax
-                font: '20px Arial'
+                font: '20px Droid Sans'
                 fill: 'black'
                 align: 'center'
         )
@@ -179,12 +169,11 @@ module.exports = class Store
         slot.addChild text
 
         # Add the question mark text
-        questionText = new Phaser.Text(
-            @game
+        questionText = @game.add.text(
             slot.width / 2 + 15
             -1 * slot.height / 2
             '?'
-                font: '30px Arial'
+                font: '30px Droid Sans'
                 fill: 'black'
         )
         questionText.anchor.setTo 0.5, 0

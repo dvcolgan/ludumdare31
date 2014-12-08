@@ -51,6 +51,8 @@ class PlayState extends Phaser.State
 
         @game.load.image('music-on', 'assets/speaker-icon.png')
 
+        @game.load.bitmapFont('font', 'assets/font.png', 'assets/font.fnt')
+
     initializeSoundEffects: =>
         @game.sounds =
             snowHit1: @game.add.audio('snow-hit1')

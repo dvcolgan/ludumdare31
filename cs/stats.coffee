@@ -9,7 +9,7 @@ module.exports = class Stats
 
         # Display text on the screen
         @text = @game.add.text 20, 20, '',
-            font: '20px Arial'
+            font: '20px Droid Sans'
             fill: 'black'
             align: 'left'
 
