@@ -84,26 +84,9 @@ class PreloadState
         @game.state.start('Title')
 
     initializeMusic: () =>
-        @music = @game.add.audio('play-bgm', 0.4)
-        @music.loop = yes
-        @music.play()
-
-        pauseBtn = @game.add.sprite G.SCREEN_WIDTH, 0, 'music-on'
-        pauseBtn.anchor.setTo(1, 0)
-        pauseBtn.inputEnabled = true
-        pauseBtn.events.onInputDown.add () =>
-            @music.pause()
-            resumeBtn.visible = true
-            pauseBtn.visible = false
-
-        resumeBtn = @game.add.sprite G.SCREEN_WIDTH, 0, 'music-on'
-        resumeBtn.anchor.setTo(1, 0)
-        resumeBtn.visible = false
-        resumeBtn.inputEnabled = true
-        resumeBtn.events.onInputDown.add () =>
-            @music.play()
-            resumeBtn.visible = false
-            pauseBtn.visible = true
+        @game.music = @game.add.audio('play-bgm', 0.4)
+        @game.music.loop = yes
+        @game.music.play()
 
 
 class TitleState
@@ -174,11 +157,32 @@ class PlayState extends Phaser.State
             snowHit1: @game.add.audio('snow-hit1')
             snowHit2: @game.add.audio('snow-hit2')
 
+    initializeMusic: =>
+        #@game.music.play()
+
+        pauseBtn = @game.add.sprite G.SCREEN_WIDTH, 0, 'music-on'
+        pauseBtn.anchor.setTo(1, 0)
+        pauseBtn.inputEnabled = true
+        pauseBtn.events.onInputDown.add () =>
+            @game.music.pause()
+            resumeBtn.visible = true
+            pauseBtn.visible = false
+
+        resumeBtn = @game.add.sprite G.SCREEN_WIDTH, 0, 'music-on'
+        resumeBtn.anchor.setTo(1, 0)
+        resumeBtn.visible = false
+        resumeBtn.inputEnabled = true
+        resumeBtn.events.onInputDown.add () =>
+            @game.music.play()
+            resumeBtn.visible = false
+            pauseBtn.visible = true
+
     create: =>
         @initializeGame()
         @initializePhysicsEngine()
         @initializeGroups()
         @initializeSoundEffects()
+        @initializeMusic()
 
         @game.physics.p2.updateBoundsCollisionGroup()
 
