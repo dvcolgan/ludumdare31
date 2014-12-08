@@ -37,9 +37,9 @@ forSaleItems =
         cost: 500
         requires: ['game', 'store']
         createFn: (game, store) =>
-            FireTower.properties.cooldown -= 60
-            FireTower.properties.range += 50
-            FireTower.properties.damage += 10
+            FireTower.properties.cooldown -= 30
+            FireTower.properties.range += 30
+            FireTower.properties.damage += 5
 
             game.groups.tower.forEachAlive (tower) =>
                 tower.resetProperties?()
@@ -55,7 +55,7 @@ forSaleItems =
         cost: 500
         requires: ['game', 'store']
         createFn: (game, store) =>
-            FanTower.properties.cooldown -= 60
+            FanTower.properties.cooldown -= 30
             FanTower.properties.range += 50
             FanTower.properties.damage += 10
 
@@ -73,10 +73,10 @@ forSaleItems =
         cost: 500
         requires: ['game', 'store']
         createFn: (game, store) =>
-            SaltTower.properties.cooldown -= 60
-            SaltTower.properties.range += 50
-            SaltTower.properties.damage += 2
-            SaltTower.properties.stunDuration += 60 * 2
+            SaltTower.properties.cooldown -= 30
+            SaltTower.properties.range += 30
+            SaltTower.properties.damage += 1
+            SaltTower.properties.stunDuration += 60
 
             game.groups.tower.forEachAlive (tower) =>
                 tower.resetProperties?()

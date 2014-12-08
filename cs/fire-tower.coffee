@@ -6,10 +6,11 @@ FireAnimation = require('./fire')
 module.exports = class FireTower extends Tower
     @properties =
         cooldown: 120
-        range: 100
+        range: 70
         damage: 15
         animationCls: FireAnimation
-        framesToDoOccasionalDamage: 60
+        framesToDoOccasionalDamage: 120
+        drawRangeMarker: true
 
     fire: () =>
         return if not super()

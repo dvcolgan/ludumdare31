@@ -68,7 +68,8 @@ class PreloadState
         @game.load.audio('snow-hit1', 'assets/snow-hit1.ogg')
         @game.load.audio('snow-hit2', 'assets/snow-hit2.ogg')
 
-        @game.load.image('music-on', 'assets/speaker-icon.png')
+        @game.load.image('music-on', 'assets/speaker-on.png')
+        @game.load.image('music-off', 'assets/speaker-off.png')
         @game.load.bitmapFont('font', 'assets/font.png', 'assets/font.fnt')
 
         @game.load.image('fire-upgrade', 'assets/fire-upgrade.png')
@@ -80,9 +81,15 @@ class PreloadState
         @game.load.image('nuke-blast', 'assets/nuke-blast.png')
 
         @game.load.spritesheet('button', 'assets/button.png', 150, 48, 3)
+        @initializeMusic()
 
     create: ->
         @game.state.start('Title')
+
+    initializeMusic: () =>
+        @game.music = @game.add.audio('play-bgm', 0.4)
+        @game.music.loop = yes
+        @game.music.play()
 
 
 class TitleState
@@ -153,18 +160,38 @@ class PlayState extends Phaser.State
             snowHit1: @game.add.audio('snow-hit1')
             snowHit2: @game.add.audio('snow-hit2')
 
+    initializeMusic: =>
+        #@game.music.play()
+
+        pauseBtn = @game.add.sprite G.SCREEN_WIDTH, 0, 'music-on'
+        pauseBtn.anchor.setTo(1, 0)
+        pauseBtn.inputEnabled = true
+        pauseBtn.events.onInputDown.add () =>
+            @game.music.pause()
+            resumeBtn.visible = true
+            pauseBtn.visible = false
+
+        resumeBtn = @game.add.sprite G.SCREEN_WIDTH, 0, 'music-off'
+        resumeBtn.anchor.setTo(1, 0)
+        resumeBtn.visible = false
+        resumeBtn.inputEnabled = true
+        resumeBtn.events.onInputDown.add () =>
+            @game.music.play()
+            resumeBtn.visible = false
+            pauseBtn.visible = true
+
     create: =>
         @initializeGame()
         @initializePhysicsEngine()
         @initializeGroups()
         @initializeSoundEffects()
+        @initializeMusic()
 
         @game.physics.p2.updateBoundsCollisionGroup()
 
         @stats = new Stats(@game)
         @store = new Store(@game, @stats)
         @rockManager = new RockManager(@game)
-        @initializeMusic()
         @initializeBackground()
         @initializeSecret()
         @loseOverlay = new LoseOverlay(@game)
@@ -187,34 +214,11 @@ class PlayState extends Phaser.State
         key.onDown.add () =>
             new SaltTower(@game, @game.input.mousePointer.x, @game.input.mousePointer.y)
 
-    initializeMusic: () =>
-        @music = @game.add.audio('play-bgm', 0.4)
-        @music.loop = yes
-        @music.play()
-
-        pauseBtn = @game.add.sprite G.SCREEN_WIDTH, 0, 'music-on'
-        pauseBtn.anchor.setTo(1, 0)
-        pauseBtn.inputEnabled = true
-        pauseBtn.events.onInputDown.add () =>
-            @music.pause()
-            resumeBtn.visible = true
-            pauseBtn.visible = false
-
-        resumeBtn = @game.add.sprite G.SCREEN_WIDTH, 0, 'music-on'
-        resumeBtn.anchor.setTo(1, 0)
-        resumeBtn.visible = false
-        resumeBtn.inputEnabled = true
-        resumeBtn.events.onInputDown.add () =>
-            @music.play()
-            resumeBtn.visible = false
-            pauseBtn.visible = true
-
     initializeGame: () =>
         @game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT)
         @game.camera.x = 0
         @game.time.advancedTiming = G.DEBUG
         window.controller = @
-        @game.difficulty = 3
         @boughtItem = null
         @cursorSprite = null
 
@@ -260,9 +264,10 @@ class PlayState extends Phaser.State
 
     handlePointerDownOnBackground: (image, pointer) =>
         if @boughtItem
-            new @boughtItem.class(@game, pointer.x, pointer.y)
+            tower = new @boughtItem.class(@game, pointer.x, pointer.y)
             @boughtItem = null
             @cursorSprite.destroy()
+            G.events.onTowerPlaced.dispatch(tower)
         else
             @rockManager.throwRock(pointer.x, pointer.y)
 

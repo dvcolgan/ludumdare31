@@ -9,6 +9,7 @@ module.exports = class FanTower extends Tower
         range: 100
         damage: 10
         animationCls: FanAnimation
+        drawRangeMarker: false
 
     fire: () =>
         return if not super()

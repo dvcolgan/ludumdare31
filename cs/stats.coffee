@@ -15,7 +15,11 @@ module.exports = class Stats
 
         @updateText()
 
-        G.events.onEnemyKilled.add(@handleEnemyKilled)
+        G.events.onEnemyKilled.add @handleEnemyKilled
+        G.events.onSecretDamaged.add () =>
+            @incrementScore 1
+        G.events.onTowerPlaced.add () =>
+            @incrementScore 20
 
     addGold: (amount) ->
         @gold += amount
@@ -30,9 +34,13 @@ module.exports = class Stats
     handleEnemyKilled: (enemy) =>
         @enemiesKilled++
 
-        @addGold(Math.floor(@game.rnd.between(20, 50) / @game.difficulty))
+        @addGold(Math.floor(@game.rnd.between(10, 40) / @game.difficulty))
         @score += 10
 
+        @updateText()
+
+    incrementScore: (score) =>
+        @score += Math.abs(score)
         @updateText()
 
     updateText: () =>

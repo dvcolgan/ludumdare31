@@ -50,3 +50,5 @@ module.exports = class Secret extends Phaser.Sprite
             if dist < enemy.radius + @width / 2 + Secret.properties.damageDistance
                 enemy.damage 1
                 @damage 1
+
+                G.events.onSecretDamaged.dispatch(-1)

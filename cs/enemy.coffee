@@ -5,6 +5,7 @@ class Enemy extends Phaser.Sprite
     @framesUntilGrowthRateDoubled = 60 * 120
     @baseRadius = 32
     @healthScale = 60
+    @thrustAmount = 10
 
     constructor: (game, @towerGroup, @secret, x, y, key, health) ->
         super(game, x, y, key)
@@ -66,7 +67,7 @@ class Enemy extends Phaser.Sprite
         #    Phaser.Point.add(vector, vectorToTower, vector)
 
         @body.rotation = vector.angle(new Phaser.Point()) + Math.PI/2
-        @body.thrust 10
+        @body.thrust Enemy.thrustAmount * (@game.difficulty / 2 + 0.5)
         @body.rotation = 0
 
     updateAnimationDelay: =>
@@ -106,7 +107,7 @@ module.exports = class EnemyFactory
     constructor: (@game, @towerGroup, @secret) ->
 
     getX: =>
-        return @game.rnd.integerInRange(-75, 0)
+        return @game.rnd.integerInRange(-100, 0)
 
     getY: =>
         minY = G.PHYSICS_BOUNDS_Y_MIN + EnemyFactory.defaultRadius + 1
