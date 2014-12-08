@@ -8,14 +8,13 @@ module.exports = class LoseOverlay
             align: 'left'
 
         button = @game.add.button @sprite.width / 2, @sprite.height - 110, 'tower-aoe', () =>
-            @game.state.start('Play')
+            @game.state.start('HowToPlay')
         button.anchor.set 0.5
         @sprite.addChild button
 
         restartText = @game.add.text 0, 0, 'Restart',
             font: 'bold 20px Droid Sans'
             fill: 'black'
-            align: 'center'
         restartText.anchor.set 0.5
         button.addChild restartText
 

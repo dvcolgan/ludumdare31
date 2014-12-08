@@ -61,7 +61,7 @@ forSaleItems =
 
             game.groups.tower.forEachAlive (tower) =>
                 tower.resetProperties?()
-                tower.makeRangeMarker()
+                tower.makeRangeMarker?()
 
             store.removeItem 'towerFanUpgrade'
 
@@ -80,19 +80,30 @@ forSaleItems =
 
             game.groups.tower.forEachAlive (tower) =>
                 tower.resetProperties?()
-                tower.makeRangeMarker()
+                tower.makeRangeMarker?()
 
             store.removeItem 'towerSaltUpgrade'
 
     secretHealth:
         name: 'Replenish Health'
-        description: 'When purchased, restores the health of your damaged secret.'
+        description: 'When purchased, restores the health of your damaged secret. Reusable.'
         imageKey: 'secret-heal'
         placeable: false
         cost: 100
         requires: ['secret']
         createFn: (secret) =>
             secret.restoreMaxHealth()
+
+    nuke:
+        name: 'Nuke'
+        description: 'Melts all snowmen on screen. Reusable.'
+        imageKey: 'mini-nuke'
+        placeable: false
+        cost: 5000
+        requires: ['game']
+        createFn: (game) =>
+            game.groups.enemy.forEachAlive (enemy) =>
+                enemy.damage 1000000000
 
 
 module.exports = class Store
@@ -125,6 +136,7 @@ module.exports = class Store
         for type, item of forSaleItems
             @addForSaleItem type, item
 
+        @recalculateBuyableItems(@stats.gold)
         G.events.onGoldAmountChanged.add(@recalculateBuyableItems)
 
     addForSaleItem: (itemType, itemData) =>
