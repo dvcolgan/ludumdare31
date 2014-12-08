@@ -38,6 +38,7 @@ class PreloadState
 
         @game.load.image('tower-aoe', 'assets/tower.png')
 
+        @game.load.image('title-screen', 'assets/title-screen.png')
         @game.load.image('lose-overlay', 'assets/lose-overlay.png')
         @game.load.image('store-overlay', 'assets/store-overlay.png')
         @game.load.image('store-slot', 'assets/store-slot.png')
@@ -77,18 +78,29 @@ class PreloadState
         @game.load.image('mini-nuke', 'assets/mini-nuke.png')
 
     create: ->
-        @game.state.start('HowToPlay')
+        @game.state.start('Title')
 
 
 class TitleState
     create: ->
-        @game.add.sprite(0, 0, 'screen-mainmenu')
-        @game.add.sprite((320-221)/2, 40, 'title')
-        @startButton = @game.add.button((320-146)/2, 200, 'button-start', @startGame, this, 1, 0, 2)
-        @game.add.text(
-            60, 250, "Use arrow keys on desktop, \n  accelerometer on mobile",
-            {font: "16px Arial", fill: "#b921fe", stroke: "#22053a", strokeThickness: 3}
-        )
+
+        # Title text
+        titleText = @game.add.bitmapText 0, 0, 'font', 'Snowman Attack', 100
+        titleText.x = G.SCREEN_WIDTH / 2 - titleText.width / 2
+        titleText.y = 20
+
+        # Background image
+        titleImage = @game.add.sprite G.SCREEN_WIDTH / 2, G.SCREEN_HEIGHT - 60, 'title-screen'
+        titleImage.anchor.set 0.5, 1
+
+        # Continue text
+        continueText = @game.add.text G.SCREEN_WIDTH / 2, G.SCREEN_HEIGHT - 20, "Tap/Click to Continue",
+            font: "Bold 16px Droid Sans"
+            fill: "white"
+        continueText.anchor.setTo 0.5, 1
+
+        @game.input.onDown.add () =>
+            @game.state.start('HowToPlay')
 
 
 class HowToPlayState
