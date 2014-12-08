@@ -21,7 +21,7 @@ module.exports = class SaltTower extends Tower
         # If there are any enemies on top of it, stun them
         @enemyGroup.forEachAlive (enemy) =>
             dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
-            if dist < (@width + enemy.width) / 2 + @range
+            if dist < (@width + enemy.radius) / 2 + @range
                 enemy.body.setZeroVelocity()
                 enemy.stunDuration = SaltTower.properties.stunDuration
 
@@ -29,7 +29,7 @@ module.exports = class SaltTower extends Tower
         # If there are any enemies on top of it, slow them down
         @enemyGroup.forEachAlive (enemy) =>
             dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
-            if dist < (@width + enemy.width) / 2
+            if dist < (@width + enemy.radius) / 2
 
                 # Limit the enemy's speed
                 vector = new Phaser.Point(enemy.body.velocity.x, enemy.body.velocity.y)

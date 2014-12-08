@@ -48,7 +48,7 @@ module.exports = class Secret extends Phaser.Sprite
         @enemyGroup.forEachAlive (enemy) =>
             if Phaser.Math.within(
                 Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
-                (@width + enemy.width) / 2
+                (@width + enemy.radius) / 2
                 Secret.properties.damageDistance
             )
                 enemy.damage 1
