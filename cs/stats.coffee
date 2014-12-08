@@ -4,7 +4,7 @@ G = require('./constants')
 module.exports = class Stats
     constructor: (@game) ->
         @score = 0
-        @gold = 500
+        @gold = 50000
         @enemiesKilled = 0
 
         # Display text on the screen

@@ -105,6 +105,21 @@ forSaleItems =
             game.groups.enemy.forEachAlive (enemy) =>
                 enemy.damage 1000000000
 
+            nuke = game.add.sprite(G.SCREEN_WIDTH/2, G.SCREEN_HEIGHT/2, 'nuke-blast')
+            nuke.anchor.setTo(0.5)
+            nuke.scale.setTo(0)
+            game.add.tween(nuke)
+                .to({x: G.SCREEN_WIDTH/2 - 10, y: G.SCREEN_HEIGHT/2}, 10, Phaser.Easing.Linear.None)
+                .to({x: G.SCREEN_WIDTH/2 + 10, y: G.SCREEN_HEIGHT/2}, 10, Phaser.Easing.Linear.None)
+                .loop(true)
+                .start()
+            game.add.tween(nuke).to({alpha: 0}, 1200, Phaser.Easing.Circular.Out, true, 800)
+            game.add.tween(nuke.scale)
+                .to({x: 2, y: 2}, 3000, Phaser.Easing.Circular.Out, true)
+                .onComplete.add ->
+                    nuke.destroy()
+            
+
 
 module.exports = class Store
     @numItemsPerRow = 6
