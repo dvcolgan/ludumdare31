@@ -166,7 +166,7 @@ class PlayState extends Phaser.State
             @rockManager.throwRock(pointer.x, pointer.y)
 
 
-    handleGameOver: =>
+    handleGameOver: () =>
         @enemySpawner.stop()
         @rockManager.stop()
         @loseOverlay.show(@stats.score, @stats.enemiesKilled)
@@ -190,13 +190,13 @@ class PlayState extends Phaser.State
             @boughtItem.createFn.apply @, args
             @boughtItem = null
 
-    update: =>
+    update: () =>
         @game.frame++
         @enemySpawner.update(@game.frame)
         @rockManager.update(@game.frame)
         @game.groups.enemy.sort('y', Phaser.Group.SORT_ASCENDING)
 
-    render: =>
+    render: () =>
         @game.debug.text(@game.time.fps || '--', 2, 14, "#00ff00")
 
 

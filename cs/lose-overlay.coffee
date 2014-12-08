@@ -7,15 +7,24 @@ module.exports = class LoseOverlay
             fill: 'black'
             align: 'left'
 
+        button = @game.add.button @sprite.width / 2, @sprite.height - 110, 'tower-aoe', () =>
+            # TODO: Reset the game!
+            console.log 'herro'
+        button.anchor.set 0.5
+        @sprite.addChild button
+
+        restartText = @game.add.text 0, 0, 'Restart',
+            font: 'bold 20px Arial'
+            fill: 'black'
+            align: 'center'
+        restartText.anchor.set 0.5
+        button.addChild restartText
+
         @hide()
 
     show: (score, enemiesKilled) ->
         @sprite.visible = yes
-        @text.text = switch @game.rnd.between(0, 1)
-            when 0 then "You are the loseriest of losers."
-            when 1 then "Apparently, you suck."
-        @text.text += "\n\nYour score: #{score}"
-        @text.text += "\nSnowmen killed: #{enemiesKilled}"
+        @text.text = "Game Over.\n\nYour score: #{score}\nSnowmen killed: #{enemiesKilled}"
         @text.visible = yes
 
     hide: ->
