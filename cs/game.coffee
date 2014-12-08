@@ -44,6 +44,7 @@ class PreloadState
 
         @game.load.image('firewood', 'assets/firewood.png')
         @game.load.image('fire-particle', 'assets/fire-particle.png')
+        @game.load.image('fire-store-icon', 'assets/fire-store-icon.png')
         @game.load.spritesheet('flames', 'assets/flames.png', 64, 82, 5)
 
         @game.load.spritesheet('fan', 'assets/fan.png', 64, 64, 4)
