@@ -106,7 +106,7 @@ module.exports = class EnemyFactory
     constructor: (@game, @towerGroup, @secret) ->
 
     getX: =>
-        return @game.rnd.integerInRange(-75, 0)
+        return @game.rnd.integerInRange(-100, 0)
 
     getY: =>
         minY = G.PHYSICS_BOUNDS_Y_MIN + EnemyFactory.defaultRadius + 1
