@@ -10,7 +10,7 @@ module.exports = class Secret extends Phaser.Sprite
         super(@game, x, y, 'secret')
 
         @game.add.existing(@)
-        @anchor.setTo(0.5, 0.5)
+        @anchor.setTo 0.5
         @game.physics.p2.enable(@, G.DEBUG)
         @body.kinematic = yes
         @body.clearShapes()
@@ -46,10 +46,7 @@ module.exports = class Secret extends Phaser.Sprite
         return if not @alive
         return if @game.frame % 10 != 0
         @enemyGroup.forEachAlive (enemy) =>
-            if Phaser.Math.within(
-                Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
-                (@width + enemy.radius) / 2
-                Secret.properties.damageDistance
-            )
+            dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
+            if dist < enemy.radius + @width / 2 + Secret.properties.damageDistance
                 enemy.damage 1
                 @damage 1

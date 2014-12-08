@@ -25,6 +25,7 @@ class Enemy extends Phaser.Sprite
 
 
     update: () =>
+        return if not @alive
         @updateHealth()
         @moveTowardSecret(@secret)
         @updateAnimationDelay()
