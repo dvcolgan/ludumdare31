@@ -16,7 +16,10 @@ module.exports = class Stats
         @updateText()
 
         G.events.onEnemyKilled.add @handleEnemyKilled
-        G.events.onSecretDamaged.add @incrementScore
+        G.events.onSecretDamaged.add () =>
+            @incrementScore 1
+        G.events.onTowerPlaced.add () =>
+            @incrementScore 20
 
     addGold: (amount) ->
         @gold += amount

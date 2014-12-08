@@ -257,9 +257,10 @@ class PlayState extends Phaser.State
 
     handlePointerDownOnBackground: (image, pointer) =>
         if @boughtItem
-            new @boughtItem.class(@game, pointer.x, pointer.y)
+            tower = new @boughtItem.class(@game, pointer.x, pointer.y)
             @boughtItem = null
             @cursorSprite.destroy()
+            G.events.onTowerPlaced.dispatch(tower)
         else
             @rockManager.throwRock(pointer.x, pointer.y)
 
