@@ -14,7 +14,7 @@ module.exports = class RockManager
         @rocks = []
 
         for i in [0...@availableRocks]
-            rock = @makeRandomRock(700 + 70 * i, 15)
+            rock = @makeRandomRock(700 + 70 * i, 30)
             @rocks.push rock
 
     throwRock: (x, y) =>
@@ -66,7 +66,7 @@ module.exports = class RockManager
 
     makeRandomRock: (x, y) =>
         rock = @game.add.sprite(x, y, 'rocks')
-        rock.anchor.setTo(0.5, 0)
+        rock.anchor.setTo(0.5, 0.5)
 
         # Pick a random rock
         rock.animations.add 'rock', [0, 1, 2], 0
