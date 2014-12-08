@@ -77,10 +77,10 @@ class PreloadState
         @game.load.image('mini-nuke', 'assets/mini-nuke.png')
 
     create: ->
-        @game.state.start('Play')
+        @game.state.start('HowToPlay')
 
 
-class MainMenuState
+class TitleState
     create: ->
         @game.add.sprite(0, 0, 'screen-mainmenu')
         @game.add.sprite((320-221)/2, 40, 'title')
@@ -90,11 +90,44 @@ class MainMenuState
             {font: "16px Arial", fill: "#b921fe", stroke: "#22053a", strokeThickness: 3}
         )
 
-    startGame: =>
-        @game.state.start('HowToPlay')
-
 
 class HowToPlayState
+    create: ->
+        overlay = @game.add.sprite(0, 0, 'lose-overlay')
+
+        buttons = []
+        buttons.push @game.add.button 0, 0, 'tower-aoe', @startEasy
+        buttons.push @game.add.button 0, 0, 'tower-aoe', @startMedium
+        buttons.push @game.add.button 0, 0, 'tower-aoe', @startHard
+
+        for button, i in buttons
+            button.text = @game.add.text button.width / 2, button.height / 2, '',
+                font: 'bold 20px Droid Sans'
+                fill: 'black'
+            button.text.anchor.setTo 0.5
+            button.addChild button.text
+            button.x = (i + 1) * overlay.width / 4 - button.width / 2 + overlay.x
+            button.y = overlay.height - 150 + overlay.y
+            overlay.addChild button
+
+        buttons[0].text.text = 'Easy'
+        buttons[1].text.text = 'Medium'
+        buttons[2].text.text = 'Hard'
+
+    startEasy: =>
+        @game.difficulty = 1
+        @startGame()
+
+    startMedium: =>
+        @game.difficulty = 2
+        @startGame()
+
+    startHard: =>
+        @game.difficulty = 3
+        @startGame()
+
+    startGame: =>
+        @game.state.start('Play')
 
 
 
@@ -252,7 +285,7 @@ class PlayState extends Phaser.State
 window.game = new Phaser.Game(G.SCREEN_WIDTH, G.SCREEN_HEIGHT, Phaser.AUTO, 'game-container')
 window.game.state.add('Boot', BootState)
 window.game.state.add('Preload', PreloadState)
-window.game.state.add('MainMenu', MainMenuState)
+window.game.state.add('Title', TitleState)
 window.game.state.add('HowToPlay', HowToPlayState)
 window.game.state.add('Play', PlayState)
 window.game.state.start('Boot')
