@@ -44,7 +44,7 @@ module.exports = class Tower extends Phaser.Sprite
             ctx = @rangeMarkerData.context
             width = @rangeMarkerData.width
             height = @rangeMarkerData.height
-            ctx.strokeStyle = 'black'
+            ctx.strokeStyle = 'rgba(128, 128, 128, 0.5)'
             ctx.lineWidth = 2
             ctx.beginPath()
             ctx.arc(width/2, height/2, @constructor.properties.range, 0, Math.PI*2)
