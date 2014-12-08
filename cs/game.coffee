@@ -49,15 +49,14 @@ class PlayState extends Phaser.State
         @game.load.audio('snow-hit1', 'assets/snow-hit1.ogg')
         @game.load.audio('snow-hit2', 'assets/snow-hit2.ogg')
 
+        @game.load.image('music-on', 'assets/speaker-icon.png')
+
     initializeSoundEffects: =>
         @game.sounds =
             snowHit1: @game.add.audio('snow-hit1')
             snowHit2: @game.add.audio('snow-hit2')
 
     create: =>
-        bgm = @game.add.audio('play-bgm', 0.4)
-        bgm.loop = yes
-        bgm.play()
 
         @initializeGame()
         @initializePhysicsEngine()
@@ -69,6 +68,7 @@ class PlayState extends Phaser.State
         @stats = new Stats(@game)
         @store = new Store(@game, @stats)
         @rockManager = new RockManager(@game)
+        @initializeMusic()
         @initializeBackground()
         @initializeSecret()
         @loseOverlay = new LoseOverlay(@game)
@@ -90,6 +90,28 @@ class PlayState extends Phaser.State
         key = @game.input.keyboard.addKey(Phaser.Keyboard.THREE)
         key.onDown.add () =>
             new SaltTower(@game, @game.input.mousePointer.x, @game.input.mousePointer.y)
+
+    initializeMusic: () =>
+        @music = @game.add.audio('play-bgm', 0.4)
+        @music.loop = yes
+        @music.play()
+
+        pauseBtn = @game.add.sprite G.SCREEN_WIDTH, 0, 'music-on'
+        pauseBtn.anchor.setTo(1, 0)
+        pauseBtn.inputEnabled = true
+        pauseBtn.events.onInputDown.add () =>
+            @music.pause()
+            resumeBtn.visible = true
+            pauseBtn.visible = false
+
+        resumeBtn = @game.add.sprite G.SCREEN_WIDTH, 0, 'music-on'
+        resumeBtn.anchor.setTo(1, 0)
+        resumeBtn.visible = false
+        resumeBtn.inputEnabled = true
+        resumeBtn.events.onInputDown.add () =>
+            @music.play()
+            resumeBtn.visible = false
+            pauseBtn.visible = true
 
     initializeGame: () =>
         @game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT)
@@ -144,7 +166,7 @@ class PlayState extends Phaser.State
             @rockManager.throwRock(pointer.x, pointer.y)
 
 
-    handleGameOver: =>
+    handleGameOver: () =>
         @enemySpawner.stop()
         @rockManager.stop()
         @loseOverlay.show(@stats.score, @stats.enemiesKilled)
@@ -168,14 +190,14 @@ class PlayState extends Phaser.State
             @boughtItem.createFn.apply @, args
             @boughtItem = null
 
-    update: =>
+    update: () =>
         @game.frame++
         @enemySpawner.update(@game.frame)
         @rockManager.update(@game.frame)
         @game.groups.enemy.sort('y', Phaser.Group.SORT_ASCENDING)
         @game.groups.tower.sort('y', Phaser.Group.SORT_ASCENDING)
 
-    render: =>
+    render: () =>
         @game.debug.text(@game.time.fps || '--', 2, 14, "#00ff00")
 
 
