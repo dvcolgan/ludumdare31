@@ -52,7 +52,7 @@ forSaleItems =
             FireTower.properties.damage += 10
 
             game.groups.tower.forEachAlive (tower) =>
-                tower.resetProperties()
+                tower.resetProperties?()
 
             store.removeItem 'towerFireUpgrade'
 
@@ -69,7 +69,7 @@ forSaleItems =
             FanTower.properties.damage += 10
 
             game.groups.tower.forEachAlive (tower) =>
-                tower.resetProperties()
+                tower.resetProperties?()
 
             store.removeItem 'towerFanUpgrade'
 
@@ -87,7 +87,7 @@ forSaleItems =
             SaltTower.properties.stunDuration += 60 * 2
 
             game.groups.tower.forEachAlive (tower) =>
-                tower.resetProperties()
+                tower.resetProperties?()
 
             store.removeItem 'towerSaltUpgrade'
 
@@ -126,9 +126,12 @@ module.exports = class Store
         @overlay.addChild @descriptionText
 
         @slotNumber = 0
+        @slots = []
 
         for type, item of forSaleItems
             @addForSaleItem type, item
+
+        G.events.onGoldAmountChanged.add(@recalculateBuyableItems)
 
     addForSaleItem: (itemType, itemData) =>
 
@@ -144,6 +147,7 @@ module.exports = class Store
         slot.events.onInputDown.add @handleClickOnForSaleItem
         slot.data = itemData
         slot.type = itemType
+        @slots.push slot
 
         # Add the sprite for the item
         item = @game.add.sprite(x, y, itemData.imageKey)
@@ -171,6 +175,7 @@ module.exports = class Store
                 align: 'center'
         )
         text.anchor.setTo 0.5, 0.5
+        slot.text = text
         slot.addChild text
 
         # Add the question mark text
@@ -220,3 +225,11 @@ module.exports = class Store
         else if @state == 'down'
             @slideUpTween.start()
             @state = 'up'
+
+    recalculateBuyableItems: (availableGold) =>
+        for slot in @slots
+            if slot.data.cost <= availableGold
+                slot.text.addColor 'black', 0
+            else
+                slot.text.addColor '#ff3333', 0
+        return
