@@ -2,6 +2,8 @@ G = require('./constants')
 
 
 class Enemy extends Phaser.Sprite
+    @framesUntilGrowthRateDoubled = 60 * 120
+
     constructor: (game, @towerGroup, @secret, x, y, key, health) ->
         super(game, x, y, key)
 
@@ -33,7 +35,7 @@ class Enemy extends Phaser.Sprite
 
     updateHealth: () =>
         speed = Phaser.Point.parse(@body.velocity).getMagnitude()
-        @health += speed / 3000
+        @health += speed / 9000 * @game.difficulty * (@game.frame / Enemy.framesUntilGrowthRateDoubled + 1)
 
     moveTowardSecret: (secret) =>
         return if @stunDuration-- > 0

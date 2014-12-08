@@ -162,7 +162,7 @@ class PlayState extends Phaser.State
         @game.camera.x = 0
         @game.time.advancedTiming = G.DEBUG
         window.controller = @
-        @gameDifficulty = 3
+        @game.difficulty = 3
         @boughtItem = null
         @cursorSprite = null
 
@@ -194,7 +194,7 @@ class PlayState extends Phaser.State
 
     initializeEnemySpawner: () =>
         enemyFactory = new EnemyFactory(@game, @game.groups.tower, @secret)
-        @enemySpawner = new EnemySpawner(enemyFactory, 60, @gameDifficulty)
+        @enemySpawner = new EnemySpawner(enemyFactory, 60, @game.difficulty)
 
     initializeSecret: () =>
         @secret = new Secret(@game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT/2)
