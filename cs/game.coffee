@@ -67,7 +67,8 @@ class PreloadState
         @game.load.audio('snow-hit1', 'assets/snow-hit1.ogg')
         @game.load.audio('snow-hit2', 'assets/snow-hit2.ogg')
 
-        @game.load.image('music-on', 'assets/speaker-icon.png')
+        @game.load.image('music-on', 'assets/speaker-on.png')
+        @game.load.image('music-off', 'assets/speaker-off.png')
         @game.load.bitmapFont('font', 'assets/font.png', 'assets/font.fnt')
 
         @game.load.image('fire-upgrade', 'assets/fire-upgrade.png')
@@ -168,7 +169,7 @@ class PlayState extends Phaser.State
             resumeBtn.visible = true
             pauseBtn.visible = false
 
-        resumeBtn = @game.add.sprite G.SCREEN_WIDTH, 0, 'music-on'
+        resumeBtn = @game.add.sprite G.SCREEN_WIDTH, 0, 'music-off'
         resumeBtn.anchor.setTo(1, 0)
         resumeBtn.visible = false
         resumeBtn.inputEnabled = true
