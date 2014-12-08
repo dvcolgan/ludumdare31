@@ -49,6 +49,8 @@ class PlayState extends Phaser.State
         @game.load.audio('snow-hit1', 'assets/snow-hit1.ogg')
         @game.load.audio('snow-hit2', 'assets/snow-hit2.ogg')
 
+        @game.load.image('music-on', 'assets/speaker-icon.png')
+
     initializeSoundEffects: =>
         @game.sounds =
             snowHit1: @game.add.audio('snow-hit1')
@@ -94,7 +96,7 @@ class PlayState extends Phaser.State
         @music.loop = yes
         @music.play()
 
-        pauseBtn = @game.add.sprite G.SCREEN_WIDTH, 0, 'tower-aoe'
+        pauseBtn = @game.add.sprite G.SCREEN_WIDTH, 0, 'music-on'
         pauseBtn.anchor.setTo(1, 0)
         pauseBtn.inputEnabled = true
         pauseBtn.events.onInputDown.add () =>
@@ -102,7 +104,7 @@ class PlayState extends Phaser.State
             resumeBtn.visible = true
             pauseBtn.visible = false
 
-        resumeBtn = @game.add.sprite G.SCREEN_WIDTH, 0, 'tower-aoe'
+        resumeBtn = @game.add.sprite G.SCREEN_WIDTH, 0, 'music-on'
         resumeBtn.anchor.setTo(1, 0)
         resumeBtn.visible = false
         resumeBtn.inputEnabled = true
