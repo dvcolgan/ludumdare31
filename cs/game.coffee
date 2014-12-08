@@ -165,7 +165,7 @@ class PlayState extends Phaser.State
         @game.camera.x = 0
         @game.time.advancedTiming = G.DEBUG
         window.controller = @
-        @gameDifficulty = 3
+        @game.difficulty = 3
         @boughtItem = null
         @cursorSprite = null
 
@@ -197,7 +197,7 @@ class PlayState extends Phaser.State
 
     initializeEnemySpawner: () =>
         enemyFactory = new EnemyFactory(@game, @game.groups.tower, @secret)
-        @enemySpawner = new EnemySpawner(enemyFactory, 60, @gameDifficulty)
+        @enemySpawner = new EnemySpawner(enemyFactory, 60, @game.difficulty)
 
     initializeSecret: () =>
         @secret = new Secret(@game, G.SCREEN_WIDTH - 100, G.SCREEN_HEIGHT/2)
@@ -241,8 +241,9 @@ class PlayState extends Phaser.State
         @game.frame++
         @enemySpawner.update(@game.frame)
         @rockManager.update(@game.frame)
-        @game.groups.enemy.sort('y', Phaser.Group.SORT_ASCENDING)
-        @game.groups.tower.sort('y', Phaser.Group.SORT_ASCENDING)
+        if @game.frame % 10 == 0
+            @game.groups.enemy.sort('y', Phaser.Group.SORT_ASCENDING)
+            @game.groups.tower.sort('y', Phaser.Group.SORT_ASCENDING)
 
     render: () =>
         @game.debug.text(@game.time.fps || '--', 2, 14, "#00ff00")
