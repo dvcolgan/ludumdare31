@@ -34,10 +34,6 @@ class PreloadState
         @game.load.image('secret', 'assets/secret.png')
         @game.load.image('tower', 'assets/tower.png')
 
-        @game.load.image('enemy-medium', 'assets/enemy-medium.png')
-
-        @game.load.image('tower-aoe', 'assets/tower.png')
-
         @game.load.image('title-screen', 'assets/title-screen.png')
         @game.load.image('how-to-play', 'assets/how-to-play.png')
         @game.load.image('lose-overlay', 'assets/lose-overlay.png')
