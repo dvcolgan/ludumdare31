@@ -58,6 +58,9 @@ module.exports = class Tower extends Phaser.Sprite
         if @cooldownRemaining > 0
             remaining = @cooldownRemaining / @cooldown
             @cooldownMeter.animations.currentAnim.frame = (13 - Math.floor(13 * remaining)) - 1
+            @inputEnabled = false
+        else
+            @inputEnabled = true
 
     update: () =>
         @doConstantEffect()
