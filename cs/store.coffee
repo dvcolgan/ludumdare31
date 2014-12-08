@@ -43,7 +43,7 @@ forSaleItems =
 
             game.groups.tower.forEachAlive (tower) =>
                 tower.resetProperties?()
-                tower.makeRangeMarker()
+                tower.makeRangeMarker?()
 
             store.removeItem 'towerFireUpgrade'
 
