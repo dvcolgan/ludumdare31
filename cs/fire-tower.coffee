@@ -20,7 +20,7 @@ module.exports = class FireTower extends Tower
         # Kill/delete all enemies found within range
         @enemyGroup.forEachAlive (enemy) =>
             dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
-            if dist < (@width + enemy.radius) / 2 + @range
+            if dist < enemy.radius / 2 + @range
                 enemy.damage @damage
 
     doConstantEffect: () =>
@@ -31,6 +31,6 @@ module.exports = class FireTower extends Tower
 
         @enemyGroup.forEachAlive (enemy) =>
             dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
-            if dist < (@width + enemy.radius) / 2 + @range
+            if dist < enemy.radius / 2 + @range
                 damage = Math.floor((@range - dist + (@width + enemy.radius) / 2) / @range * @damage)
                 enemy.damage damage
