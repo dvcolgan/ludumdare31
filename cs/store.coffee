@@ -192,7 +192,7 @@ module.exports = class Store
             slot.width / 2 + 30
             itemData.name + "\nCost: #{itemData.cost}g" + '' # Because coffeescript gets confused and I like weird syntax
                 font: '20px Droid Sans'
-                fill: 'black'
+                fill: 'white'
                 align: 'center'
         )
         text.anchor.setTo 0.5, 0.5
@@ -205,7 +205,7 @@ module.exports = class Store
             -1 * slot.height / 2
             '?'
                 font: '30px Droid Sans'
-                fill: 'black'
+                fill: 'white'
         )
         questionText.anchor.setTo 0.5, 0
         questionText.inputEnabled = true
@@ -252,7 +252,7 @@ module.exports = class Store
     recalculateBuyableItems: (availableGold) =>
         for slot in @slots
             if slot.data.cost <= availableGold
-                slot.text.addColor 'black', 0
+                slot.text.addColor 'white', 0
             else
                 slot.text.addColor '#ff3333', 0
         return
