@@ -8,12 +8,12 @@ module.exports = class LoseOverlay
         # Game Over text
         gameOverText = @game.add.bitmapText 0, 0, 'font', 'Game Over', 80
         gameOverText.x = G.SCREEN_WIDTH / 2 - gameOverText.width / 2
-        gameOverText.y = 20
+        gameOverText.y = 100
         @sprite.addChild gameOverText
 
         # Score text
-        @text = @game.add.text 200, 200, '',
-            font: 'bold 20px Droid Sans'
+        @text = @game.add.text 200, 250, '',
+            font: 'bold 40px Droid Sans'
             fill: 'black'
             align: 'left'
 
