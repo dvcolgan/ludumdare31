@@ -74,4 +74,7 @@ module.exports = class RockManager
         rock.animations.play 'rock'
         rock.animations.stop 'rock'
         rock.animations.frame = @game.rnd.integerInRange(0, 2)
+
+        @game.groups.rock.add rock
+
         return rock

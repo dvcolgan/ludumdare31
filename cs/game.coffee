@@ -253,6 +253,7 @@ class PlayState extends Phaser.State
     initializeGroups: () =>
         @game.groups = {}
         @game.groups.background = @game.add.group()
+        @game.groups.rock = @game.add.group()
         @game.groups.tower = @game.add.group()
         @game.groups.enemy = @game.add.group()
         @game.groups.secret = @game.add.group()

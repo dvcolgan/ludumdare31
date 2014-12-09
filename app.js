@@ -755,6 +755,7 @@ PlayState = (function(_super) {
   PlayState.prototype.initializeGroups = function() {
     this.game.groups = {};
     this.game.groups.background = this.game.add.group();
+    this.game.groups.rock = this.game.add.group();
     this.game.groups.tower = this.game.add.group();
     this.game.groups.enemy = this.game.add.group();
     this.game.groups.secret = this.game.add.group();
@@ -1038,6 +1039,7 @@ module.exports = RockManager = (function() {
     rock.animations.play('rock');
     rock.animations.stop('rock');
     rock.animations.frame = this.game.rnd.integerInRange(0, 2);
+    this.game.groups.rock.add(rock);
     return rock;
   };
 
