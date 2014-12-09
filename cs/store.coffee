@@ -118,6 +118,7 @@ forSaleItems =
                 .to({x: 2, y: 2}, 3000, Phaser.Easing.Circular.Out, true)
                 .onComplete.add ->
                     nuke.destroy()
+            game.sounds.nukeExplosion.play()
 
 
 
@@ -241,6 +242,7 @@ module.exports = class Store
         if @state == 'up'
             @slideDownTween.start()
             @state = 'down'
+            @game.sounds.openStore.play()
         else if @state == 'down'
             @slideUpTween.start()
             @state = 'up'

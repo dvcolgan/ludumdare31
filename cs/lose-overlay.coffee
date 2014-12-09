@@ -7,8 +7,10 @@ module.exports = class LoseOverlay
             fill: 'black'
             align: 'left'
 
-        button = @game.add.button @sprite.width / 2, @sprite.height - 110, 'button', () =>
+        button = @game.add.button @sprite.width / 2, @sprite.height - 110, 'button', (() =>
             @game.state.start('HowToPlay')
+            @game.sounds.click.play()
+        ), @, 1, 0, 2
         button.anchor.set 0.5
         @sprite.addChild button
 

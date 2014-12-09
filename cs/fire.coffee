@@ -11,9 +11,11 @@ module.exports = class Fire
         @flames.anchor.setTo(0.5, 0.91)
         @flames.scale.setTo(0.8)
         @game.groups.tower.add @flames
+        @game.sounds.fireActivate.play()
 
     blast: =>
+        @game.sounds.fireActivate.play()
         @game.add.tween(@flames.scale)
-            .to({x: 1.5, y: 2}, 400, Phaser.Easing.Circular.Out)
-            .to({x: 1, y: 1}, 400, Phaser.Easing.Circular.In)
+            .to({x: 1.5, y: 2}, 500, Phaser.Easing.Circular.Out)
+            .to({x: 1, y: 1}, 600, Phaser.Easing.Circular.In)
             .start()

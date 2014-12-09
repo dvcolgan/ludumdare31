@@ -64,6 +64,15 @@ class PreloadState
         @game.load.audio('snow-hit1', 'assets/snow-hit1.ogg')
         @game.load.audio('snow-hit2', 'assets/snow-hit2.ogg')
 
+        @game.load.audio('click', 'assets/click.ogg')
+        @game.load.audio('dying-snowman', 'assets/dying-snowman.ogg')
+        @game.load.audio('fan-activate', 'assets/fan-activate.ogg')
+        @game.load.audio('fire-activate', 'assets/fire-activate.ogg')
+        @game.load.audio('item-buy', 'assets/item-buy.ogg')
+        @game.load.audio('nuke-explosion', 'assets/nuke-explosion.ogg')
+        @game.load.audio('open-store', 'assets/open-store.ogg')
+        @game.load.audio('rock-woosh', 'assets/rock-woosh.ogg')
+
         @game.load.image('music-on', 'assets/speaker-on.png')
         @game.load.image('music-off', 'assets/speaker-off.png')
         @game.load.bitmapFont('font', 'assets/font.png', 'assets/font.fnt')
@@ -83,7 +92,7 @@ class PreloadState
         @game.state.start('Title')
 
     initializeMusic: () =>
-        @game.music = @game.add.audio('play-bgm', 0.4)
+        @game.music = @game.add.audio('play-bgm', 0.2)
         @game.music.loop = yes
         @game.music.play()
 
@@ -113,6 +122,7 @@ class TitleState
 class HowToPlayState
     create: ->
         overlay = @game.add.sprite(0, 0, 'how-to-play')
+        @clickSound = @game.add.audio('click')
 
         buttons = []
         buttons.push @game.add.button 0, 0, 'button', @startEasy, @, 1, 0, 2
@@ -146,6 +156,7 @@ class HowToPlayState
         @startGame()
 
     startGame: =>
+        @clickSound.play()
         @game.state.start('Play')
 
 
@@ -155,6 +166,15 @@ class PlayState extends Phaser.State
         @game.sounds =
             snowHit1: @game.add.audio('snow-hit1')
             snowHit2: @game.add.audio('snow-hit2')
+            click: @game.add.audio('click')
+            dyingSnowman: @game.add.audio('dying-snowman')
+            fanActivate: @game.add.audio('fan-activate')
+            fireActivate: @game.add.audio('fire-activate')
+            itemBuy: @game.add.audio('item-buy')
+            nukeExplosion: @game.add.audio('nuke-explosion')
+            openStore: @game.add.audio('open-store')
+            rockWoosh: @game.add.audio('rock-woosh')
+
 
     initializeMusic: =>
         #@game.music.play()
@@ -175,6 +195,8 @@ class PlayState extends Phaser.State
             @game.music.play()
             resumeBtn.visible = false
             pauseBtn.visible = true
+
+    initializeSnowExplosion: =>
 
     create: =>
         @initializeGame()

@@ -28,6 +28,8 @@ module.exports = class Fan
         #@blastEmitter.setAlpha(1, 0, 1500)
         #@blastEmitter.setScale(1, 1.8, 1, 1.8, 1000, Phaser.Easing.Quadratic.InOut)
 
+        @game.sounds.fanActivate.play()
 
     blast: =>
+        @game.sounds.fanActivate.play()
         #@blastEmitter.start(true, 1500, null, 300)

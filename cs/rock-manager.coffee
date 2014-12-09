@@ -19,6 +19,7 @@ module.exports = class RockManager
 
     throwRock: (x, y) =>
         return if not @availableRocks or @stopped
+        @game.sounds.rockWoosh.play()
 
         @rocks[@availableRocks - 1].visible = false
 
