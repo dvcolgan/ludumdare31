@@ -216,6 +216,14 @@ class PlayState extends Phaser.State
         @initializeEnemySpawner()
         @weatherGenerator = new WeatherGenerator(@game)
 
+        @game.snowBurster = @game.add.emitter(0, 0, 100)
+        @game.snowBurster.makeParticles('snowflake-particles', [0,1,2,3,4])
+        @game.snowBurster.gravity = 10
+        @game.snowBurster.setXSpeed(-100, 100)
+        @game.snowBurster.setYSpeed(-80, 80)
+        @game.snowBurster.setAlpha(1, 0.0, 1500)
+        @game.groups.overlay.add(@game.snowBurster)
+
         G.events.onGameOver.add(@handleGameOver)
         G.events.onStoreItemPurchased.add(@handleStoreItemPurchased)
         G.events.onStoreOpen.add(@pauseGame)

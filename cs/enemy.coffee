@@ -96,6 +96,11 @@ class Enemy extends Phaser.Sprite
         @setScaleForHealth()
 
         if @health <= 0
+            @game.sounds.dyingSnowman.play()
+            # TODO move this to a class
+            @game.snowBurster.x = @body.x
+            @game.snowBurster.y = @body.y
+            @game.snowBurster.start(true, 1500, null, 10)
             G.events.onEnemyKilled.dispatch(@)
 
 

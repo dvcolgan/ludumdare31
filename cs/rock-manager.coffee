@@ -24,6 +24,9 @@ module.exports = class RockManager
         @rocks[@availableRocks - 1].visible = false
 
         damageEnemies = () =>
+            @game.snowBurster.x = x
+            @game.snowBurster.y = y
+            @game.snowBurster.start(true, 1500, null, 10)
             @game.sounds['snowHit' + @game.rnd.integerInRange(1, 2)].play()
             @game.groups.enemy.forEachAlive (enemy) =>
                 dist = Phaser.Math.distance(enemy.x, enemy.y, x, y)
