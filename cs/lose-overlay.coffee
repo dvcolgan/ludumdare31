@@ -1,12 +1,23 @@
+G = require('./constants')
+
 module.exports = class LoseOverlay
     constructor: (@game) ->
         @sprite = @game.add.sprite(0, 0, 'lose-overlay')
         @game.groups.overlay.add(@sprite)
-        @text = @game.add.text 200, 200, '',
-            font: 'bold 20px Droid Sans'
+
+        # Game Over text
+        gameOverText = @game.add.bitmapText 0, 0, 'font', 'Game Over', 80
+        gameOverText.x = G.SCREEN_WIDTH / 2 - gameOverText.width / 2
+        gameOverText.y = 100
+        @sprite.addChild gameOverText
+
+        # Score text
+        @text = @game.add.text 200, 250, '',
+            font: 'bold 40px Droid Sans'
             fill: 'black'
             align: 'left'
 
+        # Restart button
         button = @game.add.button @sprite.width / 2, @sprite.height - 110, 'button', (() =>
             @game.state.start('HowToPlay')
             @game.sounds.click.play()
@@ -24,7 +35,7 @@ module.exports = class LoseOverlay
 
     show: (score, enemiesKilled) ->
         @sprite.visible = yes
-        @text.text = "Game Over.\n\nYour score: #{score}\nSnowmen killed: #{enemiesKilled}"
+        @text.text = "Your score: #{score}\nSnowmen killed: #{enemiesKilled}"
         @text.visible = yes
 
     hide: ->
