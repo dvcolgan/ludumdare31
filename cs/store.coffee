@@ -1,4 +1,4 @@
-G = require('./constants')
+/ = require('./constants')
 FireTower = require('./fire-tower')
 FanTower = require('./fan-tower')
 SaltTower = require('./salt-tower')
@@ -243,9 +243,11 @@ module.exports = class Store
             @slideDownTween.start()
             @state = 'down'
             @game.sounds.openStore.play()
+            G.events.onStoreOpen.dispatch()
         else if @state == 'down'
             @slideUpTween.start()
             @state = 'up'
+            G.events.onStoreClose.dispatch()
 
     recalculateBuyableItems: (availableGold) =>
         for slot in @slots

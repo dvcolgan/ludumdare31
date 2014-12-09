@@ -68,7 +68,7 @@ module.exports = class Secret extends Phaser.Sprite
 
 
     update: () =>
-        return if not @alive
+        return if not @alive or @game.isPaused
         return if @game.frame % 10 != 0
         @enemyGroup.forEachAlive (enemy) =>
             dist = Phaser.Math.distance(enemy.x, enemy.y, @x, @y)
