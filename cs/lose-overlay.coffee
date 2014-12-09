@@ -14,11 +14,11 @@ module.exports = class LoseOverlay
         # Score text
         @text = @game.add.text 200, 250, '',
             font: 'bold 40px Droid Sans'
-            fill: 'black'
+            fill: 'white'
             align: 'left'
 
         # Restart button
-        button = @game.add.button @sprite.width / 2, @sprite.height - 110, 'button', (() =>
+        button = @game.add.button @sprite.width / 2, @sprite.height - 140, 'button', (() =>
             @game.state.start('HowToPlay')
             @game.sounds.click.play()
         ), @, 1, 0, 2
@@ -27,7 +27,7 @@ module.exports = class LoseOverlay
 
         restartText = @game.add.text 0, 0, 'Restart',
             font: 'bold 20px Droid Sans'
-            fill: 'black'
+            fill: 'white'
         restartText.anchor.set 0.5
         button.addChild restartText
 

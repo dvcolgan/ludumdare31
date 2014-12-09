@@ -894,10 +894,10 @@ module.exports = LoseOverlay = (function() {
     this.sprite.addChild(gameOverText);
     this.text = this.game.add.text(200, 250, '', {
       font: 'bold 40px Droid Sans',
-      fill: 'black',
+      fill: 'white',
       align: 'left'
     });
-    button = this.game.add.button(this.sprite.width / 2, this.sprite.height - 110, 'button', ((function(_this) {
+    button = this.game.add.button(this.sprite.width / 2, this.sprite.height - 140, 'button', ((function(_this) {
       return function() {
         _this.game.state.start('HowToPlay');
         return _this.game.sounds.click.play();
@@ -907,7 +907,7 @@ module.exports = LoseOverlay = (function() {
     this.sprite.addChild(button);
     restartText = this.game.add.text(0, 0, 'Restart', {
       font: 'bold 20px Droid Sans',
-      fill: 'black'
+      fill: 'white'
     });
     restartText.anchor.set(0.5);
     button.addChild(restartText);
@@ -1529,7 +1529,7 @@ module.exports = Store = (function() {
     this.overlay.addChild(item);
     text = this.game.add.text(0, slot.width / 2 + 30, itemData.name + ("\nCost: " + itemData.cost + "g") + '', {
       font: '20px Droid Sans',
-      fill: 'black',
+      fill: 'white',
       align: 'center'
     });
     text.anchor.setTo(0.5, 0.5);
@@ -1537,7 +1537,7 @@ module.exports = Store = (function() {
     slot.addChild(text);
     questionText = this.game.add.text(slot.width / 2 + 15, -1 * slot.height / 2, '?', {
       font: '30px Droid Sans',
-      fill: 'black'
+      fill: 'white'
     });
     questionText.anchor.setTo(0.5, 0);
     questionText.inputEnabled = true;
@@ -1599,7 +1599,7 @@ module.exports = Store = (function() {
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       slot = _ref[_i];
       if (slot.data.cost <= availableGold) {
-        slot.text.addColor('black', 0);
+        slot.text.addColor('white', 0);
       } else {
         slot.text.addColor('#ff3333', 0);
       }
