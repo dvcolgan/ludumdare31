@@ -202,17 +202,6 @@ class PlayState extends Phaser.State
         @game.frame = 0
         @game.isPaused = false
 
-        # TODO: Remove this! Iz for cheats
-        key = @game.input.keyboard.addKey(Phaser.Keyboard.ONE)
-        key.onDown.add () =>
-            new FireTower(@game, @game.input.mousePointer.x, @game.input.mousePointer.y)
-        key = @game.input.keyboard.addKey(Phaser.Keyboard.TWO)
-        key.onDown.add () =>
-            new FanTower(@game, @game.input.mousePointer.x, @game.input.mousePointer.y)
-        key = @game.input.keyboard.addKey(Phaser.Keyboard.THREE)
-        key.onDown.add () =>
-            new SaltTower(@game, @game.input.mousePointer.x, @game.input.mousePointer.y)
-
     initializeGame: () =>
         @game.world.setBounds(-200, 0, G.SCREEN_WIDTH + 200, G.SCREEN_HEIGHT)
         @game.camera.x = 0
