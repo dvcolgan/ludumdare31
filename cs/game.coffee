@@ -316,7 +316,8 @@ class PlayState extends Phaser.State
             @game.groups.tower.sort('y', Phaser.Group.SORT_ASCENDING)
 
     render: () =>
-        @game.debug.text(@game.time.fps || '--', 2, 14, "#00ff00")
+        if G.DEBUG
+            @game.debug.text(@game.time.fps || '--', 2, 14, "#00ff00")
 
     pauseGame: () =>
         @game.isPaused = true
