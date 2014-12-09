@@ -241,9 +241,11 @@ module.exports = class Store
         if @state == 'up'
             @slideDownTween.start()
             @state = 'down'
+            G.events.onStoreOpen.dispatch()
         else if @state == 'down'
             @slideUpTween.start()
             @state = 'up'
+            G.events.onStoreClose.dispatch()
 
     recalculateBuyableItems: (availableGold) =>
         for slot in @slots

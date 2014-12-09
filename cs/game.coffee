@@ -196,8 +196,11 @@ class PlayState extends Phaser.State
 
         G.events.onGameOver.add(@handleGameOver)
         G.events.onStoreItemPurchased.add(@handleStoreItemPurchased)
+        G.events.onStoreOpen.add(@pauseGame)
+        G.events.onStoreClose.add(@resumeGame)
 
         @game.frame = 0
+        @game.isPaused = false
 
         # TODO: Remove this! Iz for cheats
         key = @game.input.keyboard.addKey(Phaser.Keyboard.ONE)
@@ -292,6 +295,8 @@ class PlayState extends Phaser.State
             @boughtItem = null
 
     update: () =>
+        return if @game.isPaused
+
         @game.frame++
         @enemySpawner.update(@game.frame)
         @rockManager.update(@game.frame)
@@ -301,6 +306,14 @@ class PlayState extends Phaser.State
 
     render: () =>
         @game.debug.text(@game.time.fps || '--', 2, 14, "#00ff00")
+
+    pauseGame: () =>
+        @game.isPaused = true
+        @game.physics.p2.pause()
+
+    resumeGame: () =>
+        @game.isPaused = false
+        @game.physics.p2.resume()
 
 
 window.game = new Phaser.Game(G.SCREEN_WIDTH, G.SCREEN_HEIGHT, Phaser.AUTO, 'game-container')

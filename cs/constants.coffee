@@ -14,5 +14,7 @@ module.exports =
         onGoldAmountChanged: new Phaser.Signal()
         onSecretDamaged: new Phaser.Signal()
         onTowerPlaced: new Phaser.Signal()
+        onStoreOpen: new Phaser.Signal()
+        onStoreClose: new Phaser.Signal()
 
     DEBUG: false

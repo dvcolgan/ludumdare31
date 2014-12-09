@@ -63,6 +63,8 @@ module.exports = class Tower extends Phaser.Sprite
             @inputEnabled = true
 
     update: () =>
+        return if @game.isPaused
+
         @doConstantEffect()
         @decreaseCooldownRemaining()
         @updateCooldown()

@@ -7,12 +7,12 @@ class Enemy extends Phaser.Sprite
     @healthScale = 60
     @thrustAmount = 10
 
-    constructor: (game, @towerGroup, @secret, x, y, key, health) ->
-        super(game, x, y, key)
+    constructor: (@game, @towerGroup, @secret, x, y, key, health) ->
+        super(@game, x, y, key)
 
         @health = health # necessary to do after call to super()
         @stunDuration = 0
-        game.physics.p2.enable(@, G.DEBUG)
+        @game.physics.p2.enable(@, G.DEBUG)
         @anchor.setTo(0.5, 0.69)
 
         @setScaleForHealth()
@@ -20,17 +20,17 @@ class Enemy extends Phaser.Sprite
         @body.addCircle(@radius)
         @body.setCollisionGroup(game.collisionGroups.enemy)
         @body.collides([
-            game.collisionGroups.enemy, game.collisionGroups.tower, game.collisionGroups.secret
+            @game.collisionGroups.enemy, @game.collisionGroups.tower, @game.collisionGroups.secret
         ])
 
-        game.add.existing(@)
+        @game.add.existing(@)
 
         @animations.add('walk', [0...8], 10, true)
         @play('walk')
 
 
     update: () =>
-        return if not @alive
+        return if not @alive or @game.isPaused
         @updateHealth()
         @moveTowardSecret(@secret)
         @updateAnimationDelay()
