@@ -17,6 +17,7 @@ module.exports = class Fan
         @emitter.setYSpeed(-10, 10)
         @emitter.setAlpha(1, 0.0, 1500)
         @emitter.start(false, 1500, 60)
+        @game.groups.tower.add @emitter
 
         #@blastEmitter = @game.add.emitter(x, y-5, 300)
         #@blastEmitter.makeParticles('snowflake-particles', [0,1,2,3,4])
