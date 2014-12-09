@@ -1,4 +1,4 @@
-/ = require('./constants')
+G = require('./constants')
 FireTower = require('./fire-tower')
 FanTower = require('./fan-tower')
 SaltTower = require('./salt-tower')
